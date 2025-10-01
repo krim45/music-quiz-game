@@ -1,0 +1,8 @@
+{
+  "ignore": ["node_modules/", "dist/"],
+  "watch": ["src/"],
+  "execMap": {
+    "ts": "ts-node -r tsconfig-paths/register"
+  },
+  "ext": "js,json,ts"
+}

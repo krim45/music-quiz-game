@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
-import ArcadeButton from '@/components/ui/buttons/ArcadeButton';
+import ArcadeButton from '@/components/buttons/ArcadeButton';
 
 type Item = {
   label: React.ReactNode;

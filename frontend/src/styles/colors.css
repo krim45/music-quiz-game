@@ -1,0 +1,82 @@
+@theme {
+  /** Basic Color */
+  /* Grayscale */
+  --color-gray-50: #f7f7f7;
+  --color-gray-100: #efefef;
+  --color-gray-200: #dfdfdf;
+  --color-gray-250: #c8c8c8;
+  --color-gray-300: #afafaf;
+  --color-gray-400: #919191;
+  --color-gray-500: #717172;
+  --color-gray-600: #5a595b;
+  --color-gray-700: #454545;
+  --color-gray-750: #343438;
+  --color-gray-800: #27252c;
+  --color-gray-850: #1c1b20;
+  --color-gray-900: #121114;
+
+  /* Achromatic */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Chromatic */
+  --color-red: #ff3b30;
+  --color-orange: #fe8819;
+  --color-blue: #007aff;
+  --color-green: #34c759;
+
+  /* Orange */
+  --color-orange-50: #fe88190d;
+  --color-orange-100: #fe88191a;
+  --color-orange-200: #fe88192e;
+  --color-orange-300: #fe881942;
+  --color-orange-400: #fe88195e;
+  --color-orange-500: #fe881980;
+  --color-orange-600: #fe881999;
+  --color-orange-700: #fe8819b2;
+  --color-orange-800: #fe8819d6;
+  --color-orange-900: #fd7804;
+
+  /* Red */
+  --color-red-50: #ff3b300d;
+  --color-red-100: #ff3b301a;
+  --color-red-200: #ff3b3042;
+  --color-red-300: #ff3b308a;
+  --color-red-400: #ff3b30c2;
+  --color-red-500: #ff3b30e8;
+  --color-red-600: #d90c00e0;
+  --color-red-700: #b30a00e5;
+  --color-red-800: #d90c00;
+}
+
+.dark {
+  /** Basic Color */
+  /* Chromatic */
+  --red: #ff453a;
+  --orange: #ff9f45;
+  --blue: #0a84ff;
+  --green: #30d158;
+
+  /* Orange */
+  --color-orange-50: #ff9f450d;
+  --color-orange-100: #ff9f451a;
+  --color-orange-200: #ff9f452e;
+  --color-orange-300: #ff9f4542;
+  --color-orange-400: #ff9f455e;
+  --color-orange-500: #ff9f4580;
+  --color-orange-600: #ff9f4599;
+  --color-orange-700: #ff9f45b2;
+  --color-orange-800: #ff9f45d6;
+  --color-orange-900: #ff9f45;
+
+  /* Red */
+  --color-red-50: #ff453a0d;
+  --color-red-100: #ff3b301a;
+  --color-red-200: #ff3b3042;
+  --color-red-300: #ff3b308a;
+  --color-red-400: #ff3b30c2;
+  --color-red-500: #ff453a;
+  --color-red-600: #ff564b;
+  --color-red-700: #ff7562;
+  --color-red-800: #ff9486;
+}

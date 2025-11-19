@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@import './colors.css';
+
 @font-face {
   font-family: 'DosMyungjo';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSMyungjo.woff') format('woff');
@@ -14,7 +16,7 @@
 
 html,
 body {
-  color: #e0e0e0;
+  color: #ededed;
   font-family: var(--font-dos);
   background-color: #0a0a0f;
 }

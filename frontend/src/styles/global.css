@@ -20,3 +20,15 @@ body {
   font-family: var(--font-dos);
   background-color: #0a0a0f;
 }
+
+.no-spin-button::-webkit-outer-spin-button,
+.no-spin-button::-webkit-inner-spin-button {
+  /* 🍏 Safari, Chrome, Edge (WebKit 기반) */
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spin-button[type='number'] {
+  /* 🦊 Firefox */
+  -moz-appearance: textfield;
+}

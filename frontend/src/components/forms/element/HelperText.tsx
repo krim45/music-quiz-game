@@ -11,7 +11,15 @@ const HelperText = ({ className = '', text = '', error, disabled }: HelperTextPr
   if (text.length === 0) return null;
 
   return (
-    <span className={clsx(disabled ? 'text-gray-500' : error ? 'text-red' : 'text-gray-400', className)}>{text}</span>
+    <span
+      className={clsx(
+        disabled ? 'text-gray-500' : error ? 'text-red' : 'text-gray-50',
+        'whitespace-pre-line',
+        className
+      )}
+    >
+      {text}
+    </span>
   );
 };
 

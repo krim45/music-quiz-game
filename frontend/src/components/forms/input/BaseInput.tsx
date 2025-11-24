@@ -19,7 +19,7 @@ export interface BaseInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   iconClassName?: string;
   id?: string;
   type?: InputType;
-  value: string;
+  value: string | number;
   placeholder?: string;
   icon?: ReactNode;
   clear?: boolean;
@@ -92,13 +92,11 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
       // placeholder
       'placeholder:text-gray-500 disabled:placeholder-gray-600',
       // text, font
-      'text-ellipsis disabled:text-gray-600',
+      'text-ellipsis disabled:text-gray-600 no-spin-button',
       // border
-      // 'rounded-sm border border-solid',
-      // error ? 'border-red' : 'border-white focus:border-green',
+      'outline-none',
       // box model
       'w-full h-full p-2',
-      'outline-none',
       // cursor
       disabled ? 'cursor-not-allowed' : 'cursor-text',
       inputClassName

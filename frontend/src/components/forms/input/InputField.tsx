@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, ForwardedRef, useState, ChangeEvent, FocusEvent } from 'react';
+import { forwardRef, ForwardedRef, useState, ChangeEvent, FocusEvent, useId } from 'react';
 import { InputType, TextAlign } from '@/types/forms';
 import clsx from 'clsx';
 
@@ -33,7 +33,6 @@ const InputField = forwardRef<HTMLInputElement, InputProps>(
       className = '',
 
       // label
-      id,
       label = '',
       type = InputType.Text,
       required,
@@ -60,6 +59,7 @@ const InputField = forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const [inputType, setInputType] = useState<InputType>(type);
     const [isFocus, setIsFocus] = useState<boolean>(false);
+    const id = useId();
 
     const handleChange = (value: string, e?: ChangeEvent<HTMLInputElement>) => {
       if (charLimit && value.length > charLimit) return;

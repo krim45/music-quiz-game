@@ -31,4 +31,5 @@ body {
 .no-spin-button[type='number'] {
   /* 🦊 Firefox */
   -moz-appearance: textfield;
+  appearance: textfield;
 }

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @import './colors.css';
+@import './animations.css';
 
 @font-face {
   font-family: 'DosMyungjo';

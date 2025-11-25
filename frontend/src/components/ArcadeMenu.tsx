@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
-import ArcadeButton from '@/components/buttons/ArcadeButton';
+import ArcadeButton from '@/components/button/ArcadeButton';
 
 type Item = {
   label: React.ReactNode;
@@ -58,7 +58,7 @@ export default function ArcadeMenu({ className, initialIndex = 0, items }: Arcad
     <div className={clsx('flex flex-col', className)}>
       {items.map((item, i) => (
         <ArcadeButton
-          className='w-fit mx-auto my-3'
+          className='mx-auto my-3 w-fit'
           key={i}
           ref={(el) => {
             refs.current[i] = el;

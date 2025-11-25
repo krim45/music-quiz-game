@@ -1,5 +1,5 @@
 import { useId, Children, isValidElement, cloneElement, ReactElement } from 'react';
-import Radio, { RadioProps } from '@/components/forms/radio/Radio';
+import Radio, { RadioProps } from '@/components/form/radio/Radio';
 import clsx from 'clsx';
 
 export interface RadioGroupProps<T extends string | boolean | number> {
@@ -34,7 +34,7 @@ const RadioGroup = <T extends string | number | boolean>({
     });
   });
 
-  return <div className={clsx('w-full flex justify-around', className)}>{clonedChildren}</div>;
+  return <div className={clsx('flex w-full justify-around', className)}>{clonedChildren}</div>;
 };
 
 export default RadioGroup;

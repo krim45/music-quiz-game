@@ -1,4 +1,4 @@
-import ToastProvider from '@/components/feedbacks/ToastProvider';
+import ToastProvider from '@/components/feedback/ToastProvider';
 import type { Metadata } from 'next';
 import '@/styles/global.css';
 

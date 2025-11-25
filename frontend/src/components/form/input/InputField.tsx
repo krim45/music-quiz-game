@@ -5,16 +5,16 @@ import { InputType, TextAlign } from '@/types/forms';
 import clsx from 'clsx';
 
 // components
-import Label from '@/components/forms/element/Label';
-import CharCounter from '@/components/forms/element/CharCounter';
-import BaseInput, { BaseInputProps } from '@/components/forms/input/BaseInput';
-import HelperText from '@/components/forms/element/HelperText';
+import Label from '@/components/form/element/Label';
+import CharCounter from '@/components/form/element/CharCounter';
+import BaseInput, { BaseInputProps } from '@/components/form/input/BaseInput';
+import HelperText from '@/components/form/element/HelperText';
 
 // icons
-import Search from '@/components/icons/Search';
-import Eye from '@/components/icons/Eye';
-import EyeOff from '@/components/icons/EyeOff';
-import Clear from '@/components/icons/Clear';
+import Search from '@/components/icon/Search';
+import Eye from '@/components/icon/Eye';
+import EyeOff from '@/components/icon/EyeOff';
+import Clear from '@/components/icon/Clear';
 
 export interface InputProps extends BaseInputProps {
   label?: string;

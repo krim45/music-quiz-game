@@ -14,7 +14,7 @@ export default function ToastProvider() {
   };
 
   return (
-    <Portal container={document.body}>
+    <Portal>
       <div className='fixed top-4 right-4 z-[9999] flex flex-col gap-3'>
         {toasts.map((t) => (
           <div

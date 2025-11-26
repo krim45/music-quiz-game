@@ -5,15 +5,17 @@ import { createPortal } from 'react-dom';
 
 interface PortalProps {
   children: React.ReactNode;
-  container: HTMLElement;
+  container?: HTMLElement | null;
 }
 
 export default function Portal({ children, container }: PortalProps) {
-  const [mounted, setMounted] = useState(false);
+  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMountNode(container ?? document.body);
+  }, [container]);
 
-  if (!mounted || !container) return null;
+  if (!mountNode) return null;
 
-  return createPortal(children, container);
+  return createPortal(children, mountNode);
 }

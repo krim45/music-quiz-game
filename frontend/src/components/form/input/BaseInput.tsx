@@ -1,53 +1,35 @@
 'use client';
 
-import {
-  forwardRef,
-  ForwardedRef,
-  ChangeEvent,
-  FormEvent,
-  useState,
-  InputHTMLAttributes,
-  ReactNode,
-  FocusEvent,
-} from 'react';
+import { forwardRef, useState } from 'react';
 import clsx from 'clsx';
-import { InputType } from '@/types/forms';
+import { mergeEvents } from '@/utils/events';
+
+import type { InputHTMLAttributes, ForwardedRef, ChangeEvent, FocusEvent, FormEvent } from 'react';
+import type { InputType } from '@/types/forms';
 
 export interface BaseInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   className?: string;
-  inputClassName?: string;
-  iconClassName?: string;
-  id?: string;
   type?: InputType;
-  value: string | number;
-  placeholder?: string;
-  icon?: ReactNode;
-  clear?: boolean;
   keyFilter?: RegExp;
-  disabled?: boolean;
-  readOnly?: boolean;
+  value: string;
 
   // events
   onChange: (value: string, e?: ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
-  onClickIcon?: () => void;
 }
 
 const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
   (
     {
       className = '',
-      inputClassName = '',
-      iconClassName = '',
       keyFilter,
       disabled,
       readOnly,
-      icon,
-
       // events
       onChange,
-      onClickIcon,
+      onWheel,
+      onBeforeInput,
       ...rest
     }: BaseInputProps,
     ref: ForwardedRef<HTMLInputElement>
@@ -68,6 +50,8 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
       if (isComposing || !keyFilter) return;
 
       const inputEvent = e.nativeEvent as InputEvent;
+      if (inputEvent.isComposing || inputEvent.inputType !== 'insertText') return;
+
       const target = e.target as HTMLInputElement;
       const nextValue = getNextValue(target, inputEvent.data);
 
@@ -80,68 +64,37 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
       onChange?.(e.target.value, e);
     };
 
-    const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault(); // input 포커스 손실 방지
-
-      if (disabled || readOnly) return;
-
-      onClickIcon?.();
+    const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
+      if (rest.type === 'number') {
+        e.currentTarget.blur();
+      }
     };
 
-    const inputClassNames = clsx(
-      // placeholder
-      'placeholder:text-gray-500 disabled:placeholder-gray-600',
-      // text, font
-      'text-ellipsis disabled:text-gray-600 no-spin-button',
-      // border
-      'outline-none',
-      // box model
-      'w-full h-full p-2',
-      // cursor
-      disabled ? 'cursor-not-allowed' : 'cursor-text',
-      inputClassName
-    );
-
-    const iconClassNames = clsx(
-      // box model
-      'flex items-center h-5 w-5',
-      // position
-      'absolute right-3 top-1/2 -translate-y-1/2',
-      // cursor
-      disabled || readOnly ? 'cursor-not-allowed' : onClickIcon ? 'cursor-pointer' : '',
-      iconClassName
-    );
-
     return (
-      <div className={`relative ${className}`}>
-        <input
-          className={inputClassNames}
-          ref={ref}
-          onCompositionStart={() => setIsComposing(true)}
-          onCompositionEnd={() => setIsComposing(false)}
-          onBeforeInput={handleBeforeInput}
-          onChange={handleChange}
-          disabled={disabled}
-          readOnly={readOnly}
-          {...rest}
-        />
-
-        {icon && (
-          <button
-            type='button'
-            className={iconClassNames}
-            tabIndex={disabled || readOnly ? -1 : 0}
-            disabled={disabled || readOnly}
-            onMouseDown={handleIconClick}
-          >
-            {icon}
-          </button>
+      <input
+        ref={ref}
+        className={clsx(
+          // placeholder
+          'placeholder:text-gray-500 disabled:placeholder-gray-600',
+          // text, font
+          'no-spin-button text-ellipsis disabled:text-gray-600',
+          // outline
+          'outline-none',
+          // cursor
+          disabled ? 'cursor-not-allowed' : 'cursor-text',
+          className
         )}
-      </div>
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => setIsComposing(false)}
+        onBeforeInput={mergeEvents(onBeforeInput, handleBeforeInput)}
+        onWheel={mergeEvents(onWheel, handleWheel)}
+        onChange={handleChange}
+        disabled={disabled}
+        readOnly={readOnly}
+        {...rest}
+      />
     );
   }
 );
-
-BaseInput.displayName = 'BaseInput';
 
 export default BaseInput;

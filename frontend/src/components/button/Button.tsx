@@ -1,28 +1,34 @@
 'use client';
 
-import { ButtonHTMLAttributes, useRef } from 'react';
+import { useRef } from 'react';
 import clsx from 'clsx';
 
 import { toast } from '@/lib/store/useToastStore';
+import { buttonSizes } from '@/constants/sizeToken';
+
+import type { ButtonHTMLAttributes, ReactNode, MouseEvent } from 'react';
 
 type ButtonColor = 'blue' | 'red' | 'gray' | 'green' | 'orange';
 
+type ButtonSize = keyof typeof buttonSizes;
+
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   color?: ButtonColor;
-  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;
+  size?: ButtonSize;
+  onClick?: (e?: MouseEvent<HTMLButtonElement>) => Promise<void> | void;
 }
 
 // TODO 나중에
 // 1. 디자인 개선
-// 2. 사이즈 props
 
-const Button = ({ className, color = 'blue', disabled, onClick, children, ...rest }: ButtonProps) => {
-  const lockRef = useRef<boolean>(false); // 연속 클릭 방지
+const Button = ({ className, color = 'blue', size = 'md', disabled, onClick, children, ...rest }: ButtonProps) => {
+  const lockRef = useRef<boolean>(false);
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled || !onClick || lockRef.current) return;
+
     lockRef.current = true;
 
     try {
@@ -46,6 +52,7 @@ const Button = ({ className, color = 'blue', disabled, onClick, children, ...res
     <button
       className={clsx(
         'rounded transition outline-none select-none',
+        buttonSizes[size].wrapper,
         colorClass[color],
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer active:scale-95',
         className
@@ -59,7 +66,5 @@ const Button = ({ className, color = 'blue', disabled, onClick, children, ...res
     </button>
   );
 };
-
-Button.displayName = 'Button';
 
 export default Button;

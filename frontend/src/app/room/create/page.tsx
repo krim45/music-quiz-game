@@ -16,7 +16,7 @@ import { useSongForm } from '@/app/room/create/_hooks/useSongForm';
 
 import Button from '@/components/button/Button';
 
-import type { RoomInfo } from '@/app/room/create/_types';
+import type { CreateRoomPayload, RoomInfo } from '@/app/room/create/_types';
 
 export default function CreateRoomPage() {
   const [roomInfo, setRoomInfo] = useState<RoomInfo>({ title: '', password: '', isPublic: true });
@@ -29,24 +29,30 @@ export default function CreateRoomPage() {
     setRoomInfo((prev) => ({ ...prev, [key]: value }));
   };
 
-  const createRoom = () => {
-    const socket = connectSocket();
+  // TODO
+  // 소켓 연결 설계
+  // songList 데이터 DB 저장 관련
 
-    socket.emit(
-      'room:create',
-      {
-        title: roomInfo.title,
-        password: roomInfo.password,
-        songList,
-      },
-      (res: { ok: boolean; roomId?: string }) => {
-        if (!res.ok || !res.roomId) {
-          toast.error('방 생성 실패');
-          return;
-        }
-        router.push(`/room/${res.roomId}`);
+  const createRoom = () => {
+    if (!roomInfo.title) {
+      toast.error('게임 제목을 입력하세요.');
+      return;
+    }
+
+    if (songList.length === 0) {
+      toast.error('노래를 추가하세요.');
+      return;
+    }
+
+    const socket = connectSocket();
+    const payload: CreateRoomPayload = { title: roomInfo.title, password: roomInfo.password, songList };
+
+    socket.emit('room:create', payload, (res: { ok: boolean; roomId?: string; message?: string }) => {
+      if (!res.ok) {
+        return toast.error(res.message || '방 생성 실패');
       }
-    );
+      router.push(`/room/${res.roomId}`);
+    });
   };
 
   return (

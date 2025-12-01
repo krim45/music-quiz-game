@@ -5,13 +5,7 @@ import { validatePreview, validateSongInfo } from '@/app/room/create/_utils/vali
 import type { SongInfo } from '@/app/room/create/_types';
 
 export function useSongForm(playerRef: React.RefObject<YT.Player | null>) {
-  const [songInfo, setSongInfo] = useState<SongInfo>({
-    url: '',
-    startSeconds: '',
-    singer: '',
-    title: '',
-    extraAnswers: '',
-  });
+  const [songInfo, setSongInfo] = useState<SongInfo>({ url: '', singer: '', title: '' });
   const [songList, setSongList] = useState<SongInfo[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -36,14 +30,14 @@ export function useSongForm(playerRef: React.RefObject<YT.Player | null>) {
     if (error) return toast.error(error);
 
     setSongList((prev) => [...prev, songInfo]);
-    setSongInfo({ url: '', startSeconds: '', singer: '', title: '', extraAnswers: '' });
+    setSongInfo({ url: '', singer: '', title: '' });
 
     setShowPreview(false);
     playerRef.current?.stopVideo?.();
     toast.info('노래가 추가되었습니다!');
   };
 
-  const handleSongChange = (rowIndex: number, key: keyof SongInfo, value: string) => {
+  const handleSongChange = (rowIndex: number, key: keyof SongInfo, value: SongInfo[keyof SongInfo]) => {
     setSongList((prev) => {
       const next = [...prev];
       next[rowIndex] = { ...next[rowIndex], [key]: value };

@@ -9,35 +9,49 @@ import type { SongInfo } from '@/app/room/create/_types';
 
 interface Props {
   songList: SongInfo[];
-  onChangeSong: (row: number, key: keyof SongInfo, value: string) => void;
+  onChangeSong: (row: number, key: keyof SongInfo, value: SongInfo[keyof SongInfo]) => void;
   onRemoveSong: (row: number) => void;
 }
 
 export default function SongListSection({ songList, onChangeSong, onRemoveSong }: Props) {
-  const renderCell = (ctx: { value: SongInfo[keyof SongInfo]; rowIndex: number; key: keyof SongInfo }) => (
-    <BaseInput
-      className='w-full border border-white p-2'
-      value={String(ctx.value ?? '')}
-      onChange={(v) => onChangeSong(ctx.rowIndex, ctx.key, v)}
-    />
-  );
-
   const columns: TableColumn<SongInfo>[] = [
     {
       key: '_edit',
-      className: 'w-[44px] text-center',
+      className: 'w-[46px] !p-0 text-center',
       render: ({ rowIndex }) => (
-        <div className='flex justify-center'>
-          <Button className='p-1' color='red' onClick={() => onRemoveSong(rowIndex)}>
-            <Minus size={18} />
-          </Button>
-        </div>
+        <Button className='mt-[7px]' color='red' onClick={() => onRemoveSong(rowIndex)}>
+          <Minus size={20} />
+        </Button>
       ),
     },
     { key: 'singer', label: '가수', sortable: true, className: 'w-[120px]' },
     { key: 'title', label: '제목', sortable: true, className: 'w-[160px]' },
-    { key: 'extraAnswers', label: '추가 정답', className: 'w-[240px]', render: renderCell },
-    { key: 'startSeconds', label: '시작시간', className: 'w-[74px]', render: renderCell },
+    {
+      key: 'extraAnswers',
+      label: '추가 정답',
+      className: 'w-[240px]',
+      render: (ctx: { value: SongInfo[keyof SongInfo]; rowIndex: number; key: keyof SongInfo }) => (
+        <BaseInput
+          className='w-full border border-white p-2'
+          value={String(ctx.value ?? '')}
+          onChange={(v) => onChangeSong(ctx.rowIndex, ctx.key, v)}
+          placeholder='복수 정답 가능, 쉼표로 구분'
+        />
+      ),
+    },
+    {
+      key: 'startSeconds',
+      label: '시작시간(초)',
+      className: 'w-[110px]',
+      render: (ctx: { value: SongInfo[keyof SongInfo]; rowIndex: number; key: keyof SongInfo }) => (
+        <BaseInput
+          type='number'
+          className='w-full border border-white p-2'
+          value={ctx.value}
+          onChange={(v) => onChangeSong(ctx.rowIndex, ctx.key, Number(v))}
+        />
+      ),
+    },
     { key: 'url', label: '링크', className: 'w-[350px]' },
   ];
 

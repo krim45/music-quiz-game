@@ -30,8 +30,8 @@ export default function SongFormSection({ songInfo, showPreview, onChange, onLoa
             className='min-w-0 flex-1'
             label='시작 시간'
             type='number'
-            value={songInfo.startSeconds}
-            onChange={(v) => onChange('startSeconds', v)}
+            value={String(songInfo.startSeconds)}
+            onChange={(v) => onChange('startSeconds', Number(v))}
             placeholder='90(초)'
           />
 
@@ -51,6 +51,7 @@ export default function SongFormSection({ songInfo, showPreview, onChange, onLoa
             label='가수'
             value={songInfo.singer}
             onChange={(v) => onChange('singer', v)}
+            placeholder='아이유(IU)'
           />
 
           <InputField
@@ -59,6 +60,7 @@ export default function SongFormSection({ songInfo, showPreview, onChange, onLoa
             label='노래 제목'
             value={songInfo.title}
             onChange={(v) => onChange('title', v)}
+            placeholder='좋은 날'
           />
         </div>
       </div>
@@ -69,6 +71,7 @@ export default function SongFormSection({ songInfo, showPreview, onChange, onLoa
           label='추가 정답'
           value={songInfo.extraAnswers}
           onChange={(v) => onChange('extraAnswers', v)}
+          placeholder='Good Day, 굿 데이'
           helperText={'정답으로 인정할 표현을 입력해 주세요. \n복수 정답 가능, 쉼표로 구분해 주세요.'}
         />
 

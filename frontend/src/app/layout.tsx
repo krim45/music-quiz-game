@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className='antialiased'>
-        <main className='flex w-full flex-col items-center'>{children}</main>
+        <main className='w-full'>{children}</main>
 
         <ToastProvider />
       </body>

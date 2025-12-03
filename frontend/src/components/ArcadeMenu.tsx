@@ -7,6 +7,7 @@ import ArcadeButton from '@/components/button/ArcadeButton';
 type Item = {
   label: React.ReactNode;
   disabled?: boolean;
+  href?: string;
   onClick?: () => void;
 };
 
@@ -18,7 +19,7 @@ interface ArcadeMenuType {
 
 export default function ArcadeMenu({ className, initialIndex = 0, items }: ArcadeMenuType) {
   const [index, setIndex] = useState(initialIndex);
-  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const refs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   const focusCurrent = () => {
     const el = refs.current[index];
@@ -63,6 +64,7 @@ export default function ArcadeMenu({ className, initialIndex = 0, items }: Arcad
           ref={(el) => {
             refs.current[i] = el;
           }}
+          href={item.href}
           selected={i === index}
           disabled={item.disabled}
           onClick={item.onClick}

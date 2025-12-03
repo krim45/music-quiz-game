@@ -47,36 +47,7 @@
   --color-red-600: #d90c00e0;
   --color-red-700: #b30a00e5;
   --color-red-800: #d90c00;
-}
 
-.dark {
-  /** Basic Color */
-  /* Chromatic */
-  --red: #ff453a;
-  --orange: #ff9f45;
-  --blue: #0a84ff;
-  --green: #30d158;
-
-  /* Orange */
-  --color-orange-50: #ff9f450d;
-  --color-orange-100: #ff9f451a;
-  --color-orange-200: #ff9f452e;
-  --color-orange-300: #ff9f4542;
-  --color-orange-400: #ff9f455e;
-  --color-orange-500: #ff9f4580;
-  --color-orange-600: #ff9f4599;
-  --color-orange-700: #ff9f45b2;
-  --color-orange-800: #ff9f45d6;
-  --color-orange-900: #ff9f45;
-
-  /* Red */
-  --color-red-50: #ff453a0d;
-  --color-red-100: #ff3b301a;
-  --color-red-200: #ff3b3042;
-  --color-red-300: #ff3b308a;
-  --color-red-400: #ff3b30c2;
-  --color-red-500: #ff453a;
-  --color-red-600: #ff564b;
-  --color-red-700: #ff7562;
-  --color-red-800: #ff9486;
+  /* shadow */
+  --shadow-arcade-selected: 0 0 16px rgba(0, 255, 255, 0.3), 0 0 28px rgba(255, 0, 255, 0.2);
 }

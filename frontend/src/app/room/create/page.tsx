@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
-import { connectSocket } from '@/lib/socket';
+import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
 
 import RoomSettingsSection from '@/app/room/create/_components/RoomSettingsSection';
@@ -44,7 +44,7 @@ export default function CreateRoomPage() {
       return;
     }
 
-    const socket = connectSocket();
+    const socket = getSocket();
     const payload: CreateRoomPayload = { title: roomInfo.title, password: roomInfo.password, songList };
 
     socket.emit('room:create', payload, (res: { ok: boolean; roomId?: string; message?: string }) => {

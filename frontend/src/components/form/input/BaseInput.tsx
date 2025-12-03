@@ -11,7 +11,7 @@ export interface BaseInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   className?: string;
   type?: InputType;
   keyFilter?: RegExp;
-  value: string;
+  value?: string | number;
 
   // events
   onChange: (value: string, e?: ChangeEvent<HTMLInputElement>) => void;
@@ -26,6 +26,8 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
       keyFilter,
       disabled,
       readOnly,
+      type = 'text',
+      value,
       // events
       onChange,
       onWheel,
@@ -37,13 +39,13 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
     const [isComposing, setIsComposing] = useState(false);
 
     const getNextValue = (el: HTMLInputElement, data: string | null) => {
-      const value = el.value;
-      const start = el.selectionStart ?? value.length;
-      const end = el.selectionEnd ?? value.length;
+      const nextValue = el.value;
+      const start = el.selectionStart ?? nextValue.length;
+      const end = el.selectionEnd ?? nextValue.length;
 
-      if (data == null) return value;
+      if (data == null) return nextValue;
 
-      return value.slice(0, start) + data + value.slice(end);
+      return nextValue.slice(0, start) + data + nextValue.slice(end);
     };
 
     const handleBeforeInput = (e: FormEvent<HTMLInputElement>) => {
@@ -65,7 +67,7 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
     };
 
     const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
-      if (rest.type === 'number') {
+      if (type === 'number') {
         e.currentTarget.blur();
       }
     };
@@ -73,17 +75,15 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
     return (
       <input
         ref={ref}
+        type={type}
         className={clsx(
-          // placeholder
           'placeholder:text-gray-500 disabled:placeholder-gray-600',
-          // text, font
           'no-spin-button text-ellipsis disabled:text-gray-600',
-          // outline
           'outline-none',
-          // cursor
           disabled ? 'cursor-not-allowed' : 'cursor-text',
           className
         )}
+        value={value ?? ''}
         onCompositionStart={() => setIsComposing(true)}
         onCompositionEnd={() => setIsComposing(false)}
         onBeforeInput={mergeEvents(onBeforeInput, handleBeforeInput)}

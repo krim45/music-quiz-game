@@ -1,10 +1,9 @@
-import type { Server, Socket } from 'socket.io';
-import type { Room, RoomListItemDTO, RoomResponse } from '@/types';
-import { reassignOwner } from '@/utils/room';
+import type { Room, SocketRoom } from '@/types';
+import { Server } from 'socket.io';
 
 export class RoomManager {
-  public rooms: Map<string, Room> = new Map();
-  public socketRoomMap: Map<string, string> = new Map();
+  public rooms = new Map<string, Room>();
+  public socketRoomMap = new Map<string, SocketRoom>();
 
   create(roomId: string, room: Room): void {
     this.rooms.set(roomId, room);
@@ -22,41 +21,16 @@ export class RoomManager {
     this.rooms.delete(roomId);
   }
 
-  setSocketRoom(socketId: string, roomId: string): void {
-    this.socketRoomMap.set(socketId, roomId);
+  setSocketRoom(socketId: string, roomId: string, playerId: string) {
+    this.socketRoomMap.set(socketId, { roomId, playerId });
   }
 
-  getSocketRoom(socketId: string): string | undefined {
+  getSocketRoom(socketId: string) {
     return this.socketRoomMap.get(socketId);
   }
 
-  deleteSocket(socketId: string): void {
+  deleteSocketRoom(socketId: string) {
     this.socketRoomMap.delete(socketId);
-  }
-
-  handleLeave(socket: Socket, io: Server, roomId: string): RoomResponse {
-    const room = this.rooms.get(roomId);
-    this.socketRoomMap.delete(socket.id);
-
-    if (!room) {
-      return { ok: false, message: '존재하지 않는 방입니다.' };
-    }
-
-    room.players.delete(socket.id);
-    socket.leave(roomId);
-
-    if (room.players.size === 0) {
-      this.rooms.delete(roomId);
-      return { ok: true, roomId };
-    }
-
-    const leavingPlayer = room.players.get(socket.id);
-    if (leavingPlayer?.isOwner) {
-      reassignOwner(room);
-    }
-
-    this.emitRoomUpdate(io, roomId);
-    return { ok: true, roomId };
   }
 
   emitRoomUpdate(io: Server, roomId: string): void {
@@ -64,7 +38,7 @@ export class RoomManager {
     if (!room) return;
 
     const players = [...room.players.values()].map((p) => ({
-      id: p.id,
+      playerId: p.playerId,
       nickname: p.nickname,
       color: p.color,
       score: p.score,
@@ -74,29 +48,9 @@ export class RoomManager {
 
     io.to(roomId).emit('room:update', {
       roomId,
-      title: room.title,
       status: room.status,
       currentSongIndex: room.currentSongIndex,
       players,
     });
-  }
-
-  listRooms(): RoomListItemDTO[] {
-    const list: RoomListItemDTO[] = [];
-
-    for (const [id, room] of this.rooms.entries()) {
-      if (room.status !== 'waiting') continue;
-
-      list.push({
-        id,
-        title: room.title,
-        curPlayers: room.players.size,
-        maxPlayers: room.maxPlayers,
-        hasPassword: Boolean(room.password && room.password.length > 0),
-        status: room.status,
-      });
-    }
-
-    return list;
   }
 }

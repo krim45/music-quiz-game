@@ -1,14 +1,8 @@
 import { Room } from '@/types';
-import { Server, Socket } from 'socket.io';
 
-export const randomRoomCode = (length = 6) => {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < length; i++) {
-    code += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return code;
-};
+export function randomRoomCode(): string {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
 
 export const shuffle = <T>(array: T[]): T[] => {
   const arr = [...array];
@@ -28,17 +22,15 @@ export const assignColor = (room: Room): string => {
   return COLORS[index % COLORS.length];
 };
 
-export const reassignOwner = (room: Room) => {
-  // 방장 존재하는지 확인
-  const hasOwner = Array.from(room.players.values()).some((p) => p.isOwner);
+// 방장 위임
+export function reassignOwner(room: Room): void {
+  const players = [...room.players.values()];
+  const hasOwner = players.some((p) => p.isOwner);
   if (hasOwner) return;
 
-  // 방장이 없다면 첫 번째 플레이어를 방장으로 지정
-  const iterator = room.players.values();
-  const first = iterator.next().value;
+  const nextOwner = players.find((p) => p.socketId !== null) ?? players[0];
+  if (!nextOwner) return;
 
-  if (first) {
-    first.isOwner = true;
-    room.players.set(first.id, first);
-  }
-};
+  nextOwner.isOwner = true;
+  room.players.set(nextOwner.playerId, nextOwner);
+}

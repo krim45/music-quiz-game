@@ -137,7 +137,10 @@ const InputField = forwardRef<HTMLInputElement, InputProps>(
             {icon && (
               <button
                 type='button'
-                className={clsx('absolute top-1/2 right-3 flex -translate-y-1/2 items-center justify-center', sz.icon)}
+                className={clsx(
+                  'absolute top-1/2 right-3 flex -translate-y-1/2 cursor-pointer items-center justify-center',
+                  sz.icon
+                )}
                 disabled={disabled || readOnly}
                 tabIndex={disabled || readOnly ? -1 : 0}
                 onMouseDown={handleIconClick}

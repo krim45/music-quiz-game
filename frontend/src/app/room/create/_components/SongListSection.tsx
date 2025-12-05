@@ -18,7 +18,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong }
     {
       key: '_edit',
       className: 'w-[46px] !p-0 text-center',
-      render: ({ rowIndex }) => (
+      render: ({ rowIndex }: { rowIndex: number }) => (
         <Button className='mt-[7px]' color='red' onClick={() => onRemoveSong(rowIndex)}>
           <Minus size={20} />
         </Button>
@@ -30,11 +30,11 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong }
       key: 'extraAnswers',
       label: '추가 정답',
       className: 'w-[240px]',
-      render: (ctx: { value: SongInfo[keyof SongInfo]; rowIndex: number; key: keyof SongInfo }) => (
+      render: ({ row, key, rowIndex }) => (
         <BaseInput
           className='w-full border border-white p-2'
-          value={String(ctx.value ?? '')}
-          onChange={(v) => onChangeSong(ctx.rowIndex, ctx.key, v)}
+          value={row[key]}
+          onChange={(v) => onChangeSong(rowIndex, key, v)}
           placeholder='복수 정답 가능, 쉼표로 구분'
         />
       ),
@@ -43,12 +43,12 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong }
       key: 'startSeconds',
       label: '시작시간(초)',
       className: 'w-[110px]',
-      render: (ctx: { value: SongInfo[keyof SongInfo]; rowIndex: number; key: keyof SongInfo }) => (
+      render: ({ row, key, rowIndex }) => (
         <BaseInput
           type='number'
           className='w-full border border-white p-2'
-          value={ctx.value}
-          onChange={(v) => onChangeSong(ctx.rowIndex, ctx.key, Number(v))}
+          value={row[key]}
+          onChange={(v) => onChangeSong(rowIndex, key, Number(v))}
         />
       ),
     },

@@ -3,24 +3,35 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 
-export type TableColumn<T> = {
-  key: keyof T;
-  label?: string;
+export type BaseColumn = {
+  className?: string;
+  label?: string | React.ReactNode;
   _style?: React.CSSProperties;
   sortable?: boolean;
-  className?: string;
-  render?: (ctx: { value: T[keyof T]; row: T; rowIndex: number; key: keyof T }) => React.ReactNode;
 };
 
-export type CustomCell<T> = {
-  _style?: React.CSSProperties;
-  className?: string;
-  render?: (ctx: { value: T[keyof T]; row: T; rowIndex: number; key: keyof T }) => React.ReactNode;
+export type DataColumn<T> = BaseColumn & {
+  key: keyof T;
+  accessor?: never;
+  render?: (ctx: { row: TableRow<T>; key: keyof T; rowIndex: number }) => React.ReactNode;
 };
+
+export type CustomColumn<T> = BaseColumn & {
+  key: string;
+  accessor: (row: T) => string | number | boolean | null | undefined;
+  render?: (ctx: { row: TableRow<T>; customKey: string; rowIndex: number }) => React.ReactNode;
+};
+
+export type TableColumn<T> = DataColumn<T> | CustomColumn<T>;
 
 export type TableRow<T> = T & {
   _style?: React.CSSProperties;
-  _cell?: Partial<Record<keyof T, CustomCell<T>>>;
+  _cell?: Partial<Record<keyof T | string, CustomCell>>;
+};
+
+export type CustomCell = {
+  _style?: React.CSSProperties;
+  className?: string;
 };
 
 export type SortDirection = 'asc' | 'desc' | null;
@@ -30,10 +41,11 @@ export interface TableProps<T> {
   data: TableRow<T>[];
   stickyHead?: boolean;
   className?: string;
+  onRowClick?: (row: TableRow<T>, rowIndex: number) => void;
 }
 
-export default function Table<T>({ className, columns, data, stickyHead = true }: TableProps<T>) {
-  const [sortKey, setSortKey] = useState<keyof T | null>(null);
+export default function Table<T>({ className, columns, data, stickyHead = true, onRowClick }: TableProps<T>) {
+  const [sortKey, setSortKey] = useState<string | keyof T | null>(null);
   const [sortDir, setSortDir] = useState<SortDirection>(null);
 
   const handleSort = (col: TableColumn<T>) => {
@@ -47,22 +59,31 @@ export default function Table<T>({ className, columns, data, stickyHead = true }
     }
   };
 
-  const sortedData = (() => {
+  const getSortedData = () => {
     if (!sortKey || !sortDir) return data;
 
+    const col = columns.find((c) => c.key === sortKey);
+    if (!col) return data;
+
     return [...data].sort((a, b) => {
-      const x = a[sortKey];
-      const y = b[sortKey];
+      const x = col.accessor ? col.accessor(a) : a[col.key];
+      const y = col.accessor ? col.accessor(b) : b[col.key];
 
       if (x === y) return 0;
-      if (sortDir === 'asc') return x > y ? 1 : -1;
+      if (x === null || x === undefined) return 1;
+      if (y === null || y === undefined) return -1;
+
+      if (sortDir === 'asc') {
+        return x > y ? 1 : -1;
+      }
       return x < y ? 1 : -1;
     });
-  })();
+  };
 
+  // TODO: 정렬 아이콘 교체
   const sortIcon = (col: TableColumn<T>) => {
     if (!col.sortable) return null;
-    if (sortKey !== col.key) return <span>↕</span>;
+    if (sortKey !== col.key || !sortDir) return <span>↕</span>;
     if (sortDir === 'asc') return <span>↑</span>;
     if (sortDir === 'desc') return <span>↓</span>;
     return <span>↕</span>;
@@ -82,10 +103,9 @@ export default function Table<T>({ className, columns, data, stickyHead = true }
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
-                  style={col._style}
                   className={clsx(
-                    'h-10 cursor-pointer px-2 py-2 font-semibold select-none',
-                    col.sortable && 'hover:bg-gray-700',
+                    'h-10 px-2 py-2 font-semibold select-none',
+                    col.sortable && 'cursor-pointer hover:bg-gray-700',
                     col.className
                   )}
                   onClick={() => handleSort(col)}
@@ -100,24 +120,29 @@ export default function Table<T>({ className, columns, data, stickyHead = true }
           </thead>
 
           <tbody>
-            {sortedData.map((row, rowIndex) => (
-              <tr key={rowIndex} style={row._style} className='transition hover:bg-gray-900'>
+            {getSortedData().map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={clsx('transition', onRowClick && 'cursor-pointer hover:bg-gray-800')}
+                onClick={() => onRowClick?.(row, rowIndex)}
+              >
                 {columns.map((col) => {
-                  const value = row[col.key];
                   const cell = row._cell?.[col.key];
-                  const renderer = cell?.render ?? col.render;
+                  let display: React.ReactNode;
+
+                  if (col.accessor) {
+                    display = col.render ? col.render({ row, customKey: col.key, rowIndex }) : col.accessor(row);
+                  } else {
+                    display = col.render ? col.render({ row, key: col.key, rowIndex }) : String(row[col.key]);
+                  }
 
                   return (
                     <td
                       key={String(col.key)}
                       style={{ ...col._style, ...cell?._style }}
-                      className={clsx(
-                        'truncate border border-gray-700 px-2 py-2 whitespace-pre',
-                        col.className,
-                        cell?.className
-                      )}
+                      className={clsx('truncate border border-gray-700 px-2 py-2 whitespace-pre', col.className)}
                     >
-                      {renderer ? renderer({ value, row, rowIndex, key: col.key }) : String(value)}
+                      {display}
                     </td>
                   );
                 })}

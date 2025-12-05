@@ -9,6 +9,8 @@ export function getSocket() {
       transports: ['websocket'],
     });
   }
+
   if (!socket.connected) socket.connect();
+
   return socket;
 }

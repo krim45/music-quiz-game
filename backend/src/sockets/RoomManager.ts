@@ -37,13 +37,13 @@ export class RoomManager {
     const room = this.rooms.get(roomId);
     if (!room) return;
 
-    const players = [...room.players.values()].map((p) => ({
-      playerId: p.playerId,
-      nickname: p.nickname,
-      color: p.color,
-      score: p.score,
-      ready: p.ready,
-      isOwner: p.isOwner,
+    const players = Array.from(room.players, ([playerId, item]) => ({
+      playerId,
+      nickname: item.nickname,
+      color: item.color,
+      score: item.score,
+      ready: item.ready,
+      isOwner: item.isOwner,
     }));
 
     io.to(roomId).emit('room:update', {

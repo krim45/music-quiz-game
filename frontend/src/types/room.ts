@@ -5,10 +5,13 @@ export type ChatMessage = {
 };
 
 export type Player = {
-  id: string;
+  playerId: string; // 고정 유저 ID (localStorage에서 유지)
+  socketId: string | null; // 현재 연결된 socket.id (없으면 null)
   nickname: string;
   color: string;
   score: number;
+  ready: boolean;
+  isOwner: boolean;
 };
 
 export type RoomListItem = {

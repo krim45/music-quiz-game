@@ -9,7 +9,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "src",
-    "paths": { "@/*": ["*"] }
+    "paths": { "@/*": ["*"] },
+    // reflect meta
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

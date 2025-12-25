@@ -1,14 +1,24 @@
 import 'dotenv/config';
+import 'reflect-metadata';
 import http from 'http';
 import app from '@/app';
 import { createSocketServer } from '@/sockets';
+import { AppDataSource } from '@/data-source';
 
-const PORT = Number(process.env.PORT);
+AppDataSource.initialize()
+  .then(() => {
+    console.log('DB initialized');
 
-const server = http.createServer(app);
+    const PORT = Number(process.env.PORT);
 
-server.listen(PORT, () => {
-  console.log(`HTTP+Socket listening on http://localhost:${PORT}`);
-});
+    const server = http.createServer(app);
 
-createSocketServer(server);
+    createSocketServer(server);
+
+    server.listen(PORT, () => {
+      console.log(`HTTP+Socket listening on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('DB init error', err);
+  });

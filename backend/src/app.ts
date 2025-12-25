@@ -1,5 +1,6 @@
 import express, { Response } from 'express';
 import cors from 'cors';
+import songsRouter from '@/routers/songs';
 
 const app = express();
 
@@ -15,5 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (_req, res: Response) => {
   res.json({ ok: true, uptime: process.uptime() });
 });
+
+app.use('/songs', songsRouter);
 
 export default app;

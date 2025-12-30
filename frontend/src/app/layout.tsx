@@ -1,6 +1,7 @@
 import ToastProvider from '@/components/feedback/ToastProvider';
 import type { Metadata } from 'next';
 import '@/styles/global.css';
+import Provider from '@/lib/TanstackQueryProvider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className='antialiased'>
-        <main className='h-full w-full'>{children}</main>
+        <Provider>
+          <main className='h-full w-full'>{children}</main>
+        </Provider>
 
         <ToastProvider />
       </body>

@@ -33,3 +33,21 @@ export const buttonSizes = {
     wrapper: 'h-12 px-3 text-lg', // height 48px, padding 12px, font 18px
   },
 };
+
+export const checkboxSizes = {
+  sm: {
+    box: 'h-3.5 w-3.5',
+    icon: 'h-2.5 w-2.5',
+    label: 'text-xs',
+  },
+  md: {
+    box: 'h-4 w-4',
+    icon: 'h-3 w-3',
+    label: 'text-sm',
+  },
+  lg: {
+    box: 'h-5 w-5',
+    icon: 'h-3.5 w-3.5',
+    label: 'text-base',
+  },
+};

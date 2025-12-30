@@ -66,17 +66,15 @@ export async function findSongs(params: FindSongsParams) {
     qb.andWhere('(LOWER(song.title) LIKE :q OR LOWER(song.singer) LIKE :q)', { q: `%${params.q.toLowerCase()}%` });
   }
 
-  const items = await qb
+  const rows = await qb
     .select(['song.videoId', 'song.url', 'song.title', 'song.singer', 'song.extraAnswers'])
     .orderBy('song.title', 'ASC')
     .skip(params.offset)
-    .take(params.limit)
+    .take(params.limit + 1)
     .getMany();
 
-  const hasMore = items.length === params.limit;
+  const hasMore = rows.length > params.limit;
+  const items = hasMore ? rows.slice(0, params.limit) : rows;
 
-  return {
-    items,
-    hasMore,
-  };
+  return { items, hasMore };
 }

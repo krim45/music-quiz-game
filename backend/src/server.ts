@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import http from 'http';
 import app from '@/app';
 import { createSocketServer } from '@/sockets';
-import { AppDataSource } from '@/data-source';
+import { AppDataSource } from '@/db/AppDataSource';
 
 AppDataSource.initialize()
   .then(() => {

@@ -1,6 +1,7 @@
 import express, { Response } from 'express';
 import cors from 'cors';
 import songsRouter from '@/routers/songs';
+import playlistsRouter from '@/routers/playlists';
 
 const app = express();
 
@@ -18,5 +19,7 @@ app.get('/health', (_req, res: Response) => {
 });
 
 app.use('/songs', songsRouter);
+
+app.use('/playlists', playlistsRouter);
 
 export default app;

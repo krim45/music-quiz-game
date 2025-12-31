@@ -1,5 +1,5 @@
-import { AppDataSource } from '@/data-source';
-import { Song } from '@/entities/Song';
+import { AppDataSource } from '@/db/AppDataSource';
+import { Song, SongProvider } from '@/entities/Song';
 import { extractVideoId } from '@/utils/youtube';
 
 export type SongPayload = {
@@ -9,30 +9,48 @@ export type SongPayload = {
   extraAnswers?: string;
 };
 
-// TODO: 위치가 여기가 맞나?
-function chunk<T>(arr: T[], size: number) {
-  const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
-}
-
+/**
+ * URL에서 videoId를 뽑아 youtube externalId로 저장하고,
+ * (provider, externalId) 기준으로 upsert한다.
+ *
+ * 반환: upsert된 Song의 id(uuid) 또는 null(영상 id 추출 실패)
+ */
 export async function upsertSong(payload: SongPayload): Promise<string | null> {
   const repo = AppDataSource.getRepository(Song);
+
   const videoId = extractVideoId(payload.url);
   if (!videoId) return null;
 
+  const provider = SongProvider.YOUTUBE;
+  const externalId = videoId;
+
+  // ✅ TypeORM upsert는 결과로 id를 안정적으로 돌려주지 않는 DB가 있어서
+  // 1) upsert
+  // 2) 다시 조회
   await repo.upsert(
     {
-      videoId,
+      provider,
+      externalId,
       url: payload.url,
       title: payload.title,
       singer: payload.singer,
       extraAnswers: payload.extraAnswers ?? null,
     },
-    ['videoId']
+    ['provider', 'externalId']
   );
 
-  return videoId;
+  const saved = await repo.findOne({
+    where: { provider, externalId },
+    select: ['id'],
+  });
+
+  return saved?.id ?? null;
+}
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
 }
 
 export async function upsertSongsInBatches(songList: SongPayload[], batchSize = 10) {
@@ -58,16 +76,27 @@ export type FindSongsParams = {
   offset: number;
 };
 
-export async function findSongs(params: FindSongsParams) {
+export type SongListItem = Pick<Song, 'id' | 'provider' | 'externalId' | 'url' | 'title' | 'singer' | 'extraAnswers'>;
+
+export async function findSongs(params: FindSongsParams): Promise<{ items: SongListItem[]; hasMore: boolean }> {
   const repo = AppDataSource.getRepository(Song);
   const qb = repo.createQueryBuilder('song');
 
   if (params.q) {
-    qb.andWhere('(LOWER(song.title) LIKE :q OR LOWER(song.singer) LIKE :q)', { q: `%${params.q.toLowerCase()}%` });
+    const q = `%${params.q.toLowerCase()}%`;
+    qb.andWhere('(LOWER(song.title) LIKE :q OR LOWER(song.singer) LIKE :q)', { q });
   }
 
   const rows = await qb
-    .select(['song.videoId', 'song.url', 'song.title', 'song.singer', 'song.extraAnswers'])
+    .select([
+      'song.id',
+      'song.provider',
+      'song.externalId',
+      'song.url',
+      'song.title',
+      'song.singer',
+      'song.extraAnswers',
+    ])
     .orderBy('song.title', 'ASC')
     .skip(params.offset)
     .take(params.limit + 1)

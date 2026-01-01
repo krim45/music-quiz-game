@@ -23,7 +23,7 @@ export async function createPlaylist(input: CreatePlaylistInput) {
   if (!description) throw new HttpError(400, 'description is required');
 
   if (!Array.isArray(songs) || songs.length === 0) throw new HttpError(400, 'songs is required');
-  
+
   if (songs.length > 200) throw new HttpError(400, 'too many songs (max 200)');
 
   return AppDataSource.transaction(async (manager) => {
@@ -123,7 +123,7 @@ export async function getPlaylists(
   }
 
   const rows = await qb
-    .select(['playlist.id', 'playlist.name', 'playlist.description', 'playlist.createdAt', 'playlist.updatedAt'])
+    .select(['playlist.id', 'playlist.name', 'playlist.description'])
     .orderBy('playlist.createdAt', 'DESC')
     .skip(params.offset)
     .take(params.limit + 1)

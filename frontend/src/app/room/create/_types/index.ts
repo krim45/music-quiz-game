@@ -16,5 +16,5 @@ export type SongInfo = {
 export type CreateRoomPayload = {
   title: string;
   password?: string;
-  songList: SongInfo[];
+  playlistId: string;
 };

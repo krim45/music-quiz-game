@@ -1,9 +1,11 @@
 export type SongItem = {
-  videoId: string;
+  id: string; // ✅ uuid (이걸로 선택/추가)
+  provider: 'youtube';
+  externalId: string; // ✅ youtube videoId
   url: string;
   title: string;
   singer: string;
-  extraAnswers: string;
+  extraAnswers?: string;
 };
 
 export type SongsResponse = {

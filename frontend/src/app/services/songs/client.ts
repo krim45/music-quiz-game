@@ -1,22 +1,4 @@
-export type SongItem = {
-  id: string; // ✅ uuid (이걸로 선택/추가)
-  provider: 'youtube';
-  externalId: string; // ✅ youtube videoId
-  url: string;
-  title: string;
-  singer: string;
-  extraAnswers?: string;
-};
-
-export type SongsResponse = {
-  ok: boolean;
-  q: string | null;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-  items: SongItem[];
-  message?: string;
-};
+import { SongsResponse } from '@/app/services/songs/types';
 
 export async function fetchSongs(params: {
   q?: string;

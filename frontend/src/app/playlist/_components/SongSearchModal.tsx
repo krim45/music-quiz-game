@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchSongs, type SongItem } from '@/app/services/songs-client';
+import { fetchSongs } from '@/app/services/songs/client';
 import Modal from '@/components/overlay/Modal';
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
 import { toast } from '@/lib/store/useToastStore';
 import Table, { type TableColumn } from '@/components/table/Table';
 import Checkbox from '@/components/form/checkbox/Checkbox';
+import { SongItem } from '@/app/services/songs/types';
 
 interface Props {
   open: boolean;

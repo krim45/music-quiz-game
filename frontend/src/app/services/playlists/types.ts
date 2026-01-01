@@ -1,3 +1,5 @@
+import type { SongItem } from '@/app/services/songs/types';
+
 export type FindPlaylistsParams = {
   q?: string;
   limit: number;
@@ -10,6 +12,10 @@ export type PlaylistListItem = {
   description: string;
 };
 
+export type PlaylistColumn = PlaylistListItem & {
+  _detail: string;
+};
+
 export type FindPlaylistsResponse = {
   ok: boolean;
   q: string | null;
@@ -18,4 +24,11 @@ export type FindPlaylistsResponse = {
   hasMore: boolean;
   items: PlaylistListItem[];
   message?: string;
+};
+
+export type PlaylistDetailResponse = {
+  ok: boolean;
+  message?: string;
+  playlist: { id: string; name: string; description: string };
+  songs: Array<SongItem>;
 };

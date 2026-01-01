@@ -11,19 +11,22 @@ import PlaylistSection from '@/app/room/create/_components/PlaylistSection';
 import Button from '@/components/button/Button';
 
 import type { CreateRoomPayload, RoomInfo } from '@/app/room/create/_types';
+import type { FindPlaylistsResponse } from '@/app/services/playlists/types';
 
-export default function CreateRoomClient() {
+interface Props {
+  initial: FindPlaylistsResponse | null;
+  limit: number;
+}
+
+export default function CreateRoomClient({ initial, limit }: Props) {
   const [roomInfo, setRoomInfo] = useState<RoomInfo>({ title: '', password: '', isPublic: true });
   const [playlistId, setPlaylistId] = useState<string>('');
-
   const router = useRouter();
 
   const updateRoomInfo = (patch: Partial<RoomInfo>) => {
     setRoomInfo((prev) => ({ ...prev, ...patch }));
   };
 
-  // TODO: 플레이 리스트로 변경
-  // 1. create payload 수정
   const createRoom = () => {
     const socket = getSocket();
     const payload: CreateRoomPayload = { title: roomInfo.title, password: roomInfo.password, playlistId };
@@ -42,9 +45,7 @@ export default function CreateRoomClient() {
 
       <RoomSettingsSection roomInfo={roomInfo} onChange={updateRoomInfo} />
 
-      <div className='w-full border-t border-gray-700'></div>
-
-      <PlaylistSection setPlaylistId={setPlaylistId} />
+      <PlaylistSection limit={limit} initial={initial} selectedId={playlistId} onSelect={setPlaylistId} />
 
       <Button className='w-full md:w-[25%]' size='lg' onClick={createRoom}>
         게임 생성

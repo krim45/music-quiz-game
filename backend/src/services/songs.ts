@@ -1,6 +1,7 @@
 import { AppDataSource } from '@/db/AppDataSource';
 import { Song, SongProvider } from '@/entities/Song';
 import { extractVideoId } from '@/utils/youtube';
+import { EntityManager } from 'typeorm';
 
 export type SongPayload = {
   url: string;
@@ -15,13 +16,13 @@ export type SongPayload = {
  *
  * 반환: upsert된 Song의 id(uuid) 또는 null(영상 id 추출 실패)
  */
-export async function upsertSong(payload: SongPayload): Promise<string | null> {
-  const repo = AppDataSource.getRepository(Song);
+export async function upsertSongWithManager(manager: EntityManager, payload: SongPayload): Promise<string | null> {
+  const repo = manager.getRepository(Song);
 
   const videoId = extractVideoId(payload.url);
   if (!videoId) return null;
 
-  const provider = SongProvider.YOUTUBE;
+  const provider = SongProvider.YOUTUBE; // TODO: 추후 다른 플랫폼도 추가
   const externalId = videoId;
 
   // ✅ TypeORM upsert는 결과로 id를 안정적으로 돌려주지 않는 DB가 있어서
@@ -47,28 +48,33 @@ export async function upsertSong(payload: SongPayload): Promise<string | null> {
   return saved?.id ?? null;
 }
 
-function chunk<T>(arr: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
+// 기존 API 유지(트랜잭션 밖에서 쓰는 곳을 위해)
+export async function upsertSong(payload: SongPayload): Promise<string | null> {
+  return AppDataSource.transaction((manager) => upsertSongWithManager(manager, payload));
 }
 
-export async function upsertSongsInBatches(songList: SongPayload[], batchSize = 10) {
-  const safeBatchSize = Math.min(Math.max(batchSize, 1), 50);
-  const batches = chunk(songList, safeBatchSize);
+// function chunk<T>(arr: T[], size: number): T[][] {
+//   const out: T[][] = [];
+//   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+//   return out;
+// }
 
-  const failed: { url: string; reason: unknown }[] = [];
+// export async function upsertSongsInBatches(songList: SongPayload[], batchSize = 10) {
+//   const safeBatchSize = Math.min(Math.max(batchSize, 1), 50);
+//   const batches = chunk(songList, safeBatchSize);
 
-  for (const batch of batches) {
-    const results = await Promise.allSettled(batch.map((song) => upsertSong(song)));
+//   const failed: { url: string; reason: unknown }[] = [];
 
-    results.forEach((r, idx) => {
-      if (r.status === 'rejected') failed.push({ url: batch[idx].url, reason: r.reason });
-    });
-  }
+//   for (const batch of batches) {
+//     const results = await Promise.allSettled(batch.map((song) => upsertSong(song)));
 
-  return { failed };
-}
+//     results.forEach((r, idx) => {
+//       if (r.status === 'rejected') failed.push({ url: batch[idx].url, reason: r.reason });
+//     });
+//   }
+
+//   return { failed };
+// }
 
 export type FindSongsParams = {
   q?: string;

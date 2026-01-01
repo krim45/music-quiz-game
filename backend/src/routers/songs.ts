@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { findSongs } from '@/services/song';
+import { findSongs } from '@/services/songs';
 
 const router = Router();
 

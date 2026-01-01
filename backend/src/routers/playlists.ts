@@ -1,43 +1,12 @@
-import { Router, Request, Response } from 'express';
-import {
-  addSongsToPlaylist,
-  createPlaylist,
-  deletePlaylist,
-  getPlaylistDetail,
-  listPlaylists,
-  removeSongFromPlaylist,
-  updatePlaylist,
-} from '@/services/playlists';
+import { Router, Response } from 'express';
+import { createPlaylist, getPlaylistDetail, getPlaylists } from '@/services/playlists';
 import { HttpError } from '@/errors/HttpError';
-
-export interface CreatePlaylistBody {
-  name: string;
-  description?: string | null;
-}
-
-export interface UpdatePlaylistBody {
-  name?: string;
-  description?: string | null;
-}
-
-export interface AddSongsBody {
-  songId?: string;
-  songIds?: string[];
-}
 
 const router = Router();
 
-router.post('/', async (req: Request<{}, {}, CreatePlaylistBody>, res: Response) => {
+router.post('/', async (req, res) => {
   try {
-    const { name, description } = req.body;
-    if (!name?.trim()) {
-      return res.status(400).json({ ok: false, message: 'name is required' });
-    }
-
-    const playlist = await createPlaylist({
-      name: name.trim(),
-      description,
-    });
+    const playlist = await createPlaylist(req.body);
 
     return res.status(201).json({ ok: true, playlist });
   } catch (e) {
@@ -45,10 +14,27 @@ router.post('/', async (req: Request<{}, {}, CreatePlaylistBody>, res: Response)
   }
 });
 
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const playlists = await listPlaylists();
-    res.json({ ok: true, playlists });
+    const qRaw = String(req.query.q ?? '').trim();
+    const q = qRaw || undefined;
+
+    const limitRaw = Number(req.query.limit ?? 50);
+    const offsetRaw = Number(req.query.offset ?? 0);
+
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 50;
+    const offset = Number.isFinite(offsetRaw) ? Math.max(offsetRaw, 0) : 0;
+
+    const { items, hasMore } = await getPlaylists({ q, limit, offset });
+
+    return res.json({
+      ok: true,
+      q: qRaw || null,
+      limit,
+      offset,
+      hasMore,
+      items,
+    });
   } catch (e) {
     handleError(e, res);
   }
@@ -63,49 +49,50 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req: Request<{ id: string }, {}, UpdatePlaylistBody>, res: Response) => {
-  try {
-    const playlist = await updatePlaylist(req.params.id, req.body);
-    res.json({ ok: true, playlist });
-  } catch (e) {
-    handleError(e, res);
-  }
-});
+// router.patch('/:id', async (req: Request<{ id: string }, {}, UpdatePlaylistBody>, res: Response) => {
+//   try {
+//     const playlist = await updatePlaylist(req.params.id, req.body);
+//     res.json({ ok: true, playlist });
+//   } catch (e) {
+//     handleError(e, res);
+//   }
+// });
 
-router.delete('/:id', async (req, res) => {
-  try {
-    const result = await deletePlaylist(req.params.id);
-    res.json({ ok: true, ...result });
-  } catch (e) {
-    handleError(e, res);
-  }
-});
+// router.delete('/:id', async (req, res) => {
+//   try {
+//     const result = await deletePlaylist(req.params.id);
+//     res.json({ ok: true, ...result });
+//   } catch (e) {
+//     handleError(e, res);
+//   }
+// });
 
-router.post('/:id/songs', async (req: Request<{ id: string }, {}, AddSongsBody>, res: Response) => {
-  try {
-    const { songId, songIds } = req.body;
-    const ids = songIds ?? (songId ? [songId] : []);
+// router.post('/:id/songs', async (req: Request<{ id: string }, {}, AddSongsBody>, res: Response) => {
+//   try {
+//     const { songId, songIds } = req.body;
+//     const ids = songIds ?? (songId ? [songId] : []);
 
-    if (ids.length === 0) {
-      return res.status(400).json({ ok: false, message: 'songId or songIds required' });
-    }
+//     if (ids.length === 0) {
+//       return res.status(400).json({ ok: false, message: 'songId or songIds required' });
+//     }
 
-    const result = await addSongsToPlaylist(req.params.id, ids);
-    res.status(201).json({ ok: true, ...result });
-  } catch (e) {
-    handleError(e, res);
-  }
-});
+//     const result = await addSongsToPlaylist(req.params.id, ids);
+//     res.status(201).json({ ok: true, ...result });
+//   } catch (e) {
+//     handleError(e, res);
+//   }
+// });
 
-router.delete('/:id/songs/:songId', async (req, res) => {
-  try {
-    const result = await removeSongFromPlaylist(req.params.id, req.params.songId);
-    res.json({ ok: true, ...result });
-  } catch (e) {
-    handleError(e, res);
-  }
-});
+// router.delete('/:id/songs/:songId', async (req, res) => {
+//   try {
+//     const result = await removeSongFromPlaylist(req.params.id, req.params.songId);
+//     res.json({ ok: true, ...result });
+//   } catch (e) {
+//     handleError(e, res);
+//   }
+// });
 
+// TODO: 이거는 공용으로 써야하나?
 function handleError(error: unknown, res: Response) {
   if (error instanceof HttpError) {
     return res.status(error.status).json({ ok: false, message: error.message });

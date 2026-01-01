@@ -20,8 +20,9 @@ export default function PlaylistDetailModal({ open, onClose, playlistId }: Props
     queryKey: ['playlist-detail', playlistId],
     enabled,
     queryFn: ({ signal }) => fetchPlaylistDetail({ id: playlistId!, signal }),
-    staleTime: 0,
+    staleTime: 60_000,
     gcTime: 5 * 60 * 1000,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 

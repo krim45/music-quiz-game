@@ -8,17 +8,17 @@ import type { RoomInfo } from '@/app/room/create/_types';
 
 interface Props {
   roomInfo: RoomInfo;
-  onChange: (key: keyof RoomInfo, value: RoomInfo[keyof RoomInfo]) => void;
+  onChange: (patch: Partial<RoomInfo>) => void;
 }
 
-export default function RoomSettingsSection({ roomInfo, onChange }: Props) {
+export default function RoomSettingSection({ roomInfo, onChange }: Props) {
   return (
     <div className='flex w-full flex-col gap-5'>
       <InputField
         label='제목'
         charLimit={30}
         helperText='게임 제목을 입력하세요'
-        onChange={(v) => onChange('title', v)}
+        onChange={(title) => onChange({ title })}
         value={roomInfo.title}
         required
       />
@@ -26,7 +26,7 @@ export default function RoomSettingsSection({ roomInfo, onChange }: Props) {
       <div className='flex flex-col gap-3'>
         <Label label='공개 설정' required />
 
-        <RadioGroup value={roomInfo.isPublic!} onChange={(v) => onChange('isPublic', v)}>
+        <RadioGroup value={roomInfo.isPublic!} onChange={(isPublic) => onChange({ isPublic })}>
           <Radio value={true} label='공개' />
           <Radio value={false} label='비공개' />
         </RadioGroup>
@@ -39,7 +39,7 @@ export default function RoomSettingsSection({ roomInfo, onChange }: Props) {
           placeholder='비밀번호'
           type='password'
           value={roomInfo.password}
-          onChange={(v) => onChange('password', v)}
+          onChange={(password) => onChange({ password })}
         />
       )}
     </div>

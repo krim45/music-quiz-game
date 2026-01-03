@@ -26,7 +26,7 @@ export default function PlaylistDetailModal({ open, onClose, playlistId }: Props
     refetchOnWindowFocus: false,
   });
 
-  const title = data?.playlist?.name ? `플레이리스트: ${data.playlist.name}` : '플레이리스트 상세';
+  const title = data?.playlist?.name ? data.playlist.name : '플레이리스트 상세';
   const songs: SongItem[] = data?.songs ?? [];
 
   return (

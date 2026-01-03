@@ -14,7 +14,7 @@ type ButtonSize = keyof typeof buttonSizes;
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
-  children: ReactNode;
+  children?: ReactNode;
   color?: ButtonColor;
   size?: ButtonSize;
   onClick?: (e?: MouseEvent<HTMLButtonElement>) => Promise<void> | void;

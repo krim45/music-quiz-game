@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 interface ArcadeButtonProps {
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   selected?: boolean;
   disabled?: boolean;
   href?: string;

@@ -9,20 +9,24 @@ export type Player = {
 };
 
 export type Song = {
+  id?: string;
   url: string;
-  startSeconds: number;
   singer: string;
   title: string;
-  extraAnswers?: string;
+  extraAnswers?: string | null;
 };
+
+export type PlaylistItem = {
+  startSeconds: number;
+} & Song;
 
 export type RoomStatus = 'waiting' | 'playing';
 
 export type Room = {
   title: string;
   password?: string;
-  players: Map<string, Player>; // key = playerId
-  songList: Song[];
+  players: Map<string, Player>;
+  songList: PlaylistItem[];
   currentSongIndex: number;
   status: RoomStatus;
   maxPlayers: number;
@@ -31,7 +35,7 @@ export type Room = {
 export type CreateRoomPayload = {
   title: string;
   password?: string;
-  songList: Song[];
+  playlistId: string;
   maxPlayers: number;
 };
 
@@ -61,3 +65,7 @@ export type SocketRoom = {
   roomId: string;
   playerId: string;
 };
+
+export type RoomInfoPayload = { roomId: string };
+
+export type RoomInfoResponse = { ok: boolean; room?: RoomListItemDTO; message?: string };

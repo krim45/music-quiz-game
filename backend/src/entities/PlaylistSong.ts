@@ -1,14 +1,21 @@
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { Playlist } from '@/entities/Playlist';
 import { Song } from '@/entities/Song';
 
 @Entity('playlist_songs')
+@Unique(['playlistId', 'songId'])
 export class PlaylistSong {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
   playlistId!: string;
 
-  @PrimaryColumn({ type: 'uuid' })
+  @Column()
   songId!: string;
+
+  @Column({ type: 'int', default: 0 })
+  startSeconds!: number;
 
   @ManyToOne(() => Playlist, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'playlistId' })

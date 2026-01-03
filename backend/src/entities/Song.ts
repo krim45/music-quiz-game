@@ -11,7 +11,7 @@ export enum SongProvider {
 export class Song {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
-  
+
   @Column({ type: 'simple-enum', enum: SongProvider })
   provider!: SongProvider;
 

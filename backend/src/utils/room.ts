@@ -1,8 +1,8 @@
-import { Room } from '@/types';
+import { Room, RoomListItemDTO } from '@/types';
 
-export function randomRoomCode(): string {
+export const randomRoomCode = (): string => {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
-}
+};
 
 export const shuffle = <T>(array: T[]): T[] => {
   const arr = [...array];
@@ -23,7 +23,7 @@ export const assignColor = (room: Room): string => {
 };
 
 // 방장 위임
-export function reassignOwner(room: Room): void {
+export const reassignOwner = (room: Room): void => {
   const players = [...room.players.values()];
   const hasOwner = players.some((p) => p.isOwner);
   if (hasOwner) return;
@@ -33,4 +33,13 @@ export function reassignOwner(room: Room): void {
 
   nextOwner.isOwner = true;
   room.players.set(nextOwner.playerId, nextOwner);
-}
+};
+
+export const toRoomInfoDTO = (roomId: string, room: Room): RoomListItemDTO => ({
+  roomId,
+  title: room.title,
+  curPlayers: room.players.size,
+  maxPlayers: room.maxPlayers,
+  hasPassword: !!room.password,
+  status: room.status,
+});

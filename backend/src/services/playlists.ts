@@ -5,7 +5,7 @@ import { Song } from '@/entities/Song';
 import { HttpError } from '@/errors/HttpError';
 import { type SongPayload, upsertSongWithManager } from '@/services/songs';
 
-export type CreatePlaylistSongInput = { songId: string } | ({ songId?: never } & SongPayload);
+export type CreatePlaylistSongInput = { songId?: string; startSeconds?: number } & SongPayload;
 
 export type CreatePlaylistInput = {
   name: string;
@@ -26,6 +26,12 @@ export async function createPlaylist(input: CreatePlaylistInput) {
 
   if (songs.length > 200) throw new HttpError(400, 'too many songs (max 200)');
 
+  const normalizeStart = (n: unknown) => {
+    const v = typeof n === 'number' ? n : Number(n ?? 0);
+    if (!Number.isFinite(v)) return 0;
+    return Math.max(0, Math.floor(v));
+  };
+
   return AppDataSource.transaction(async (manager) => {
     const playlistRepo = manager.getRepository(Playlist);
     const psRepo = manager.getRepository(PlaylistSong);
@@ -34,28 +40,31 @@ export async function createPlaylist(input: CreatePlaylistInput) {
     // 1) playlist 생성
     const playlist = await playlistRepo.save(playlistRepo.create({ name, description }));
 
-    // 2) 입력 분리
-    const existingIds: string[] = [];
-    const newPayloads: SongPayload[] = [];
+    // 2) 입력 분리 (startSeconds만 같이 들고 다님)
+    const existing: Array<{ songId: string; startSeconds: number }> = [];
+    const newPayloads: Array<{ payload: SongPayload; startSeconds: number }> = [];
 
     for (const s of songs) {
+      const startSeconds = normalizeStart(s.startSeconds);
+
       if ('songId' in s && typeof s.songId === 'string' && s.songId.trim()) {
-        existingIds.push(s.songId.trim());
+        existing.push({ songId: s.songId.trim(), startSeconds });
       } else {
-        // 신규 payload로 간주
         newPayloads.push({
-          url: (s as SongPayload).url,
-          title: (s as SongPayload).title,
-          singer: (s as SongPayload).singer,
-          extraAnswers: (s as SongPayload).extraAnswers,
+          startSeconds,
+          payload: {
+            url: s.url,
+            title: s.title,
+            singer: s.singer,
+            extraAnswers: s.extraAnswers,
+          },
         });
       }
     }
 
     // 3) 기존 songId 검증(존재하는지)
-    let verifiedExistingIds: string[] = [];
-    if (existingIds.length > 0) {
-      const unique = Array.from(new Set(existingIds));
+    if (existing.length > 0) {
+      const unique = Array.from(new Set(existing.map((x) => x.songId)));
       const rows = await songRepo
         .createQueryBuilder('song')
         .select(['song.id'])
@@ -64,41 +73,38 @@ export async function createPlaylist(input: CreatePlaylistInput) {
 
       const found = new Set(rows.map((r) => r.id));
       const missing = unique.filter((id) => !found.has(id));
-      if (missing.length > 0) {
-        throw new HttpError(400, `song not found: ${missing.join(', ')}`);
-      }
-
-      verifiedExistingIds = unique;
+      if (missing.length > 0) throw new HttpError(400, `song not found: ${missing.join(', ')}`);
     }
 
-    // 4) 신규 곡 upsert → songId 생성
-    const createdIds: string[] = [];
+    // 4) 신규 곡 upsert → songId 생성 (원래 있던 로직 유지)
+    const created: Array<{ songId: string; startSeconds: number }> = [];
     const failed: { url: string; reason: string }[] = [];
 
-    for (const p of newPayloads) {
-      const id = await upsertSongWithManager(manager, p);
+    for (const { payload, startSeconds } of newPayloads) {
+      const id = await upsertSongWithManager(manager, payload);
       if (!id) {
-        failed.push({ url: p.url, reason: 'invalid youtube url (cannot extract videoId)' });
+        failed.push({ url: payload.url, reason: 'invalid youtube url (cannot extract videoId)' });
         continue;
       }
-      createdIds.push(id);
+      created.push({ songId: id, startSeconds });
     }
 
-    const allSongIds = Array.from(new Set([...verifiedExistingIds, ...createdIds]));
+    const links = [...existing, ...created];
+    if (links.length === 0) throw new HttpError(400, 'no valid songs to add');
 
-    if (allSongIds.length === 0) {
-      // 전부 실패한 경우
-      throw new HttpError(400, 'no valid songs to add');
-    }
+    // 5) link insert (여기서 startSeconds만 같이 넣으면 끝)
+    const values = links.map(({ songId, startSeconds }) => ({
+      playlistId: playlist.id,
+      songId,
+      startSeconds,
+    }));
 
-    // 5) playlist-song link insert
-    const values = allSongIds.map((songId) => ({ playlistId: playlist.id, songId }));
-    await psRepo.createQueryBuilder().insert().into(PlaylistSong).values(values).orIgnore().execute();
+    await psRepo.createQueryBuilder().insert().into(PlaylistSong).values(values).execute();
 
     return {
       playlist,
       addedCount: values.length,
-      failed, // 정책상 일부 실패를 허용한다면 반환
+      failed,
     };
   });
 }
@@ -142,7 +148,7 @@ export async function getPlaylistDetail(playlistId: string) {
   const playlist = await playlistRepo.findOne({ where: { id: playlistId } });
   if (!playlist) throw new HttpError(404, 'playlist not found');
 
-  const items = await psRepo
+  const songs = await psRepo
     .createQueryBuilder('ps')
     .innerJoinAndSelect('ps.song', 'song')
     .where('ps.playlistId = :playlistId', { playlistId })
@@ -151,7 +157,7 @@ export async function getPlaylistDetail(playlistId: string) {
 
   return {
     playlist,
-    songs: items.map((i) => i.song),
+    songs,
   };
 }
 

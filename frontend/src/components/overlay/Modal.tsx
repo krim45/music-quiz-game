@@ -92,7 +92,7 @@ export default function Modal({
 
             {showCloseButton && (
               <button
-                className='inline-flex h-9 w-9 items-center justify-center rounded-lg outline-none hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-zinc-400 active:bg-zinc-700'
+                className='inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg outline-none hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-zinc-400 active:bg-zinc-700'
                 onClick={onClose}
               >
                 X

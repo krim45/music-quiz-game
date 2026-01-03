@@ -126,16 +126,15 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
           columns={columns}
           data={items}
           onRowClick={(row) => onSelect(row.id)}
-        />
-
-        {/* TODO: 테이블 안쪽으로 넣기 */}
-        {hasNextPage ? (
-          <div className='flex justify-center'>
-            <Button onClick={onLoadMore} disabled={isFetchingNextPage || isLoading}>
-              {isFetchingNextPage || isLoading ? '불러오는 중...' : '더보기'}
-            </Button>
-          </div>
-        ) : null}
+        >
+          {hasNextPage ? (
+            <div className='mt-3 flex justify-center'>
+              <Button color='gray' onClick={onLoadMore} disabled={isFetchingNextPage || isLoading}>
+                {isFetchingNextPage || isLoading ? '불러오는 중...' : '더보기'}
+              </Button>
+            </div>
+          ) : null}
+        </Table>
       </div>
 
       <PlaylistDetailModal open={!!detailId} playlistId={detailId} onClose={closeModal} />

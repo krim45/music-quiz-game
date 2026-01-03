@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 
+import Sort from '@/components/icon/Sort';
+import SortAsc from '@/components/icon/SortAsc';
+import SortDesc from '@/components/icon/SortDesc';
+
 export type BaseColumn = {
   className?: string;
   label?: string | React.ReactNode;
@@ -42,9 +46,10 @@ export interface TableProps<T> {
   stickyHead?: boolean;
   className?: string;
   onRowClick?: (row: TableRow<T>, rowIndex: number) => void;
+  children?: React.ReactNode;
 }
 
-export default function Table<T>({ className, columns, data, stickyHead = true, onRowClick }: TableProps<T>) {
+export default function Table<T>({ className, columns, data, stickyHead = true, children, onRowClick }: TableProps<T>) {
   const [sortKey, setSortKey] = useState<string | keyof T | null>(null);
   const [sortDir, setSortDir] = useState<SortDirection>(null);
 
@@ -80,13 +85,11 @@ export default function Table<T>({ className, columns, data, stickyHead = true, 
     });
   };
 
-  // TODO: 정렬 아이콘 교체
   const sortIcon = (col: TableColumn<T>) => {
     if (!col.sortable) return null;
-    if (sortKey !== col.key || !sortDir) return <span>↕</span>;
-    if (sortDir === 'asc') return <span>↑</span>;
-    if (sortDir === 'desc') return <span>↓</span>;
-    return <span>↕</span>;
+    if (sortKey !== col.key || !sortDir) return <Sort />;
+    if (sortDir === 'asc') return <SortAsc />;
+    if (sortDir === 'desc') return <SortDesc />;
   };
 
   return (
@@ -151,6 +154,8 @@ export default function Table<T>({ className, columns, data, stickyHead = true, 
           </tbody>
         </table>
       </div>
+
+      {children}
     </div>
   );
 }

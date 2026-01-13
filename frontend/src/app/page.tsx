@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import ArcadeMenu from '@/components/ArcadeMenu';
+import ArcadeMenu from '@/components/menu/ArcadeMenu';
 
 export default function HomePage() {
   return (

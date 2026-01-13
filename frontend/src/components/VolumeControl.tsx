@@ -34,7 +34,7 @@ export default function VolumeControl({
 
   return (
     <div className={clsx('items-center, inline-flex rounded-3xl hover:bg-gray-800', className)}>
-      <div className='group relative inline-flex items-center'>
+      <div className='md:group relative inline-flex items-center'>
         <button
           type='button'
           disabled={disabled}

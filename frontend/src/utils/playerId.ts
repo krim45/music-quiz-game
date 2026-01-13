@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import { getLocalStorageItem, setLocalStorageItem } from '@/utils/localStorage';
 
 const KEY = 'playerId';
 
@@ -11,15 +12,10 @@ export function getPlayerId(): string {
     throw new Error('getPlayerId must be used in the browser');
   }
 
-  try {
-    const stored = localStorage.getItem(KEY);
-    if (stored) return stored;
+  const stored = getLocalStorageItem<string>(KEY);
+  if (stored) return stored;
 
-    const newId = createId();
-    localStorage.setItem(KEY, newId);
-    return newId;
-  } catch (err) {
-    console.error('localStorage error:', err);
-    return createId(); // fallback;
-  }
+  const newId = createId();
+  setLocalStorageItem(KEY, newId);
+  return newId;
 }

@@ -1,25 +1,27 @@
 import { useEffect, useState } from 'react';
+import { getLocalStorageItem, setLocalStorageItem } from '@/utils/localStorage';
+import { isUpdater } from '@/utils/reactUtils';
 
-export function useLocalStorageState(key: string, initialValue: string | (() => string) = '') {
-  const [value, setValue] = useState(initialValue);
+export function useLocalStorageState<T>(key: string, initialValue: T | (() => T)) {
+  const [state, setState] = useState<T>(initialValue);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      if (stored !== null) setValue(stored);
-    } catch (e) {
-      console.error('localStorage error', e);
+    const stored = getLocalStorageItem<T>(key);
+
+    if (stored !== null) {
+      setState(stored);
     }
+    setReady(true);
   }, [key]);
 
-  const update = (next: string) => {
-    setValue(next);
-    try {
-      localStorage.setItem(key, next);
-    } catch (e) {
-      console.error('localStorage save error', e);
-    }
+  const update: React.Dispatch<React.SetStateAction<T>> = (action) => {
+    setState((prev) => {
+      const next = isUpdater(action) ? action(prev) : action;
+      setLocalStorageItem(key, next);
+      return next;
+    });
   };
 
-  return [value, update] as const;
+  return [state, update, ready] as const;
 }

@@ -2,12 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 import { trapFocusOnTab } from '@/utils/trapFocusOnTab';
+import clsx from 'clsx';
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
 
   title?: React.ReactNode;
+  className?: string;
   children: React.ReactNode;
 
   // 옵션
@@ -15,6 +17,7 @@ interface ModalProps {
   closeOnEsc?: boolean; // ESC 닫기
   showCloseButton?: boolean; // X 버튼
   width?: number | string; // 기본 640
+  height?: number | string;
 }
 
 export default function Modal({
@@ -22,10 +25,12 @@ export default function Modal({
   onClose,
   title,
   children,
+  className,
   closeOnBackdrop = true,
   closeOnEsc = true,
   showCloseButton = true,
   width = 640,
+  height,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const lastActiveElRef = useRef<HTMLElement | null>(null);
@@ -73,7 +78,7 @@ export default function Modal({
   return (
     <div
       role='presentation'
-      className='fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm'
+      className='fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-xs'
       onMouseDown={(e) => {
         if (!closeOnBackdrop) return;
         if (e.target === e.currentTarget) onClose();
@@ -83,16 +88,19 @@ export default function Modal({
         ref={panelRef}
         role='dialog'
         tabIndex={-1}
-        className='flex h-full w-full flex-col overflow-hidden border border-zinc-800 bg-zinc-900 outline-none md:h-[90vh] md:rounded-xl'
-        style={{ width }}
+        className={clsx(
+          'flex h-full w-full flex-col overflow-hidden border border-gray-800 bg-gray-900 outline-none md:h-[90vh] md:rounded-xl',
+          className
+        )}
+        style={{ width, height }}
       >
         {hasHeader && (
-          <div className='flex items-center justify-between gap-3 border-b border-zinc-200 px-4 py-3'>
+          <div className='flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3'>
             {title ? <h2 className='m-0 text-base font-semibold'>{title}</h2> : null}
 
             {showCloseButton && (
               <button
-                className='inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg outline-none hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-zinc-400 active:bg-zinc-700'
+                className='inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg outline-none hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-gray-400 active:bg-gray-700'
                 onClick={onClose}
               >
                 X
@@ -101,7 +109,7 @@ export default function Modal({
           </div>
         )}
 
-        <div className='h-full w-full overflow-auto p-4'>{children}</div>
+        <div className='scrollbar-custom h-full w-full overflow-auto p-4'>{children}</div>
       </div>
     </div>
   );

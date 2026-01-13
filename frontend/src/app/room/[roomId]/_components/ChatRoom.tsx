@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChatMessage } from '@/types/room';
+import { ChatMessage } from '@/types/game';
 
 import BaseInput from '@/components/form/input/BaseInput';
 import Button from '@/components/button/Button';

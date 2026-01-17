@@ -47,7 +47,6 @@ export class RoomManager {
     }));
 
     io.to(roomId).emit('room:update', {
-      roomId,
       status: room.status,
       currentSongIndex: room.currentSongIndex,
       players,

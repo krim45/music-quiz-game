@@ -1,4 +1,5 @@
-import { Room, RoomListItemDTO } from '@/types';
+import { PlaylistItem, Room, RoomListItemDTO } from '@/types';
+import { RoomManager } from '@/sockets/RoomManager';
 
 export const randomRoomCode = (): string => {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -35,7 +36,7 @@ export const reassignOwner = (room: Room): void => {
   room.players.set(nextOwner.playerId, nextOwner);
 };
 
-export const toRoomInfoDTO = (roomId: string, room: Room): RoomListItemDTO => ({
+export const toRoomListItemDTO = (roomId: string, room: Room): RoomListItemDTO => ({
   roomId,
   title: room.title,
   curPlayers: room.players.size,
@@ -43,3 +44,39 @@ export const toRoomInfoDTO = (roomId: string, room: Room): RoomListItemDTO => ({
   hasPassword: !!room.password,
   status: room.status,
 });
+
+export function normalizeAnswer(input: string) {
+  return input.replace(/\s+/g, '').trim().toLowerCase();
+}
+
+export function parseExtraAnswers(extraAnswers?: string | null): string[] {
+  if (!extraAnswers) return [];
+
+  return extraAnswers
+    .split(/[,]/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export function isCorrect(message: string, song: PlaylistItem) {
+  const guess = normalizeAnswer(message);
+  if (!guess) return false;
+
+  const accepted = [song.title, ...parseExtraAnswers(song.extraAnswers)];
+  return accepted.some((ans) => normalizeAnswer(ans) === guess);
+}
+
+export function getMe(RoomManager: RoomManager, roomId: string, socketId: string) {
+  const room = RoomManager.get(roomId);
+  if (!room) return { ok: false as const, message: '존재하지 않는 방입니다.' };
+
+  const socketRoom = RoomManager.getSocketRoom(socketId);
+  if (!socketRoom || socketRoom.roomId !== roomId) {
+    return { ok: false as const, message: '방에 참여한 유저만 가능합니다.' };
+  }
+
+  const me = room.players.get(socketRoom.playerId);
+  if (!me) return { ok: false as const, message: '플레이어 정보를 찾을 수 없습니다.' };
+
+  return { ok: true as const, room, me, playerId: socketRoom.playerId };
+}

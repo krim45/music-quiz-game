@@ -1,22 +1,33 @@
-import type { Server, Socket } from 'socket.io';
-import type { Player, CreateRoomPayload, RoomJoinPayload, RoomResponse, RoomListItemDTO, SocketRoom } from '@/types';
-import { assignColor, randomRoomCode, reassignOwner, shuffle } from '@/utils/room';
-import { RoomManager } from '@/sockets/RoomManager';
+import crypto from 'crypto';
 
-// TODO
-// 노래 목록, 노래 정답
-// 방장, 플레이어 기준, 방장 시작, 플레이어 준비
-// 방 제목, 방에서 정한 플레이 리스트 이름, 비번
+import { RoomManager } from '@/sockets/RoomManager';
+import { getPlaylist, getPlaylistDetail } from '@/services/playlists';
+import { computeRequiredSkipCount, handleSkipMajority, reveal, scheduleRoundStart } from '@/utils/game';
+import { assignColor, getMe, isCorrect, randomRoomCode, reassignOwner, shuffle, toRoomListItemDTO } from '@/utils/room';
+
+import type { Server, Socket } from 'socket.io';
+import type {
+  Player,
+  CreateRoomPayload,
+  RoomJoinPayload,
+  RoomResponse,
+  RoomListItemDTO,
+  RoomInfoPayload,
+  RoomInfoResponse,
+} from '@/types';
 
 export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: RoomManager) {
   // 방 생성
-  socket.on('room:create', (payload: CreateRoomPayload, ack: (res: RoomResponse) => void) => {
-    if (!payload.title.trim()) {
-      return ack({ ok: false, message: '게임 제목이 없습니다.' });
+  // TODO
+  // maxPlayer, 전체 곡 한계치 정하기 => 프론트에서
+  socket.on('room:create', async (payload: CreateRoomPayload, ack: (res: RoomResponse) => void) => {
+    const { title, playlistId } = payload;
+    if (!title.trim()) {
+      return ack({ ok: false, message: '게임 제목을 입력하세요.' });
     }
 
-    if (!payload.songList.length) {
-      return ack({ ok: false, message: '노래 목록이 비어 있습니다.' });
+    if (!playlistId) {
+      return ack({ ok: false, message: '플레이리스트를 선택하세요.' });
     }
 
     let roomId = randomRoomCode();
@@ -24,12 +35,29 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
       roomId = randomRoomCode();
     }
 
+    const { songs } = await getPlaylistDetail(playlistId);
+
+    if (songs.length === 0) {
+      return ack({ ok: false, message: '플레이리스트에 노래가 없어요.' });
+    }
+
     RoomManager.create(roomId, {
       ...payload,
-      songList: shuffle(payload.songList),
-      players: new Map<string, Player>(),
+      playlistId,
+      songList: shuffle(songs),
+      players: new Map(),
       currentSongIndex: 0,
       status: 'waiting',
+      maxPlayers: 12,
+
+      runtime: {
+        phase: 'countdown',
+        roundNonce: 0,
+        revealed: false,
+        hintShown: false,
+        skipVotes: new Set(),
+        requiredSkipCount: 0,
+      },
     });
 
     ack({ ok: true, roomId });
@@ -37,73 +65,81 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
   // 방 참여
   socket.on('room:join', (payload: RoomJoinPayload, ack: (res: RoomResponse) => void) => {
-    const { roomId, playerId, nickname, password } = payload;
+    const { roomId, nickname, password } = payload;
     const room = RoomManager.get(roomId);
 
-    if (!room) {
-      return ack({ ok: false, message: '존재하지 않는 방입니다.' });
-    }
-
-    const existingPlayer = room.players.get(playerId);
-
-    // 🔁 재접속 흐름
-    if (existingPlayer) {
-      existingPlayer.socketId = socket.id;
-      existingPlayer.isOwner = false;
-
-      socket.join(roomId);
-      room.players.set(playerId, existingPlayer);
-      RoomManager.setSocketRoom(socket.id, roomId, playerId);
-      RoomManager.emitRoomUpdate(io, roomId);
-
-      return ack({ ok: true, roomId });
-    }
+    if (!room) return ack({ ok: false, message: '존재하지 않는 방입니다.' });
 
     if (room.password && room.password !== password) {
       return ack({ ok: false, message: '비밀번호가 틀렸습니다.' });
+    }
+
+    // ✅ 이미 이 소켓이 방에 들어가 있으면(중복 join 방지)
+    const existingSocketRoom = RoomManager.getSocketRoom(socket.id);
+    if (existingSocketRoom) {
+      if (existingSocketRoom.roomId === roomId) {
+        return ack({ ok: true, roomId, playerId: existingSocketRoom.playerId });
+      }
+      return ack({ ok: false, message: '이미 다른 방에 참여 중입니다.' });
+    }
+
+    const nick = nickname.trim();
+
+    if (nick.length < 2 || nick.length > 10) {
+      return ack({ ok: false, message: '닉네임은 2~10자여야 합니다.' });
+    }
+
+    const isNicknameUsed = [...room.players.values()].some((p) => p.nickname === nick);
+    if (isNicknameUsed) {
+      return ack({ ok: false, message: '이미 존재하는 닉네임입니다.' });
     }
 
     if (room.players.size >= room.maxPlayers) {
       return ack({ ok: false, message: '방이 꽉 찼습니다.' });
     }
 
-    // 닉네임 중복 검사
-    const isNicknameUsed = [...room.players.values()].some((p) => p.nickname === nickname);
-    if (isNicknameUsed) {
-      return ack({ ok: false, message: '이미 존재하는 닉네임입니다.' });
-    }
+    // ✅ 서버 발급 playerId
+    const playerId = crypto.randomUUID();
 
-    // 플레이어 생성 및 등록
     const player: Player = {
       playerId,
       socketId: socket.id,
-      nickname,
+      nickname: nick,
       color: assignColor(room),
       score: 0,
       ready: room.players.size === 0,
-      isOwner: room.players.size === 0, // 첫 번째 유저는 방장
+      isOwner: room.players.size === 0,
     };
 
     socket.join(roomId);
     room.players.set(playerId, player);
+
     RoomManager.setSocketRoom(socket.id, roomId, playerId);
     RoomManager.emitRoomUpdate(io, roomId);
-    ack({ ok: true, roomId });
+
+    return ack({ ok: true, roomId, playerId });
   });
 
-  // 명시적 방 나가기 (유저가 "나가기" 버튼 클릭)
-  socket.on('room:leave', (payload: SocketRoom, ack: (res: RoomResponse) => void) => {
-    const { roomId, playerId } = payload;
-    const room = RoomManager.get(roomId);
+  // 명시적 방 나가기
+  socket.on('room:leave', (payload: { roomId: string }, ack: (res: RoomResponse) => void) => {
+    const { roomId } = payload;
 
-    if (!room) {
+    const room = RoomManager.get(roomId);
+    if (!room) return ack({ ok: true, roomId });
+
+    const socketRoom = RoomManager.getSocketRoom(socket.id);
+    if (!socketRoom || socketRoom.roomId !== roomId) {
+      if (room.players.size === 0) {
+        RoomManager.delete(roomId);
+      }
       return ack({ ok: true, roomId });
     }
 
+    const playerId = socketRoom.playerId;
     const player = room.players.get(playerId);
     const wasOwner = player?.isOwner ?? false;
 
-    // leave는 완전 삭제
+    // 완전 삭제
     room.players.delete(playerId);
     RoomManager.deleteSocketRoom(socket.id);
     socket.leave(roomId);
@@ -118,7 +154,6 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     }
 
     RoomManager.emitRoomUpdate(io, roomId);
-
     return ack({ ok: true, roomId });
   });
 
@@ -127,7 +162,14 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     console.log('disconnect: ', reason);
 
     const socketRoom = RoomManager.getSocketRoom(socket.id);
-    if (!socketRoom) return;
+    if (!socketRoom) {
+      for (const [roomId, room] of RoomManager.rooms.entries()) {
+        if (room.players.size === 0) {
+          RoomManager.delete(roomId);
+        }
+      }
+      return;
+    }
 
     const { roomId, playerId } = socketRoom;
     RoomManager.deleteSocketRoom(socket.id);
@@ -136,20 +178,13 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     if (!room) return;
 
     const player = room.players.get(playerId);
-    if (!player) return;
+    const wasOwner = player?.isOwner ?? false;
 
-    const wasOwner = player.isOwner;
-
-    // 🔥 disconnect는 플레이어 삭제 X
-    player.socketId = null;
-    player.isOwner = false;
-
-    room.players.set(playerId, player);
+    // 완전 삭제
+    room.players.delete(playerId);
     socket.leave(roomId);
 
-    // 방 전체가 offline이면 삭제
-    const hasActive = [...room.players.values()].some((p) => p.socketId !== null);
-    if (!hasActive) {
+    if (room.players.size === 0) {
       RoomManager.delete(roomId);
       return;
     }
@@ -166,57 +201,129 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     const rooms: RoomListItemDTO[] = [];
 
     for (const [roomId, room] of RoomManager.rooms.entries()) {
-      rooms.push({
-        roomId,
-        title: room.title,
-        curPlayers: room.players.size,
-        maxPlayers: room.maxPlayers,
-        hasPassword: Boolean(room.password && room.password.length > 0),
-        status: room.status,
-      });
+      rooms.push(toRoomListItemDTO(roomId, room));
     }
 
     ack({ ok: true, rooms });
   });
 
-  // 채팅 이벤트
+  // 방 정보 조회
+  socket.on('room:info', async ({ roomId }: RoomInfoPayload, ack: (res: RoomInfoResponse) => void) => {
+    const room = RoomManager.get(roomId);
+    if (!room) {
+      return ack({ ok: false, message: '존재하지 않는 방입니다.' });
+    }
+
+    const playlist = await getPlaylist({ playlistId: room.playlistId });
+
+    if (!playlist) {
+      return ack({ ok: false, message: '플레이리스트 정보를 찾을 수 없습니다.' });
+    }
+
+    return ack({
+      ok: true,
+      data: {
+        room: {
+          id: roomId,
+          title: room.title,
+          hasPassword: !!room.password,
+          status: room.status,
+          songCount: room.songList.length,
+        },
+        playlist,
+      },
+    });
+  });
+
+  // 게임 시작
+  socket.on('game:start', (payload: { roomId: string }, ack: (res: { ok: boolean; message?: string }) => void) => {
+    const { roomId } = payload;
+    const room = RoomManager.get(roomId);
+    if (!room) return ack({ ok: false, message: '존재하지 않는 방입니다.' });
+
+    const socketRoom = RoomManager.getSocketRoom(socket.id);
+    if (!socketRoom || socketRoom.roomId !== roomId) {
+      return ack({ ok: false, message: '방에 참여한 유저만 시작할 수 있습니다.' });
+    }
+
+    const me = room.players.get(socketRoom.playerId);
+    if (!me) return ack({ ok: false, message: '플레이어 정보를 찾을 수 없습니다.' });
+    if (!me.isOwner) return ack({ ok: false, message: '방장만 게임을 시작할 수 있습니다.' });
+
+    if (room.status === 'playing') return ack({ ok: false, message: '이미 게임이 시작되었습니다.' });
+    if (room.songList.length === 0) return ack({ ok: false, message: '플레이리스트에 노래가 없어요.' });
+
+    room.status = 'playing';
+    room.currentSongIndex = 0;
+
+    scheduleRoundStart(io, RoomManager, roomId, room.currentSongIndex);
+
+    return ack({ ok: true });
+  });
+
+  // 스킵
+  socket.on(
+    'game:skip',
+    (payload: { roomId: string; currentSongIndex?: number }, ack: (res: { ok: boolean; message?: string }) => void) => {
+      const { roomId, currentSongIndex } = payload;
+
+      const meRes = getMe(RoomManager, roomId, socket.id);
+      if (!meRes.ok) return ack({ ok: false, message: meRes.message });
+
+      const { room, playerId } = meRes;
+
+      if (room.status !== 'playing') return ack({ ok: false, message: '게임 중에만 스킵할 수 있습니다.' });
+      if (room.runtime.phase !== 'round') return ack({ ok: false, message: '다음 곡 준비 중입니다.' });
+
+      if (currentSongIndex !== room.currentSongIndex) {
+        return ack({ ok: false, message: '현재 라운드가 아닙니다.' });
+      }
+
+      room.runtime.skipVotes.add(playerId);
+
+      const current = room.runtime.skipVotes.size;
+      const required = computeRequiredSkipCount(room);
+
+      io.to(roomId).emit('game:skip:update', {
+        currentSongIndex: room.currentSongIndex,
+        skip: { current, required },
+      });
+
+      if (current >= required) {
+        handleSkipMajority(io, RoomManager, roomId);
+      }
+
+      return ack({ ok: true });
+    }
+  );
+
+  // 채팅 + 정답 판정
   socket.on('chat:message', (payload: { roomId: string; message: string }) => {
     const { roomId, message } = payload;
-    const room = RoomManager.get(roomId);
-    if (!room) return;
 
-    const player = room.players.get(socket.id);
-    if (!player) return;
+    const meRes = getMe(RoomManager, roomId, socket.id);
+    if (!meRes.ok) return;
 
-    console.log(message);
-    // 예시 정답 (나중에 라운드별로 동적 관리 가능)
-    if (message === 'start') {
-      io.to(roomId).emit('game:play', { index: 0 });
-    }
+    const { room, me, playerId } = meRes;
 
-    if (message === 'next') {
-      io.to(roomId).emit('game:play', { index: 1 });
-    }
-    const ANSWER = 'hello';
+    // 채팅은 항상 broadcast
+    io.to(roomId).emit('chat:message', { from: me.nickname, color: me.color, message });
 
-    io.to(roomId).emit('chat:message', {
-      from: player.nickname,
-      color: player.color,
-      message,
-    });
+    if (room.status !== 'playing') return;
 
-    if (message.trim().toLowerCase() === ANSWER.toLowerCase()) {
-      player.score += 1;
+    if (room.runtime.phase !== 'round') return;
 
-      io.to(roomId).emit('chat:message', {
-        from: player.nickname,
-        color: player.color,
-        message: `✅ 정답! ${player.nickname} (${player.score}점)`,
-      });
+    if (room.runtime.revealed) return;
 
-      io.to(roomId).emit('score:update', {
-        players: Array.from(room.players.values()),
-      });
-    }
+    const currentSong = room.songList[room.currentSongIndex];
+    if (!currentSong) return;
+
+    if (!isCorrect(message, currentSong)) return;
+
+    // 정답 처리
+    me.score += 1;
+    RoomManager.emitRoomUpdate(io, roomId);
+
+    reveal(io, RoomManager, roomId, 'correct', { playerId, nickname: me.nickname, color: me.color });
   });
 }

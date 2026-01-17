@@ -36,13 +36,12 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
 
   // 메시지 추가될 때 자동 스크롤
   useEffect(() => {
-    if (isUserScrolledUp) return; // 유저가 위로 스크롤 중이면 자동 스크롤 금지
+    if (isUserScrolledUp) return;
 
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isUserScrolledUp]);
 
   // 메시지 전송
-  // onSendMessage로
   const sendMessage = () => {
     const message = input.trim();
     onSendMessage?.(message);

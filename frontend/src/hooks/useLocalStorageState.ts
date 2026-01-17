@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { getLocalStorageItem, setLocalStorageItem } from '@/utils/localStorage';
 import { isUpdater } from '@/utils/reactUtils';

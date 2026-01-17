@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState, RefObject } from 'react';
 
 export interface UseYouTubePlayerResult {
@@ -18,6 +20,11 @@ export const useYouTubePlayer = (containerId: string, options: YT.PlayerOptions)
 
       playerRef.current = new window.YT.Player(containerId, {
         ...options,
+        playerVars: {
+          origin: window.location.origin,
+          playsinline: 1,
+          ...options.playerVars,
+        },
         events: {
           ...options.events,
           onReady: (event: YT.PlayerEvent) => {

@@ -4,6 +4,7 @@ import { PlaylistSong } from '@/entities/PlaylistSong';
 import { Song } from '@/entities/Song';
 import { HttpError } from '@/errors/HttpError';
 import { type SongPayload, upsertSongWithManager } from '@/services/songs';
+import type { PlaylistDTO } from '@/types';
 
 export type CreatePlaylistSongInput = { songId?: string; startSeconds?: number } & SongPayload;
 
@@ -115,7 +116,30 @@ export type FindPlaylistsParams = {
   offset: number;
 };
 
+export type GetPlaylistParams = {
+  playlistId: string;
+};
+
 export type PlaylistListItem = Pick<Playlist, 'id' | 'name' | 'description' | 'createdAt' | 'updatedAt'>;
+
+export async function getPlaylist(params: GetPlaylistParams): Promise<PlaylistDTO | null> {
+  const { playlistId } = params;
+  const repo = AppDataSource.getRepository(Playlist);
+
+  const playlist = await repo
+    .createQueryBuilder('playlist')
+    .select(['playlist.id', 'playlist.name', 'playlist.description'])
+    .where('playlist.id = :id', { id: playlistId })
+    .getOne();
+
+  if (!playlist) return null;
+
+  return {
+    id: playlist.id,
+    name: playlist.name,
+    description: playlist.description ?? null,
+  };
+}
 
 export async function getPlaylists(
   params: FindPlaylistsParams
@@ -152,12 +176,11 @@ export async function getPlaylistDetail(playlistId: string) {
     .createQueryBuilder('ps')
     .innerJoinAndSelect('ps.song', 'song')
     .where('ps.playlistId = :playlistId', { playlistId })
-    .orderBy('ps.createdAt', 'DESC')
     .getMany();
 
   return {
     playlist,
-    songs,
+    songs: songs.map((item) => ({ ...item.song, startSeconds: item.startSeconds })),
   };
 }
 

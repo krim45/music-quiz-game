@@ -1,21 +1,19 @@
-import { v4 as uuid } from 'uuid';
 import { getLocalStorageItem, setLocalStorageItem } from '@/utils/localStorage';
 
 const KEY = 'playerId';
-
-function createId(): string {
-  return uuid();
-}
 
 export function getPlayerId(): string {
   if (typeof window === 'undefined') {
     throw new Error('getPlayerId must be used in the browser');
   }
 
-  const stored = getLocalStorageItem<string>(KEY);
-  if (stored) return stored;
+  return getLocalStorageItem<string>(KEY) || '';
+}
 
-  const newId = createId();
-  setLocalStorageItem(KEY, newId);
-  return newId;
+export function setPlayerId(id: string) {
+  if (typeof window === 'undefined') {
+    throw new Error('setPlayerId must be used in the browser');
+  }
+
+  setLocalStorageItem(KEY, id);
 }

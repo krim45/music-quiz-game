@@ -17,6 +17,9 @@ export class PlaylistSong {
   @Column({ type: 'int', default: 0 })
   startSeconds!: number;
 
+  @Column({ type: 'int', nullable: true })
+  endSeconds?: number | null;
+
   @ManyToOne(() => Playlist, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'playlistId' })
   playlist!: Playlist;

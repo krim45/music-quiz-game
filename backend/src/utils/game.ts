@@ -294,10 +294,7 @@ export function scheduleNextRound(io: Server, RoomManager: RoomManager, roomId: 
     // roundNonce는 유지해도 되고, 올려도 됨 (안전하게 올리려면 bumpNonce(room) 호출)
     bumpNonce(room);
 
-    // 4) room:update 먼저 보내서 UI 전환 보장
-    RoomManager.emitRoomUpdate(io, roomId);
-
-    // 5) 결과 이벤트(선택)
+    // 5) 결과 이벤트
     io.to(roomId).emit('game:finished', {
       players: Array.from(room.players.values()).map((p) => ({
         nickname: p.nickname,
@@ -307,6 +304,14 @@ export function scheduleNextRound(io: Server, RoomManager: RoomManager, roomId: 
         isOwner: p.isOwner,
       })),
     });
+
+    // 점수 초기화
+    for (const p of room.players.values()) {
+      p.score = 0;
+      // p.ready = false;
+    }
+
+    RoomManager.emitRoomUpdate(io, roomId);
 
     return;
   }

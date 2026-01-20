@@ -7,16 +7,17 @@ export type RoomId = string;
 
 /** ---------- domain ---------- */
 export type Player = {
+  ip: string;
   playerId: PlayerId; // 서버 발급 고정 ID
   socketId: string | null; // 서버 런타임 연결 정보
   nickname: string;
   color: string;
   score: number;
-  ready: boolean;
+  // ready: boolean;
   isOwner: boolean;
 };
 
-export type PlayerPublic = Omit<Player, 'socketId'>;
+export type PlayerPublic = Omit<Player, 'socketId' | 'ip'>;
 
 export type Song = {
   id?: string;
@@ -78,6 +79,7 @@ export type Room = {
   songList: PlaylistItem[];
   currentSongIndex: number;
 
+  bannedIps?: Set<string>; // ✅ 추가 (서버 런타임)
   /** ✅ 서버 런타임은 무조건 존재 */
   runtime: RoomRuntime;
 };

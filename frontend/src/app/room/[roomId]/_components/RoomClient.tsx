@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
@@ -29,8 +29,6 @@ import type {
   GameSkipUpdate,
 } from '@/types/game';
 
-const BGM_ID = 'c7rCyll5AeY';
-
 export default function RoomPage() {
   const [joined, setJoined] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -44,6 +42,7 @@ export default function RoomPage() {
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
+  const router = useRouter();
   const params = useParams();
   const roomId = Array.isArray(params.roomId) ? params.roomId[0] : params.roomId!;
 
@@ -130,12 +129,18 @@ export default function RoomPage() {
     const onReveal = (payload: GameReveal) => {
       setReveal(payload);
     };
+
     const onGameFinished = () => {
       setPlayState(null);
       setStartState(null);
       setHint(null);
       setReveal(null);
       playerRef.current?.stopVideo?.();
+    };
+
+    const onKicked = (payload: { roomId: string; message?: string }) => {
+      toast.error(payload.message || '방에서 강퇴되었습니다.');
+      router.push('/room/join');
     };
 
     socket.on('room:update', onRoomUpdate);
@@ -146,6 +151,7 @@ export default function RoomPage() {
     socket.on('game:hint', onHint);
     socket.on('game:reveal', onReveal);
     socket.on('game:finished', onGameFinished);
+    socket.on('room:kicked', onKicked);
 
     socket.emit('room:info', { roomId }, (res: RoomInfoResponse) => {
       if (!res.ok) {
@@ -165,6 +171,7 @@ export default function RoomPage() {
       socket.off('game:hint', onHint);
       socket.off('game:reveal', onReveal);
       socket.off('game:finished', onGameFinished);
+      socket.off('room:kicked', onKicked);
     };
   }, [isReady, roomId, playerRef]);
 

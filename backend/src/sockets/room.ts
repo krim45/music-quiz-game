@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 import { RoomManager } from '@/sockets/RoomManager';
 import { getPlaylist, getPlaylistDetail } from '@/services/playlists';
-import { computeRequiredSkipCount, handleSkipMajority, reveal, scheduleRoundStart } from '@/utils/game';
+import { computeRequiredSkipCount, getClientIp, handleSkipMajority, reveal, scheduleRoundStart } from '@/utils/game';
 import { assignColor, getMe, isCorrect, randomRoomCode, reassignOwner, shuffle, toRoomListItemDTO } from '@/utils/room';
 
 import type { Server, Socket } from 'socket.io';
@@ -74,6 +74,14 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
       return ack({ ok: false, message: '비밀번호가 틀렸습니다.' });
     }
 
+    const ip = getClientIp(socket);
+    if (!ip) return ack({ ok: false, message: 'IP를 확인할 수 없습니다.' });
+
+    if (!room.bannedIps) room.bannedIps = new Set();
+    if (room.bannedIps.has(ip)) {
+      return ack({ ok: false, message: '강퇴된 사용자입니다. 입장할 수 없습니다.' });
+    }
+
     // ✅ 이미 이 소켓이 방에 들어가 있으면(중복 join 방지)
     const existingSocketRoom = RoomManager.getSocketRoom(socket.id);
     if (existingSocketRoom) {
@@ -102,12 +110,13 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     const playerId = crypto.randomUUID();
 
     const player: Player = {
+      ip,
       playerId,
       socketId: socket.id,
       nickname: nick,
       color: assignColor(room),
       score: 0,
-      ready: room.players.size === 0,
+      // ready: room.players.size === 0,
       isOwner: room.players.size === 0,
     };
 
@@ -119,6 +128,49 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
     return ack({ ok: true, roomId, playerId });
   });
+
+  // 강퇴
+  socket.on(
+    'room:kick',
+    (payload: { roomId: string; targetPlayerId: string }, ack: (res: { ok: boolean; message?: string }) => void) => {
+      const { roomId, targetPlayerId } = payload;
+
+      const room = RoomManager.get(roomId);
+      if (!room) return ack({ ok: false, message: '존재하지 않는 방입니다.' });
+
+      // 방장 체크
+      const meRes = getMe(RoomManager, roomId, socket.id);
+      if (!meRes.ok) return ack({ ok: false, message: meRes.message });
+
+      if (!meRes.me.isOwner) return ack({ ok: false, message: '방장만 강퇴할 수 있습니다.' });
+
+      // 방장 강퇴 방지
+      if (meRes.playerId === targetPlayerId) return ack({ ok: false, message: '방장은 강퇴할 수 없습니다.' });
+
+      const target = room.players.get(targetPlayerId);
+      if (!target) return ack({ ok: false, message: '대상을 찾을 수 없습니다.' });
+
+      // IP 밴 등록
+      if (!room.bannedIps) room.bannedIps = new Set();
+      room.bannedIps.add(target.ip);
+
+      // 대상 제거
+      room.players.delete(targetPlayerId);
+
+      // 대상 소켓 강제 퇴장 + 알림
+      if (target.socketId) {
+        const targetSocket = io.sockets.sockets.get(target.socketId);
+        if (targetSocket) {
+          RoomManager.deleteSocketRoom(target.socketId);
+          targetSocket.leave(roomId);
+          targetSocket.emit('room:kicked', { roomId, message: '방에서 강퇴되었습니다.' });
+        }
+      }
+
+      RoomManager.emitRoomUpdate(io, roomId);
+      return ack({ ok: true });
+    }
+  );
 
   // 명시적 방 나가기
   socket.on('room:leave', (payload: { roomId: string }, ack: (res: RoomResponse) => void) => {

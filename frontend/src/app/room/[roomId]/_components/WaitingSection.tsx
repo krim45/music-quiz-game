@@ -9,16 +9,13 @@ import { getPlayerId } from '@/utils/playerId';
 import Button from '@/components/button/Button';
 
 import type { Player, RoomInfo } from '@/types/game';
+import Close from '@/components/icon/Close';
 
 type Props = {
   roomId: string;
   roomInfo: RoomInfo;
   players: Player[];
 };
-
-// TODO
-// 1. 강퇴기능, 동그란 x 아이콘
-// 2. 방장 chip
 
 export default function WaitingSection({ roomId, roomInfo, players }: Props) {
   const isOwner = () => {
@@ -38,6 +35,19 @@ export default function WaitingSection({ roomId, roomInfo, players }: Props) {
     });
   };
 
+  const kickPlayer = (targetPlayerId: string, nickname: string) => {
+    const result = confirm(`'${nickname}'님을 추방합니다`);
+    if (!result) return;
+
+    const socket = getSocket();
+
+    socket.emit('room:kick', { roomId, targetPlayerId }, (res: { ok: boolean; message?: string }) => {
+      if (!res.ok) {
+        toast.error(res.message || '실패');
+      }
+    });
+  };
+
   const descClassName = 'text-center text-sm [overflow-wrap:break-word] break-keep whitespace-pre-line';
 
   return (
@@ -52,14 +62,22 @@ export default function WaitingSection({ roomId, roomInfo, players }: Props) {
         <div>플레이어</div>
 
         <ul className='scrollbar-custom flex-1 overflow-auto'>
-          {players.map((p, i) => (
-            <li key={i} className='flex items-center gap-3 text-xs'>
+          {players.map((p) => (
+            <li key={p.playerId} className='flex gap-3 text-xs'>
               <div className='flex w-full items-center gap-1 overflow-hidden'>
                 <span className='inline-block min-h-3 min-w-3' style={{ backgroundColor: p.color }} />
                 <span className='truncate'>{p.nickname}</span>
               </div>
 
-              {isOwner() && <div>강퇴</div>}
+              {isOwner() && !p.isOwner && (
+                <Close
+                  className='flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full bg-gray-700 text-white hover:bg-white hover:text-black'
+                  size={12}
+                  onClick={() => kickPlayer(p.playerId, p.nickname)}
+                >
+                  강퇴
+                </Close>
+              )}
             </li>
           ))}
         </ul>

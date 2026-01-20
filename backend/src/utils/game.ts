@@ -1,4 +1,4 @@
-import type { Server } from 'socket.io';
+import type { Server, Socket } from 'socket.io';
 import { RoomManager } from '@/sockets/RoomManager';
 import type { PlaylistItem, Room } from '@/types';
 
@@ -7,6 +7,16 @@ const ROUND_START_DELAY_MS = 4000;
 
 type RevealReason = 'correct' | 'timeout' | 'skip';
 type AnsweredBy = { playerId: string; nickname: string; color: string };
+
+export function getClientIp(socket: Socket): string | null {
+  console.log(socket.handshake.headers);
+  const xff = socket.handshake.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length > 0) {
+    return xff.split(',')[0].trim();
+  }
+  // socket.io가 제공하는 주소
+  return socket.handshake.address ?? null;
+}
 
 function computeDurationSec(song: PlaylistItem) {
   const raw = typeof song.endSeconds === 'number' ? song.endSeconds - song.startSeconds : DEFAULT_DURATION_SEC;
@@ -293,7 +303,7 @@ export function scheduleNextRound(io: Server, RoomManager: RoomManager, roomId: 
         nickname: p.nickname,
         color: p.color,
         score: p.score,
-        ready: p.ready,
+        // ready: p.ready,
         isOwner: p.isOwner,
       })),
     });

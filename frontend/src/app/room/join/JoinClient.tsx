@@ -9,7 +9,11 @@ import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
 import Refresh from '@/components/icon/Refresh';
 import Table, { type TableColumn } from '@/components/table/Table';
-import type { RoomListItem } from '@/types/room';
+import type { RoomListItem } from '@/types/game';
+
+// TODO: 첫페이지는 서버로 부터 오는게?
+// 방 목록 수시 업데이트, sse? polling?
+// 방 목록을 무한스크롤로 가져오는건?
 
 export default function JoinClient() {
   const [rooms, setRooms] = useState<RoomListItem[]>([]);
@@ -47,11 +51,14 @@ export default function JoinClient() {
 
   const filtered = rooms.filter((room) => room.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  // TODO
+  // 비번방이면 아이콘 넣기
+  // 진행 중인 방이면 못 들어가고 최하위 정렬로 보내기
   const columns: TableColumn<RoomListItem>[] = [
     {
       key: 'players',
       label: '플레이어',
-      className: 'w-[74px] text-center',
+      className: 'w-[76px] text-center',
       accessor: (row) => `${row.curPlayers} / ${row.maxPlayers}`,
     },
     { key: 'title', label: '게임 제목', sortable: true },

@@ -40,6 +40,14 @@ function clearAllTimers(room: Room) {
   room.runtime.endTimeoutId = undefined;
 }
 
+function chat(io: Server, roomId: string, message: string) {
+  io.to(roomId).emit('chat:message', {
+    from: 'SYSTEM',
+    color: '#9CA3AF', // 회색(프론트가 style 그대로 쓰면)
+    message,
+  });
+}
+
 /**
  * ✅ 라운드를 시작 "예약"한다.
  * - 매 라운드마다 game:start 먼저 emit (4초 카운트다운)
@@ -204,6 +212,15 @@ export function reveal(
 
   clearTimer(room.runtime.hintTimeoutId);
   room.runtime.hintTimeoutId = undefined;
+
+  // ✅ (추가) 채팅으로 정답/정답자 공지
+  const answerText = `${song.singer} - ${song.title}`;
+
+  if (reason === 'correct' && answeredBy) {
+    chat(io, roomId, `정답: ${answerText} | ${answeredBy.nickname} (+1점)`);
+  } else if (reason === 'skip') {
+    chat(io, roomId, `스킵! 정답: ${answerText}`);
+  }
 
   io.to(roomId).emit('game:reveal', {
     currentSongIndex: room.currentSongIndex,

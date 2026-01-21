@@ -70,6 +70,10 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
     if (!room) return ack({ ok: false, message: '존재하지 않는 방입니다.' });
 
+    if (room.status === 'playing') {
+      return ack({ ok: false, message: '진행 중인 게임에는 참여할 수 없습니다.' });
+    }
+
     if (room.password && room.password !== password) {
       return ack({ ok: false, message: '비밀번호가 틀렸습니다.' });
     }
@@ -125,6 +129,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
     RoomManager.setSocketRoom(socket.id, roomId, playerId);
     RoomManager.emitRoomUpdate(io, roomId);
+    RoomManager.emitRoomList(io);
 
     return ack({ ok: true, roomId, playerId });
   });
@@ -168,6 +173,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
       }
 
       RoomManager.emitRoomUpdate(io, roomId);
+      RoomManager.emitRoomList(io);
       return ack({ ok: true });
     }
   );
@@ -191,13 +197,14 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     const player = room.players.get(playerId);
     const wasOwner = player?.isOwner ?? false;
 
-    // 완전 삭제
     room.players.delete(playerId);
     RoomManager.deleteSocketRoom(socket.id);
     socket.leave(roomId);
 
     if (room.players.size === 0) {
       RoomManager.delete(roomId);
+      RoomManager.emitRoomList(io);
+
       return ack({ ok: true, roomId });
     }
 
@@ -206,6 +213,8 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     }
 
     RoomManager.emitRoomUpdate(io, roomId);
+    RoomManager.emitRoomList(io);
+
     return ack({ ok: true, roomId });
   });
 
@@ -238,6 +247,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
     if (room.players.size === 0) {
       RoomManager.delete(roomId);
+      RoomManager.emitRoomList(io);
       return;
     }
 
@@ -246,6 +256,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     }
 
     RoomManager.emitRoomUpdate(io, roomId);
+    RoomManager.emitRoomList(io);
   });
 
   // 방 목록 조회
@@ -253,8 +264,19 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     const rooms: RoomListItemDTO[] = [];
 
     for (const [roomId, room] of RoomManager.rooms.entries()) {
+      if (room.players.size === 0) continue;
+
       rooms.push(toRoomListItemDTO(roomId, room));
     }
+
+    // ✅ playing 방은 항상 마지막
+    rooms.sort((a, b) => {
+      const ap = a.status === 'playing' ? 1 : 0;
+      const bp = b.status === 'playing' ? 1 : 0;
+      if (ap !== bp) return ap - bp;
+
+      return a.title.localeCompare(b.title);
+    });
 
     ack({ ok: true, rooms });
   });
@@ -267,7 +289,6 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     }
 
     const playlist = await getPlaylist({ playlistId: room.playlistId });
-
     if (!playlist) {
       return ack({ ok: false, message: '플레이리스트 정보를 찾을 수 없습니다.' });
     }
@@ -275,6 +296,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     return ack({
       ok: true,
       data: {
+        playlist,
         room: {
           id: roomId,
           title: room.title,
@@ -282,7 +304,6 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
           status: room.status,
           songCount: room.songList.length,
         },
-        playlist,
       },
     });
   });
@@ -308,6 +329,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     room.status = 'playing';
     room.currentSongIndex = 0;
 
+    RoomManager.emitRoomList(io);
     scheduleRoundStart(io, RoomManager, roomId, room.currentSongIndex);
 
     return ack({ ok: true });

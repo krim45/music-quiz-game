@@ -1,5 +1,6 @@
 'use client';
 
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/store/useToastStore';
@@ -8,11 +9,11 @@ import { getSocket } from '@/lib/socket';
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
 import Refresh from '@/components/icon/Refresh';
+import Lock from '@/components/icon/Lock';
 import Table, { type TableColumn } from '@/components/table/Table';
 import type { RoomListItem } from '@/types/game';
 
 // TODO: 첫페이지는 서버로 부터 오는게?
-// 방 목록 수시 업데이트, sse? polling?
 // 방 목록을 무한스크롤로 가져오는건?
 
 export default function JoinClient() {
@@ -34,7 +35,19 @@ export default function JoinClient() {
   };
 
   useEffect(() => {
+    const socket = getSocket();
+
     fetchRooms();
+
+    const onRoomListUpdate = (payload: { rooms: RoomListItem[] }) => {
+      setRooms(payload.rooms);
+    };
+
+    socket.on('room:list:update', onRoomListUpdate);
+
+    return () => {
+      socket.off('room:list:update', onRoomListUpdate);
+    };
   }, []);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,20 +62,53 @@ export default function JoinClient() {
     fetchRooms();
   };
 
+  // TODO: 서버 필터링
   const filtered = rooms.filter((room) => room.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // TODO
-  // 비번방이면 아이콘 넣기
-  // 진행 중인 방이면 못 들어가고 최하위 정렬로 보내기
   const columns: TableColumn<RoomListItem>[] = [
     {
       key: 'players',
       label: '플레이어',
       className: 'w-[76px] text-center',
-      accessor: (row) => `${row.curPlayers} / ${row.maxPlayers}`,
+      accessor: (row) => (
+        <span className={clsx(row.status === 'playing' && 'text-gray-500')}>
+          {`${row.curPlayers} / ${row.maxPlayers}`}
+        </span>
+      ),
     },
-    { key: 'title', label: '게임 제목', sortable: true },
+    {
+      key: 'title',
+      label: '게임 제목',
+      sortable: true,
+      render: ({ row }) => {
+        return (
+          <span className={clsx(row.status === 'playing' && 'text-gray-500', 'flex items-center gap-1')}>
+            {row.hasPassword && <Lock className='inline-flex h-4' size={16} />}
+            {row.title}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'status',
+      label: '상태',
+      className: 'w-[72px] text-center',
+      accessor: (row) => (
+        <span className={clsx(row.status === 'playing' && 'text-gray-500')}>
+          {row.status === 'playing' ? '진행 중' : '대기'}
+        </span>
+      ),
+    },
   ];
+
+  const onRowClick = (row: RoomListItem) => {
+    if (row.status === 'playing') {
+      toast.error('진행 중인 방에는 참여할 수 없습니다.');
+      return;
+    }
+
+    router.push(`/room/${row.roomId}`);
+  };
 
   return (
     <div className='flex h-full w-full max-w-3xl flex-col gap-4'>
@@ -89,13 +135,7 @@ export default function JoinClient() {
         </div>
       </div>
 
-      <Table
-        className='h-full flex-1'
-        stickyHead
-        columns={columns}
-        data={filtered}
-        onRowClick={(row) => router.push(`/room/${row.roomId}`)}
-      />
+      <Table className='h-full flex-1' stickyHead columns={columns} data={filtered} onRowClick={onRowClick} />
     </div>
   );
 }

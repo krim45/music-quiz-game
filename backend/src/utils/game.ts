@@ -312,6 +312,7 @@ export function scheduleNextRound(io: Server, RoomManager: RoomManager, roomId: 
     }
 
     RoomManager.emitRoomUpdate(io, roomId);
+    RoomManager.emitRoomList(io);
 
     return;
   }

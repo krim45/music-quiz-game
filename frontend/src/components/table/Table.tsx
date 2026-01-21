@@ -22,7 +22,7 @@ export type DataColumn<T> = BaseColumn & {
 
 export type CustomColumn<T> = BaseColumn & {
   key: string;
-  accessor: (row: T) => string | number | boolean | null | undefined;
+  accessor: (row: T) => React.ReactNode;
   render?: (ctx: { row: TableRow<T>; customKey: string; rowIndex: number }) => React.ReactNode;
 };
 

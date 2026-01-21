@@ -1,4 +1,5 @@
 import type { PlayerPublic, Room, SocketRoom } from '@/types';
+import { toRoomListItemDTO } from '@/utils/room';
 import { Server } from 'socket.io';
 
 export class RoomManager {
@@ -51,5 +52,24 @@ export class RoomManager {
       currentSongIndex: room.currentSongIndex,
       players,
     });
+  }
+
+  emitRoomList(io: Server) {
+    const rooms = [];
+
+    for (const [roomId, room] of this.rooms.entries()) {
+      if (room.players.size === 0) continue;
+
+      rooms.push(toRoomListItemDTO(roomId, room));
+    }
+
+    rooms.sort((a, b) => {
+      const ap = a.status === 'playing' ? 1 : 0;
+      const bp = b.status === 'playing' ? 1 : 0;
+      if (ap !== bp) return ap - bp;
+      return a.title.localeCompare(b.title);
+    });
+
+    io.emit('room:list:update', { rooms });
   }
 }

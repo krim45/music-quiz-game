@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { toast } from '@/lib/store/useToastStore';
 import { validatePreview, validateSongInfo } from '@/app/room/create/_utils/validateSongInfo';

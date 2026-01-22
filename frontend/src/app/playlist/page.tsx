@@ -1,3 +1,5 @@
+'use client';
+
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { useState } from 'react';
 import { useSongForm } from '@/app/room/create/_hooks/useSongForm';

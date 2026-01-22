@@ -9,13 +9,13 @@ AppDataSource.initialize()
   .then(() => {
     console.log('DB initialized');
 
-    const PORT = Number(process.env.PORT);
+    const PORT = Number(process.env.PORT) || 8081;
 
     const server = http.createServer(app);
 
     createSocketServer(server);
 
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`HTTP+Socket listening on http://localhost:${PORT}`);
     });
   })

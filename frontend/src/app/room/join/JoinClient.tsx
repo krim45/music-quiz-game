@@ -78,7 +78,7 @@ export default function JoinClient() {
     },
     {
       key: 'title',
-      label: '게임 제목',
+      label: '방 제목',
       sortable: true,
       render: ({ row }) => {
         return (

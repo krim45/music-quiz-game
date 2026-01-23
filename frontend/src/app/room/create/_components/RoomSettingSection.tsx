@@ -17,7 +17,7 @@ export default function RoomSettingSection({ roomInfo, onChange }: Props) {
       <InputField
         label='제목'
         charLimit={30}
-        helperText='게임 제목을 입력하세요'
+        helperText='방 제목을 입력하세요'
         onChange={(title) => onChange({ title })}
         value={roomInfo.title}
         required

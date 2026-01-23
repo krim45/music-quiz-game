@@ -157,4 +157,6 @@ const InputField = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
+InputField.displayName = 'InputField';
+
 export default InputField;

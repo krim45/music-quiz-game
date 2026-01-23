@@ -19,7 +19,8 @@ const RadioGroup = <T extends string | number | boolean>({
   children,
   onChange,
 }: RadioGroupProps<T>) => {
-  const groupName = name ? name : useId().replace(/:/g, '');
+  const id = useId().replace(/:/g, '');
+  const groupName = name ?? id;
 
   const clonedChildren = Children.map(children, (child) => {
     if (!isValidElement(child) || child.type !== Radio) return child;

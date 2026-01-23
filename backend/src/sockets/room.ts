@@ -220,8 +220,6 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
   // 연결 종료 시 클린업
   socket.on('disconnect', (reason: string) => {
-    console.log('disconnect: ', reason);
-
     const socketRoom = RoomManager.getSocketRoom(socket.id);
     if (!socketRoom) {
       for (const [roomId, room] of RoomManager.rooms.entries()) {

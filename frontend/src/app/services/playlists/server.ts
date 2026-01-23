@@ -11,9 +11,16 @@ export async function fetchPlaylistsServer(params: FindPlaylistsParams): Promise
   const url = `${baseUrl}/playlists?${qs}`;
 
   const res = await fetch(url, { cache: 'no-store' });
-  const data: FindPlaylistsResponse = await res.json();
 
   if (!res.ok) {
+    const errorBody = await res.text();
+    console.error(`Fetch 에러 발생 (${res.status}):`, errorBody);
+    throw new Error(`서버 에러: ${res.status}`);
+  }
+
+  const data: FindPlaylistsResponse = await res.json();
+
+  if (!data.ok) {
     throw new Error(data?.message ?? 'playlists fetch failed');
   }
 

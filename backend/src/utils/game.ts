@@ -9,12 +9,21 @@ type RevealReason = 'correct' | 'timeout' | 'skip';
 type AnsweredBy = { playerId: string; nickname: string; color: string };
 
 export function getClientIp(socket: Socket): string | null {
-  console.log(socket.handshake.headers);
-  const xff = socket.handshake.headers['x-forwarded-for'];
+  const headers = socket.handshake.headers;
+
+  // Fly.io가 보장하는 실제 클라이언트 IP
+  const flyIp = headers['fly-client-ip'];
+  if (typeof flyIp === 'string' && flyIp.length > 0) {
+    return flyIp;
+  }
+
+  // 일반 프록시 체인
+  const xff = headers['x-forwarded-for'];
   if (typeof xff === 'string' && xff.length > 0) {
     return xff.split(',')[0].trim();
   }
-  // socket.io가 제공하는 주소
+
+  // 최후의 fallback (내부 IP일 수 있음)
   return socket.handshake.address ?? null;
 }
 

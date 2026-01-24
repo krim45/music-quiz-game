@@ -2,4 +2,4 @@
 **/dist
 **/.env*
 fly.toml
-dev.db
+*.db

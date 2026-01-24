@@ -18,9 +18,12 @@ export const shuffle = <T>(array: T[]): T[] => {
 const COLORS = ['red', 'blue', 'teal', 'purple', 'yellow', 'orange', 'green', 'brown', 'pink', 'white', 'gray', 'lime'];
 
 export const assignColor = (room: Room): string => {
-  const index = room.players.size; // 기존 플레이어 수 기준
+  const used = new Set(Array.from(room.players.values()).map((p) => p.color));
+  const available = COLORS.filter((c) => !used.has(c));
 
-  return COLORS[index % COLORS.length];
+  if (available.length > 0) return available[0];
+
+  return COLORS[room.players.size % COLORS.length];
 };
 
 // 방장 위임

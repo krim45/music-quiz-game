@@ -173,7 +173,7 @@ export default function RoomPage() {
       socket.off('game:finished', onGameFinished);
       socket.off('room:kicked', onKicked);
     };
-  }, [isReady, roomId, playerRef]);
+  }, [isReady, roomId]);
 
   const onJoined = () => {
     setJoined(true);

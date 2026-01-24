@@ -9,6 +9,7 @@ import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
+import { unlockSound } from '@/sounds/systemSound';
 
 type Props = {
   roomId: string;
@@ -47,6 +48,7 @@ export default function JoinSection({ roomId, title, hasPassword, playerRef, onJ
     // player 재생을 위한 조치 => 정책 우회용 코드
     playerRef.current!.playVideo();
     playerRef.current!.stopVideo();
+    unlockSound();
   };
 
   return (

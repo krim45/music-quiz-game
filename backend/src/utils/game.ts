@@ -1,12 +1,12 @@
 import type { Server, Socket } from 'socket.io';
 import { RoomManager } from '@/sockets/RoomManager';
-import type { PlaylistItem, Room } from '@/types';
+import type { PlaylistItem, Room, SystemChatPayload } from '@/types';
 
 const DEFAULT_DURATION_SEC = 60;
 const ROUND_START_DELAY_MS = 4000;
 
 type RevealReason = 'correct' | 'timeout' | 'skip';
-type AnsweredBy = { playerId: string; nickname: string; color: string };
+type AnsweredBy = { playerId: string; nickname: string; color: string; score: number };
 
 export function getClientIp(socket: Socket): string | null {
   const headers = socket.handshake.headers;
@@ -59,11 +59,10 @@ function clearAllTimers(room: Room) {
   room.runtime.endTimeoutId = undefined;
 }
 
-function sendSystemChat(io: Server, roomId: string, message: string) {
+function sendSystemChat(io: Server, roomId: string, payload: SystemChatPayload) {
   io.to(roomId).emit('chat:message', {
     type: 'system',
-    systemType: 'correct',
-    message,
+    ...payload,
   });
 }
 
@@ -236,11 +235,21 @@ export function reveal(
   const answerText = `${song.singer} - ${song.title}`;
 
   if (reason === 'correct' && answeredBy) {
-    sendSystemChat(io, roomId, `정답: ${answerText} | ${answeredBy.nickname} (+1점)`);
+    sendSystemChat(io, roomId, {
+      color: answeredBy.color,
+      systemType: 'correct',
+      message: `${answeredBy.nickname} (${answeredBy.score}점) | 정답: ${answerText}`,
+    });
   } else if (reason === 'skip') {
-    sendSystemChat(io, roomId, `정답: ${answerText}`);
+    sendSystemChat(io, roomId, {
+      systemType: 'skip',
+      message: `다음 곡으로 넘어갑니다.`,
+    });
   } else if (reason === 'timeout') {
-    sendSystemChat(io, roomId, `정답: ${answerText}`);
+    sendSystemChat(io, roomId, {
+      systemType: 'timeout',
+      message: `정답: ${answerText}`,
+    });
   }
 
   io.to(roomId).emit('game:reveal', {

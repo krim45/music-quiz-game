@@ -28,6 +28,7 @@ import type {
   GameReveal,
   GameSkipUpdate,
 } from '@/types/game';
+import { playSystemSound } from '@/sounds/systemSound';
 
 export default function RoomPage() {
   const [joined, setJoined] = useState<boolean>(false);
@@ -72,8 +73,12 @@ export default function RoomPage() {
       });
     };
 
-    const onChat = (payload: { from: string; color: string; message: string }) => {
-      setMessages((prev) => [...prev, payload]);
+    const onChat = (msg: ChatMessage) => {
+      setMessages((prev) => [...prev, msg]);
+
+      if (msg.type === 'system' && msg.systemType !== 'skip') {
+        playSystemSound(msg.systemType);
+      }
     };
 
     const onGameStart = (payload: GameStart) => {
@@ -91,6 +96,7 @@ export default function RoomPage() {
         endSeconds: endSeconds ?? startSeconds + durationSec,
       });
 
+      playSystemSound('countdown');
       setStartState(payload);
       setHint(null);
       setReveal(null);
@@ -189,6 +195,7 @@ export default function RoomPage() {
       <div id='player' className='pointer-events-none absolute top-0 -left-[9999px] h-px w-px opacity-0' />
 
       <Header playerRef={playerRef} isReady={isReady} />
+
       {shouldShowLoading ? (
         <LoadingDots />
       ) : shouldShowJoin ? (
@@ -200,8 +207,8 @@ export default function RoomPage() {
           onJoined={onJoined}
         />
       ) : shouldShowRoom ? (
-        <div className='flex h-full w-full max-w-3xl flex-1 flex-col gap-3 px-4 pb-2'>
-          <section className='flex basis-60 gap-3 overflow-hidden'>
+        <div className='flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-3 px-6 pb-2'>
+          <section className='flex flex-none basis-60 gap-3 overflow-hidden'>
             {started ? (
               <PlayingSection
                 roomId={roomId}

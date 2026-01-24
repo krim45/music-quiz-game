@@ -198,3 +198,9 @@ export type GameReveal = {
     color: string;
   };
 };
+
+export type SystemChatPayload = {
+  color?: string;
+  systemType: 'correct' | 'skip' | 'timeout';
+  message: string;
+};

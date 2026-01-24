@@ -405,6 +405,6 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     me.score += 1;
     RoomManager.emitRoomUpdate(io, roomId);
 
-    reveal(io, RoomManager, roomId, 'correct', { playerId, nickname: me.nickname, color: me.color });
+    reveal(io, RoomManager, roomId, 'correct', { playerId, nickname: me.nickname, color: me.color, score: me.score });
   });
 }

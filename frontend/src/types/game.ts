@@ -9,12 +9,13 @@ export type UserChatMessage = {
 
 export type SystemChatMessage = {
   type: 'system';
-  systemType: 'correct';
+  systemType: 'correct' | 'skip' | 'timeout';
   message: string;
+  color?: string;
 };
 
 export type Player = {
-  playerId: string; // 고정 유저 ID (localStorage에서 유지)
+  playerId: string;
   nickname: string;
   color: string;
   score: number;

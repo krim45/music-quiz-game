@@ -388,7 +388,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     const { room, me, playerId } = meRes;
 
     // 채팅은 항상 broadcast
-    io.to(roomId).emit('chat:message', { from: me.nickname, color: me.color, message });
+    io.to(roomId).emit('chat:message', { type: 'user', from: me.nickname, color: me.color, message });
 
     if (room.status !== 'playing') return;
 

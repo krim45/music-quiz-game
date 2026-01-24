@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChatMessage } from '@/types/game';
 
+import MessageItem from '@/app/room/[roomId]/_components/MessageItem';
 import BaseInput from '@/components/form/input/BaseInput';
 import Button from '@/components/button/Button';
 
@@ -25,7 +26,7 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
-      const isBottom = scrollHeight - scrollTop - clientHeight < 100; // "거의 바닥"인지 체크 (여유 100px)
+      const isBottom = scrollHeight - scrollTop - clientHeight < 100;
 
       setIsUserScrolledUp(!isBottom);
     };
@@ -52,13 +53,9 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
     <section className='flex flex-1 flex-col overflow-hidden rounded border border-green-900'>
       {/* TODO: 가상 스크롤 적용 */}
       {/* isUserScrolledUp이 true면 채팅창 가장 아래로 보내는 아이콘 적용 */}
-      {/* 디자인 수정 */}
       <div className='scrollbar-custom flex-1 overflow-y-auto px-2' ref={containerRef}>
-        {messages.map(({ color, from, message }, idx) => (
-          <div key={idx} className='w-full rounded p-1 text-sm'>
-            <div style={{ color }}>{from}</div>
-            <div className='break-all'>{message}</div>
-          </div>
+        {messages.map((message, idx) => (
+          <MessageItem key={idx} message={message} />
         ))}
         <div ref={messagesEndRef} />
       </div>

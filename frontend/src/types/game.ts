@@ -1,6 +1,15 @@
-export type ChatMessage = {
+export type ChatMessage = UserChatMessage | SystemChatMessage;
+
+export type UserChatMessage = {
+  type: 'user';
   from: string;
   color: string;
+  message: string;
+};
+
+export type SystemChatMessage = {
+  type: 'system';
+  systemType: 'correct';
   message: string;
 };
 

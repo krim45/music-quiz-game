@@ -59,10 +59,10 @@ function clearAllTimers(room: Room) {
   room.runtime.endTimeoutId = undefined;
 }
 
-function chat(io: Server, roomId: string, message: string) {
+function sendSystemChat(io: Server, roomId: string, message: string) {
   io.to(roomId).emit('chat:message', {
-    from: 'SYSTEM',
-    color: '#9CA3AF', // 회색(프론트가 style 그대로 쓰면)
+    type: 'system',
+    systemType: 'correct',
     message,
   });
 }
@@ -236,9 +236,11 @@ export function reveal(
   const answerText = `${song.singer} - ${song.title}`;
 
   if (reason === 'correct' && answeredBy) {
-    chat(io, roomId, `정답: ${answerText} | ${answeredBy.nickname} (+1점)`);
+    sendSystemChat(io, roomId, `정답: ${answerText} | ${answeredBy.nickname} (+1점)`);
   } else if (reason === 'skip') {
-    chat(io, roomId, `스킵! 정답: ${answerText}`);
+    sendSystemChat(io, roomId, `정답: ${answerText}`);
+  } else if (reason === 'timeout') {
+    sendSystemChat(io, roomId, `정답: ${answerText}`);
   }
 
   io.to(roomId).emit('game:reveal', {

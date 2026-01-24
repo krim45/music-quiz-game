@@ -1,11 +1,13 @@
-import { io, Socket } from 'socket.io-client';
+import { io, type Socket } from 'socket.io-client';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+const RECONNECT_DELAY_MS = 3000;
+const RECONNECT_ATTEMPTS = 5;
 
 let socket: Socket | null = null;
 let fixing: Promise<void> | null = null;
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL!;
-
-async function ensureSessionOnce() {
+async function ensureSessionOnce(): Promise<void> {
   if (!fixing) {
     fixing = fetch(`${API_URL}/session`, { credentials: 'include' })
       .then((res) => {
@@ -19,21 +21,31 @@ async function ensureSessionOnce() {
 }
 
 export function getSocket(): Socket {
-  if (!socket) {
-    socket = io(API_URL, {
-      transports: ['websocket'],
-      withCredentials: true,
-      autoConnect: true,
-    });
+  if (socket) return socket;
 
-    socket.on('connect_error', async (err: Error) => {
-      if (err?.message === 'SESSION_REQUIRED') {
+  socket = io(API_URL, {
+    transports: ['polling', 'websocket'],
+    withCredentials: true,
+    autoConnect: true,
+    reconnection: true,
+    reconnectionAttempts: RECONNECT_ATTEMPTS,
+    reconnectionDelay: RECONNECT_DELAY_MS,
+    reconnectionDelayMax: RECONNECT_DELAY_MS,
+  });
+
+  socket.on('connect_error', async (err: Error) => {
+    console.error('connect_error', err);
+
+    if (err.message === 'SESSION_REQUIRED') {
+      try {
         await ensureSessionOnce();
+        socket?.disconnect();
         socket?.connect();
+      } catch (e) {
+        console.error('ensureSessionOnce failed', e);
       }
-    });
-  }
+    }
+  });
 
-  if (!socket.connected) socket.connect();
   return socket;
 }

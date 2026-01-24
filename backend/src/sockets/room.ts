@@ -15,6 +15,7 @@ import type {
   RoomInfoPayload,
   RoomInfoResponse,
 } from '@/types';
+import { addBan, getSid, getUserAgent, hashUA, isBanned, makeBanEntry, toIpPrefix } from '@/utils/ban';
 
 export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: RoomManager) {
   // 방 생성
@@ -78,11 +79,16 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
       return ack({ ok: false, message: '비밀번호가 틀렸습니다.' });
     }
 
+    const sid = getSid(socket);
+    if (!sid) return ack({ ok: false, message: '세션이 없습니다. 다시 시도해주세요.' });
+
     const ip = getClientIp(socket);
     if (!ip) return ack({ ok: false, message: 'IP를 확인할 수 없습니다.' });
 
-    if (!room.bannedIps) room.bannedIps = new Set();
-    if (room.bannedIps.has(ip)) {
+    const uaHash = hashUA(getUserAgent(socket));
+    const ipPrefix = toIpPrefix(ip);
+
+    if (isBanned(room, sid, ipPrefix, uaHash)) {
       return ack({ ok: false, message: '강퇴된 사용자입니다. 입장할 수 없습니다.' });
     }
 
@@ -155,9 +161,12 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
       const target = room.players.get(targetPlayerId);
       if (!target) return ack({ ok: false, message: '대상을 찾을 수 없습니다.' });
 
-      // IP 밴 등록
-      if (!room.bannedIps) room.bannedIps = new Set();
-      room.bannedIps.add(target.ip);
+      // 밴 등록
+      const targetSocket = target.socketId ? io.sockets.sockets.get(target.socketId) : undefined;
+      if (targetSocket) {
+        const entry = makeBanEntry(targetSocket, 1000 * 60 * 60);
+        if (entry) addBan(room, entry);
+      }
 
       // 대상 제거
       room.players.delete(targetPlayerId);

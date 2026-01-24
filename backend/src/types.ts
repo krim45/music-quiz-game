@@ -79,9 +79,16 @@ export type Room = {
   songList: PlaylistItem[];
   currentSongIndex: number;
 
-  bannedIps?: Set<string>; // ✅ 추가 (서버 런타임)
-  /** ✅ 서버 런타임은 무조건 존재 */
   runtime: RoomRuntime;
+  bans?: Map<string, BanEntry>; // sid 기준 밴 저장소(런타임)
+};
+
+export type BanEntry = {
+  sid: string;
+  ipPrefix: string; // ex) 203.0.113.0/24, 2001:db8:abcd::/64
+  uaHash: string; // user-agent hash
+  bannedAt: number;
+  expiresAt: number;
 };
 
 /** ---------- socket payloads ---------- */

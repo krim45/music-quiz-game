@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Button from '@/components/button/Button';
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
+import Button from '@/components/button/Button';
 
 import type { RoomInfo, RoomRuntime, GameStart, GamePlay, GameHint, GameReveal } from '@/types/game';
 
@@ -25,7 +25,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
     return [...runtime.players].sort((a, b) => b.score - a.score);
   }, [runtime.players]);
 
-  // ✅ 실제 라운드 타이머(초)
+  // 실제 라운드 타이머(초)
   useEffect(() => {
     if (!playState) {
       setRemainSec(0);
@@ -45,7 +45,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
     return () => window.clearInterval(id);
   }, [playState]);
 
-  // ✅ 매 라운드 시작 전 카운트다운(초)
+  // 매 라운드 시작 전 카운트다운(초)
   useEffect(() => {
     if (!startState?.startsAtMs) {
       setCountdownSec(0);
@@ -62,9 +62,6 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
     return () => window.clearInterval(id);
   }, [startState]);
 
-  // ✅ 스킵 표시
-  // - 기본은 playState 기준
-  // - playState가 아직 없고(startState만 있는 경우)에는 startState.skip를 보여줌
   const skip = playState?.skip ?? startState?.skip;
 
   const onSkip = () => {
@@ -86,7 +83,6 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
 
   return (
     <>
-      {/* 좌측: 진행/타이머/힌트/정답공개 */}
       <div className='scrollbar-custom flex flex-1 flex-col items-center justify-center gap-2 overflow-auto rounded border border-green-900 p-3'>
         <div className='text-blue-300'>
           남은곡 ({runtime.currentSongIndex + 1} / {roomInfo.room.songCount})
@@ -108,7 +104,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
           </div>
         )}
 
-        {/* ✅ 힌트 UI (singer만) */}
+        {/* ✅ 힌트 UI */}
         {hint && !reveal && (
           <div className='w-full rounded text-center text-sm text-blue-500'>
             <div>
@@ -145,7 +141,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
           {sortedPlayers.map((p) => (
             <li key={p.playerId} className='flex items-center justify-between gap-3 text-xs'>
               <div className='flex min-w-0 items-center gap-2'>
-                <span className='inline-block min-h-3 min-w-3 rounded-sm' style={{ backgroundColor: p.color }} />
+                <span className='mt-0.5 inline-block min-h-3 min-w-3 rounded-sm' style={{ backgroundColor: p.color }} />
                 <span className='truncate'>{p.nickname}</span>
               </div>
               <span className='shrink-0 whitespace-nowrap'>{p.score}점</span>
@@ -153,9 +149,8 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
           ))}
         </ul>
 
-        {/* 서버가 막긴 하지만 UX상 countdown 중엔 막아도 좋음 */}
         <Button onClick={onSkip} disabled={isCountingDown}>
-          스킵
+          스킵 {!!skip && `${skip.current} / ${skip.required}`}
         </Button>
       </div>
     </>

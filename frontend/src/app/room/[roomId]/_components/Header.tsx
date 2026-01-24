@@ -43,7 +43,7 @@ const Header = ({ playerRef, isReady }: Props) => {
 
   return (
     <>
-      <div className='flex w-full items-center justify-between gap-4 px-4 py-2 md:justify-start'>
+      <div className='flex w-full flex-none items-center justify-between gap-4 px-4 py-2 md:justify-start'>
         <PopupMenu items={menuItems}>
           <button
             type='button'

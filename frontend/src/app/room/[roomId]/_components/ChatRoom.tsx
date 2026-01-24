@@ -50,10 +50,10 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
   };
 
   return (
-    <section className='flex flex-1 flex-col overflow-hidden rounded border border-green-900'>
+    <section className='flex min-h-0 flex-1 flex-col overflow-hidden rounded border border-green-900'>
       {/* TODO: 가상 스크롤 적용 */}
       {/* isUserScrolledUp이 true면 채팅창 가장 아래로 보내는 아이콘 적용 */}
-      <div className='scrollbar-custom flex-1 overflow-y-auto px-2' ref={containerRef}>
+      <div className='scrollbar-custom min-h-0 flex-1 overflow-y-auto px-2' ref={containerRef}>
         {messages.map((message, idx) => (
           <MessageItem key={idx} message={message} />
         ))}
@@ -62,7 +62,7 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
 
       {/* enter로 input 포커스 => 이거를 위해서 좀 복잡해짐, 케이스 잘 생각해서 고려 */}
       <form
-        className='flex items-center gap-2 border-t border-green-900 p-2'
+        className='flex flex-none items-center gap-2 border-t border-green-900 p-2'
         onSubmit={(e) => {
           e.preventDefault();
           sendMessage();

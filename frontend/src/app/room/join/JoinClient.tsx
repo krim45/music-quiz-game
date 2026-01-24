@@ -118,7 +118,7 @@ export default function JoinClient() {
           type='search'
           size='lg'
           value={search}
-          placeholder='게임 제목으로 검색'
+          placeholder='방 찾기'
           onChange={(v) => setSearch(v)}
           onKeyDown={handleSearch}
           onClickIcon={() => setSearchQuery(search)}

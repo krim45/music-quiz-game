@@ -72,7 +72,7 @@ export default function JoinSection({ roomId, title, hasPassword, playerRef, onJ
         {hasPassword && <InputField type='password' label='방 비밀번호' value={password} onChange={setPassword} />}
 
         <Button type='submit' color='green'>
-          게임 입장
+          입장
         </Button>
       </form>
     </div>

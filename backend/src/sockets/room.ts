@@ -24,7 +24,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
   socket.on('room:create', async (payload: CreateRoomPayload, ack: (res: RoomResponse) => void) => {
     const { title, playlistId } = payload;
     if (!title.trim()) {
-      return ack({ ok: false, message: '게임 제목을 입력하세요.' });
+      return ack({ ok: false, message: '방 제목을 입력하세요.' });
     }
 
     if (!playlistId) {

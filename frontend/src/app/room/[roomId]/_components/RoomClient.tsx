@@ -163,6 +163,7 @@ export default function RoomPage() {
     socket.emit('room:info', { roomId }, (res: RoomInfoResponse) => {
       if (!res.ok) {
         toast.error(res.message || '방 정보를 가져올 수 없습니다.');
+        router.replace('/room/join');
         return;
       }
       setRoomInfo(res.data);

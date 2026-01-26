@@ -19,7 +19,7 @@ export function useRoomConnect({ roomId }: Params) {
     const onConnect = () => toast.success('재연결되었습니다.');
 
     const onDisconnect = (reason: string) => {
-      router.push('/room/join');
+      router.replace('/room/join');
       toast.error(`서버 연결이 끊겼습니다. ${reason}`);
     };
 

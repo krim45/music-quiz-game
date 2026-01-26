@@ -1,26 +1,51 @@
-export const systemSounds = {
-  countdown: new Audio('/sounds/countdown.mp3'),
-  correct: new Audio('/sounds/noti.mp3'),
-  timeout: new Audio('/sounds/game-over.mp3'),
-} as const;
+type SoundName = 'countdown' | 'correct' | 'timeout';
 
-type SystemSoundType = keyof typeof systemSounds;
+const SOUND_FILES: Record<SoundName, string> = {
+  countdown: '/sounds/countdown.mp3',
+  correct: '/sounds/noti.mp3',
+  timeout: '/sounds/game-over.mp3',
+};
 
-export function playSystemSound(type: SystemSoundType) {
-  const sound = systemSounds[type];
-  if (!sound) return;
+let audioContext: AudioContext | null = null;
+const buffers: Partial<Record<SoundName, AudioBuffer>> = {};
 
-  sound.currentTime = 0; // 연속 재생 대응
-  sound.play();
+function getAudioContext(): AudioContext {
+  if (!audioContext) {
+    audioContext = new AudioContext();
+  }
+  return audioContext;
 }
 
-export function unlockSound() {
-  Object.values(systemSounds).forEach((sound) => {
-    sound.volume = 0;
-    sound.play().then(() => {
-      sound.pause();
-      sound.currentTime = 0;
-      sound.volume = 1;
-    });
-  });
+export async function unlockSound() {
+  const ctx = getAudioContext();
+
+  if (ctx.state === 'suspended') {
+    await ctx.resume();
+  }
+}
+
+async function loadSound(name: SoundName, url: string) {
+  const ctx = getAudioContext();
+
+  const res = await fetch(url);
+  const arrayBuffer = await res.arrayBuffer();
+  const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+  buffers[name] = audioBuffer;
+}
+
+export async function loadAllSounds() {
+  await Promise.all((Object.keys(SOUND_FILES) as SoundName[]).map((name) => loadSound(name, SOUND_FILES[name])));
+}
+
+export function playSystemSound(name: SoundName) {
+  const ctx = getAudioContext();
+  const buffer = buffers[name];
+
+  if (!buffer) return;
+
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  source.start(0);
 }

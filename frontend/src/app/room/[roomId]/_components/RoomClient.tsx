@@ -98,6 +98,7 @@ export default function RoomPage() {
 
       playSystemSound('countdown');
       setStartState(payload);
+      setPlayState(null);
       setHint(null);
       setReveal(null);
     };

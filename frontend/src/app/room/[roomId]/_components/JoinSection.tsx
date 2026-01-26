@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
 import { setPlayerId } from '@/utils/playerId';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { loadAllSounds, unlockSound } from '@/sounds/systemSound';
 
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
-import { unlockSound } from '@/sounds/systemSound';
 
 type Props = {
   roomId: string;
@@ -24,10 +23,20 @@ export default function JoinSection({ roomId, title, hasPassword, playerRef, onJ
   const [password, setPassword] = useState<string>('');
 
   // 방 입장
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (!playerRef.current) {
       toast.error('로딩 중 입니다.');
       return;
+    }
+
+    // 오디오 정책 우회용 코드
+    try {
+      playerRef.current.playVideo();
+      playerRef.current.stopVideo();
+      await unlockSound();
+      await loadAllSounds();
+    } catch (e) {
+      console.warn('audio unlock/load failed', e);
     }
 
     const socket = getSocket();
@@ -39,16 +48,9 @@ export default function JoinSection({ roomId, title, hasPassword, playerRef, onJ
         return;
       }
 
-      // 서버 발급 playerId 저장
       setPlayerId(res.playerId);
-
       onJoined();
     });
-
-    // player 재생을 위한 조치 => 정책 우회용 코드
-    playerRef.current!.playVideo();
-    playerRef.current!.stopVideo();
-    unlockSound();
   };
 
   return (

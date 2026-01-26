@@ -204,3 +204,11 @@ export type SystemChatPayload = {
   systemType: 'correct' | 'skip' | 'timeout';
   message: string;
 };
+
+export type SummaryChatPayload = {
+  players: {
+    nickname: string;
+    color: string;
+    score: number;
+  }[];
+};

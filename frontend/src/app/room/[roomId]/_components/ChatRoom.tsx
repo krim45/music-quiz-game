@@ -42,7 +42,6 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
 
       if (e.isComposing) return;
 
-      console.log(e.target);
       if (isTypingElement(document.activeElement)) return;
 
       e.preventDefault();
@@ -78,7 +77,7 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
 
   return (
     <section className='relative flex min-h-0 flex-1 flex-col overflow-hidden rounded border border-green-900'>
-      <div ref={containerRef} className='scrollbar-custom min-h-0 flex-1 overflow-y-scroll pr-1 pl-2'>
+      <div ref={containerRef} className='scrollbar-custom min-h-0 flex-1 overflow-y-scroll pr-2 pl-2 md:pr-1'>
         {messages.map((message, idx) => (
           <MessageItem key={idx} message={message} />
         ))}

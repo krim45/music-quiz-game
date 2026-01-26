@@ -1,4 +1,4 @@
-export type ChatMessage = UserChatMessage | SystemChatMessage;
+export type ChatMessage = UserChatMessage | SystemChatMessage | SummaryChatMessage;
 
 export type UserChatMessage = {
   type: 'user';
@@ -12,6 +12,15 @@ export type SystemChatMessage = {
   systemType: 'correct' | 'skip' | 'timeout';
   message: string;
   color?: string;
+};
+
+export type SummaryChatMessage = {
+  type: 'summary';
+  players: {
+    nickname: string;
+    color: string;
+    score: number;
+  }[];
 };
 
 export type Player = {

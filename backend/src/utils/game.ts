@@ -1,6 +1,6 @@
 import type { Server, Socket } from 'socket.io';
 import { RoomManager } from '@/sockets/RoomManager';
-import type { PlaylistItem, Room, SystemChatPayload } from '@/types';
+import type { PlaylistItem, Room, SummaryChatPayload, SystemChatPayload } from '@/types';
 
 const DEFAULT_DURATION_SEC = 60;
 const ROUND_START_DELAY_MS = 4000;
@@ -62,6 +62,13 @@ function clearAllTimers(room: Room) {
 function sendSystemChat(io: Server, roomId: string, payload: SystemChatPayload) {
   io.to(roomId).emit('chat:message', {
     type: 'system',
+    ...payload,
+  });
+}
+
+function sendSummaryChat(io: Server, roomId: string, payload: SummaryChatPayload) {
+  io.to(roomId).emit('chat:message', {
+    type: 'summary',
     ...payload,
   });
 }
@@ -231,7 +238,6 @@ export function reveal(
   clearTimer(room.runtime.hintTimeoutId);
   room.runtime.hintTimeoutId = undefined;
 
-  // ✅ (추가) 채팅으로 정답/정답자 공지
   const answerText = `${song.singer} - ${song.title}`;
 
   if (reason === 'correct' && answeredBy) {
@@ -294,35 +300,31 @@ export function scheduleNextRound(io: Server, RoomManager: RoomManager, roomId: 
 
   const nextIndex = room.currentSongIndex + 1;
 
+  // game:finished
   if (nextIndex >= room.songList.length) {
-    // 1) 상태 전환
+    // 초기화
     room.status = 'waiting';
-
-    // 2) 타이머 정리
-    clearAllTimers(room);
-
-    // 3) 인덱스/런타임 초기화 (✅ 처음 Waiting 상태로)
     room.currentSongIndex = 0;
-
-    room.runtime.phase = 'countdown'; // 또는 'round'가 아닌 별도 'idle'을 쓰면 더 좋음
+    room.runtime.phase = 'countdown';
     room.runtime.startsAtMs = undefined;
     room.runtime.roundStartedAtMs = undefined;
     room.runtime.durationSec = undefined;
     room.runtime.revealed = false;
     room.runtime.hintShown = false;
     room.runtime.skipVotes = new Set();
-    // roundNonce는 유지해도 되고, 올려도 됨 (안전하게 올리려면 bumpNonce(room) 호출)
+    clearAllTimers(room);
     bumpNonce(room);
 
-    // 5) 결과 이벤트
-    io.to(roomId).emit('game:finished', {
-      players: Array.from(room.players.values()).map((p) => ({
-        nickname: p.nickname,
-        color: p.color,
-        score: p.score,
-        // ready: p.ready,
-        isOwner: p.isOwner,
-      })),
+    io.to(roomId).emit('game:finished');
+
+    sendSummaryChat(io, roomId, {
+      players: Array.from(room.players.values())
+        .map((p) => ({
+          nickname: p.nickname,
+          color: p.color,
+          score: p.score,
+        }))
+        .sort((a, b) => b.score - a.score),
     });
 
     // 점수 초기화

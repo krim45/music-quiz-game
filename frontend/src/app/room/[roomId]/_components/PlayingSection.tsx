@@ -83,7 +83,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
 
   return (
     <>
-      <div className='scrollbar-custom flex flex-1 flex-col items-center justify-center gap-2 overflow-auto rounded border border-green-900 p-3'>
+      <div className='scrollbar-custom flex flex-2 flex-col items-center justify-center gap-2 overflow-auto rounded border border-green-900 p-3'>
         <div className='text-blue-300'>
           남은곡 ({runtime.currentSongIndex + 1} / {roomInfo.room.songCount})
         </div>
@@ -134,7 +134,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
         )}
       </div>
 
-      <div className='flex min-w-40 flex-col gap-2 rounded border border-green-900 p-3'>
+      <div className='flex min-w-40 flex-1 flex-col gap-2 rounded border border-green-900 p-3'>
         <div className='flex items-center justify-between'>플레이어</div>
 
         <ul className='scrollbar-custom flex-1 overflow-auto'>

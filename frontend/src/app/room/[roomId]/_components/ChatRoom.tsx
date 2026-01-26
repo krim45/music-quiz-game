@@ -93,7 +93,7 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
       >
         <BaseInput
           ref={inputRef}
-          className='flex-1 rounded border border-green-900 p-1 text-sm focus:border-green-600'
+          className='flex-1 rounded border border-green-900 p-1 text-base focus:border-green-600'
           value={input}
           onChange={(v) => setInput(v)}
           placeholder='정답을 입력하세요'

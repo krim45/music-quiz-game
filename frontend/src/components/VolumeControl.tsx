@@ -5,6 +5,9 @@ import VolumeLow from '@/components/icon/VolumeLow';
 import VolumeHigh from '@/components/icon/VolumeHigh';
 import Mute from '@/components/icon/Mute';
 
+// TODO: css 정리
+// 사운드 이펙트도 소리 연결
+
 type Props = {
   value: number;
   onChange: (next: number) => void;

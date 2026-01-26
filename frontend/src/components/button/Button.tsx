@@ -21,7 +21,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 // TODO 나중에
-// 1. 디자인 개선 fill or outline
+// 1. 디자인 개선 fill or outline, focus outline
 
 const Button = ({ className, color = 'blue', size = 'md', disabled, onClick, children, ...rest }: ButtonProps) => {
   const lockRef = useRef<boolean>(false);

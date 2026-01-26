@@ -193,7 +193,7 @@ export default function RoomPage() {
   };
 
   return (
-    <div className='relative flex h-full w-full flex-col items-center'>
+    <div className='relative flex h-full w-full touch-pan-y flex-col items-center'>
       <div id='player' className='pointer-events-none absolute top-0 -left-[9999px] h-px w-px opacity-0' />
 
       <Header playerRef={playerRef} isReady={isReady} />

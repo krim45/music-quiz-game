@@ -1,13 +1,14 @@
 import express, { Response } from 'express';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import * as cookie from 'cookie';
 
 import { isAllowedOrigin } from '@/config/cors';
 import songsRouter from '@/routers/songs';
 import playlistsRouter from '@/routers/playlists';
 
-const isProd = process.env.NODE_ENV === 'production';
+const JWT_SECRET = process.env.JWT_SECRET!;
+const TOKEN_TTL = '30d';
 
 const app = express();
 
@@ -35,28 +36,13 @@ app.use('/songs', songsRouter);
 
 app.use('/playlists', playlistsRouter);
 
-app.get('/session', (req, res) => {
+app.get('/session', (_, res) => {
   res.setHeader('Cache-Control', 'no-store');
 
-  const cookies = cookie.parse(req.headers.cookie ?? '');
-  let sid = cookies.sid;
+  const sid = crypto.randomUUID();
+  const token = jwt.sign({ sid }, JWT_SECRET, { expiresIn: TOKEN_TTL });
 
-  if (!sid) {
-    sid = crypto.randomUUID();
-
-    res.setHeader(
-      'Set-Cookie',
-      cookie.serialize('sid', sid, {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: isProd ? 'none' : 'lax', // Vercel↔Fly 크로스사이트
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30, // 30일
-      })
-    );
-  }
-
-  res.json({ ok: true });
+  res.json({ ok: true, token });
 });
 
 export default app;

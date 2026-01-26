@@ -403,6 +403,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
 
     // 정답 처리
     me.score += 1;
+    me.lastCorrectAtMs = Date.now();
     RoomManager.emitRoomUpdate(io, roomId);
 
     reveal(io, RoomManager, roomId, 'correct', { playerId, nickname: me.nickname, color: me.color, score: me.score });

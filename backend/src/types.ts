@@ -15,6 +15,7 @@ export type Player = {
   score: number;
   // ready: boolean;
   isOwner: boolean;
+  lastCorrectAtMs?: number | null;
 };
 
 export type PlayerPublic = Omit<Player, 'socketId' | 'ip'>;

@@ -100,7 +100,7 @@ export function scheduleRoundStart(io: Server, RoomManager: RoomManager, roomId:
   room.runtime.revealed = false;
   room.runtime.hintShown = false;
 
-  // ✅ 라운드마다 스킵 투표는 초기화 (다음 라운드로 carry 없음)
+  // 라운드마다 스킵 투표 초기화
   room.runtime.skipVotes = new Set();
 
   const durationSec = computeDurationSec(song);
@@ -109,7 +109,7 @@ export function scheduleRoundStart(io: Server, RoomManager: RoomManager, roomId:
   room.runtime.startsAtMs = startsAtMs;
   room.runtime.durationSec = durationSec;
 
-  // ✅ required는 "지금 인원" 기준으로 계산해서 UI에 내려줌
+  // "지금 인원" 기준으로 계산해서 UI에 내려줌
   const requiredNow = computeRequiredSkipCount(room);
 
   io.to(roomId).emit('game:start', {
@@ -161,12 +161,12 @@ function beginRound(
   room.runtime.revealed = false;
   room.runtime.hintShown = false;
 
-  // ✅ 라운드 진입 시에도 초기화(중복이어도 안전)
+  // 라운드 진입 시 초기화
   room.runtime.skipVotes = new Set();
 
   RoomManager.emitRoomUpdate(io, roomId);
 
-  // ✅ play 시점의 required도 "현재 인원" 기준으로
+  // required "현재 인원" 기준으로
   const requiredNow = computeRequiredSkipCount(room);
 
   io.to(roomId).emit('game:play', {
@@ -323,13 +323,25 @@ export function scheduleNextRound(io: Server, RoomManager: RoomManager, roomId: 
           nickname: p.nickname,
           color: p.color,
           score: p.score,
+          lastCorrectAtMs: p.lastCorrectAtMs,
         }))
-        .sort((a, b) => b.score - a.score),
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score; // 점수 높은 순
+          // 0점이면 그대로
+          if (a.score === 0) return 0;
+          // 1점 이상 동점이면 먼저 정답을 맞춘 사람이 위
+          if (a.lastCorrectAtMs && b.lastCorrectAtMs) return a.lastCorrectAtMs - b.lastCorrectAtMs;
+          if (a.lastCorrectAtMs) return -1;
+          if (b.lastCorrectAtMs) return 1;
+          return 0; // 둘 다 없으면 그대로
+        })
+        .map(({ lastCorrectAtMs, ...rest }) => rest),
     });
 
     // 점수 초기화
     for (const p of room.players.values()) {
       p.score = 0;
+      p.lastCorrectAtMs = null;
       // p.ready = false;
     }
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
+import { pushEvent } from '@/lib/analytics';
 
 import RoomSettingsSection from '@/app/room/create/_components/RoomSettingSection';
 import PlaylistSection from '@/app/room/create/_components/PlaylistSection';
@@ -35,6 +36,8 @@ export default function CreateRoomClient({ initial, limit }: Props) {
       if (!res.ok) {
         return toast.error(res.message || '방 생성 실패');
       }
+
+      pushEvent({ event: 'create_room' });
       router.push(`/room/${res.roomId}`);
     });
   };

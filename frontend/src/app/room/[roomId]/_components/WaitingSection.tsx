@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
+import { pushEvent } from '@/lib/analytics';
 import { getPlayerId } from '@/utils/playerId';
 
 import Button from '@/components/button/Button';
@@ -32,6 +33,8 @@ export default function WaitingSection({ roomId, roomInfo, players }: Props) {
         toast.error(res.message || '시작 실패');
         return;
       }
+
+      pushEvent({ event: 'start_game' });
     });
   };
 

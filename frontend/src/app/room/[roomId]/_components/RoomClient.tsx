@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
+import { pushEvent } from '@/lib/analytics';
+import { playSystemSound } from '@/sounds/systemSound';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { usePreventRefresh } from '@/hooks/usePreventRefresh';
 import { useRoomConnect } from '@/app/room/[roomId]/_hooks/useRoomConnect';
@@ -28,7 +30,6 @@ import type {
   GameReveal,
   GameSkipUpdate,
 } from '@/types/game';
-import { playSystemSound } from '@/sounds/systemSound';
 
 export default function RoomPage() {
   const [joined, setJoined] = useState<boolean>(false);
@@ -143,6 +144,7 @@ export default function RoomPage() {
       setHint(null);
       setReveal(null);
       playerRef.current?.stopVideo?.();
+      pushEvent({ event: 'complete_game' });
     };
 
     const onKicked = (payload: { roomId: string; message?: string }) => {

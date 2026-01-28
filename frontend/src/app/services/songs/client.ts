@@ -12,7 +12,7 @@ export async function fetchSongs(params: {
   qs.set('limit', String(params.limit ?? 50));
   qs.set('offset', String(params.offset ?? 0));
 
-  const res = await fetch(`/api/songs?${qs.toString()}`, {
+  const res = await fetch(`/api/backend/songs?${qs.toString()}`, {
     method: 'GET',
     headers: { Accept: 'application/json' },
     cache: 'no-store',

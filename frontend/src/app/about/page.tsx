@@ -170,7 +170,7 @@ export default function AboutPage() {
         </section>
 
         {/* Footer CTA */}
-        <section className='mt-12 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 p-6 text-center'>
+        <section className='mt-12 rounded-2xl border border-white/10 bg-linear-to-b from-white/10 to-white/5 p-6 text-center'>
           <h2 className='text-lg font-bold'>준비됐으면, 바로 시작!</h2>
           <p className='mt-2 text-sm text-white/75'>방에 들어가서 친구들과 승부해보세요.</p>
 

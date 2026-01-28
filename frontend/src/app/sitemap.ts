@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/room/create', freq: 'daily' as const, pr: 0.7 },
     { path: '/about', freq: 'daily' as const, pr: 0.2 },
     { path: '/privacy', freq: 'daily' as const, pr: 0.2 },
+    { path: '/terms', freq: 'daily' as const, pr: 0.2 },
   ];
 
   return routes.map(({ path, freq, pr }) => ({

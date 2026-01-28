@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 
 import GoBack from '@/components/nav/GoBack';
+import Section from '@/components/common/Section';
+import SubSection from '@/components/common/SubSection';
 
 export const metadata: Metadata = {
   title: '개인정보처리방침',
@@ -177,24 +179,6 @@ export default function PrivacyPage() {
           <div className='pt-2 text-center text-xs text-white/50'>© {new Date().getFullYear()} 노래 맞추기 게임</div>
         </main>
       </div>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className='rounded-2xl border border-white/10 bg-white/5 p-6'>
-      <h2 className='text-lg font-bold'>{title}</h2>
-      <div className='mt-4'>{children}</div>
-    </section>
-  );
-}
-
-function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className='mt-5 rounded-2xl border border-white/10 bg-black/30 p-5'>
-      <h3 className='font-semibold text-white/90'>{title}</h3>
-      <div className='mt-3'>{children}</div>
     </div>
   );
 }

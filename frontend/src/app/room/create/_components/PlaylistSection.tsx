@@ -77,8 +77,7 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
         </div>
       ),
     },
-    { key: 'name', label: '플레이리스트', className: 'w-[40%]' },
-    { key: 'description', label: '설명' },
+    { key: 'name', label: '플레이리스트' },
     {
       key: '_detail',
       label: '목록',

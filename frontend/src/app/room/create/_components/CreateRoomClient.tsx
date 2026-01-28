@@ -43,7 +43,7 @@ export default function CreateRoomClient({ initial, limit }: Props) {
   };
 
   return (
-    <div className='m-auto flex w-full max-w-5xl flex-col items-center gap-7 p-6'>
+    <div className='m-auto flex w-full max-w-xl flex-col items-center gap-7 p-6'>
       <h1 className='text-center text-3xl font-bold'>게임 생성</h1>
 
       <RoomSettingsSection roomInfo={roomInfo} onChange={updateRoomInfo} />

@@ -1,6 +1,7 @@
 type DataLayerEvent =
-  // | { event: 'sign_up' }
-  { event: 'create_room' } | { event: 'start_game' } | { event: 'complete_game'; nickname?: string };
+  | { event: 'create_room' }
+  | { event: 'start_game' }
+  | { event: 'complete_game'; nickname?: string };
 
 declare global {
   interface Window {

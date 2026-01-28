@@ -66,6 +66,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
+        <meta name='version' content='1.0.0'></meta>
         {/* GTM - head */}
         <Script id='gtm' strategy='afterInteractive'>
           {`

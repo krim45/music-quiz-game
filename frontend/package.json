@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "packageManager": "pnpm@10.28.2",
   "dependencies": {
     "@tanstack/react-query": "^5.90.14",
     "clsx": "^2.1.1",

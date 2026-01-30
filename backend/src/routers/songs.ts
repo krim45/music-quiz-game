@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { findSongs } from '@/services/songs';
+import { deleteSong, findSongs } from '@/services/songs';
 
 const router = Router();
 
@@ -28,6 +28,15 @@ router.get('/', async (req, res) => {
   } catch (e) {
     console.error('[GET /songs] error', e);
     return res.status(500).json({ ok: false, message: 'songs 조회 중 오류' });
+  }
+});
+
+router.delete('/:songId', async (req, res, next) => {
+  try {
+    const result = await deleteSong(req.params.songId);
+    res.json(result);
+  } catch (err) {
+    next(err);
   }
 });
 

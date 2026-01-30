@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { createPlaylist, getPlaylistDetail, getPlaylists } from '@/services/playlists';
+import { createPlaylist, deletePlaylist, getPlaylistDetail, getPlaylists } from '@/services/playlists';
 import { HttpError } from '@/errors/HttpError';
 
 const router = Router();
@@ -58,14 +58,14 @@ router.get('/:id', async (req, res) => {
 //   }
 // });
 
-// router.delete('/:id', async (req, res) => {
-//   try {
-//     const result = await deletePlaylist(req.params.id);
-//     res.json({ ok: true, ...result });
-//   } catch (e) {
-//     handleError(e, res);
-//   }
-// });
+router.delete('/:playlistId', async (req, res, next) => {
+  try {
+    const result = await deletePlaylist(req.params.playlistId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // router.post('/:id/songs', async (req: Request<{ id: string }, {}, AddSongsBody>, res: Response) => {
 //   try {

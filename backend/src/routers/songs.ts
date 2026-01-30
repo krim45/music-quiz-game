@@ -31,12 +31,13 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.delete('/:songId', async (req, res, next) => {
+router.delete('/:songId', async (req, res) => {
   try {
     const result = await deleteSong(req.params.songId);
-    res.json(result);
-  } catch (err) {
-    next(err);
+    return res.json({ ok: true, ...result });
+  } catch (e) {
+    console.error('[DELETE /songs/:songId] error', e);
+    return res.status(500).json({ ok: false, message: 'song 삭제 중 오류가 발생했습니다.' });
   }
 });
 

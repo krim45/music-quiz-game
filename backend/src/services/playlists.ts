@@ -184,6 +184,19 @@ export async function getPlaylistDetail(playlistId: string) {
   };
 }
 
+export async function deletePlaylist(playlistId: string) {
+  const id = (playlistId ?? '').trim();
+  if (!id) throw new HttpError(400, 'playlistId is required');
+
+  const repo = AppDataSource.getRepository(Playlist);
+
+  const result = await repo.delete({ id });
+  if (!result.affected) throw new HttpError(404, 'playlist not found');
+
+  // playlist_songs는 FK cascade로 자동 삭제됨
+  return { deleted: true };
+}
+
 // export async function updatePlaylist(id: string, input: { name?: string; description?: string | null }) {
 //   const repo = AppDataSource.getRepository(Playlist);
 //   const playlist = await repo.findOne({ where: { id } });

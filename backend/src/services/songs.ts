@@ -1,5 +1,7 @@
 import { AppDataSource } from '@/db/AppDataSource';
+import { PlaylistSong } from '@/entities/PlaylistSong';
 import { Song, SongProvider } from '@/entities/Song';
+import { HttpError } from '@/errors/HttpError';
 import { extractVideoId } from '@/utils/youtube';
 import { EntityManager } from 'typeorm';
 
@@ -112,4 +114,23 @@ export async function findSongs(params: FindSongsParams): Promise<{ items: SongL
   const items = hasMore ? rows.slice(0, params.limit) : rows;
 
   return { items, hasMore };
+}
+
+export async function deleteSong(songId: string) {
+  const id = (songId ?? '').trim();
+  if (!id) throw new HttpError(400, 'songId is required');
+
+  return AppDataSource.transaction(async (manager) => {
+    const songRepo = manager.getRepository(Song);
+    const psRepo = manager.getRepository(PlaylistSong);
+
+    const exists = await songRepo.find({ where: { id } });
+    if (!exists) throw new HttpError(404, 'song not found');
+
+    await psRepo.delete({ songId: id });
+
+    await songRepo.delete({ id });
+
+    return { deleted: true };
+  });
 }

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import ArcadeMenu from '@/components/menu/ArcadeMenu';
@@ -9,13 +10,15 @@ export default function HomePage() {
   return (
     <div className='flex w-full flex-col items-center'>
       <div className='relative mt-20 aspect-video w-full max-w-xl'>
-        <img
+        <Image
           className='w-full object-contain'
           src='/images/main_logo.webp'
           alt='노래 맞추기 게임 로고'
-          decoding='async'
+          width={576}
+          height={301}
           loading='eager'
           fetchPriority='high'
+          sizes='(max-width: 640px) 100vw, 576px'
           draggable={false}
         />
       </div>

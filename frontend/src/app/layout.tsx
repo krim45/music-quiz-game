@@ -7,7 +7,7 @@ import Provider from '@/lib/TanstackQueryProvider';
 import '@/styles/global.css';
 
 const dos = localFont({
-  src: [{ path: '../public/fonts/DOSMyungjo.woff2', weight: '400', style: 'normal' }],
+  src: [{ path: '/fonts/DOSMyungjo.woff2', weight: '400', style: 'normal' }],
   variable: '--font-dos',
   display: 'swap',
 });

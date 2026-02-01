@@ -10,6 +10,7 @@ const dos = localFont({
   src: [{ path: '../../public/fonts/DOSMyungjo.woff2', weight: '400', style: 'normal' }],
   variable: '--font-dos',
   display: 'swap',
+  preload: false,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;

@@ -2,18 +2,6 @@
 @import './colors.css';
 @import './animations.css';
 
-@font-face {
-  font-family: 'DosMyungjo';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSMyungjo.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-:root {
-  --font-dos: 'DosMyungjo', system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-}
-
 html,
 body {
   width: 100%;
@@ -22,7 +10,7 @@ body {
 
 body {
   color: #ededed;
-  font-family: var(--font-dos);
+  font-family: var(--font-dos), system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   background-color: #0a0a0f;
 }
 
@@ -56,8 +44,7 @@ body {
   }
 
   .no-spin-button[type='number'] {
-    /* 🦊 Firefox */
-    -moz-appearance: textfield;
+    -moz-appearance: textfield; /* 🦊 Firefox */
     appearance: textfield;
   }
 

@@ -10,6 +10,7 @@ const dos = localFont({
   src: [{ path: '../../public/fonts/DOSMyungjo.woff2', weight: '400', style: 'normal' }],
   variable: '--font-dos',
   display: 'swap',
+  preload: false,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
@@ -75,7 +76,7 @@ export default function RootLayout({
       <head>
         <meta name='version' content='1.0.0'></meta>
         {/* GTM - head */}
-        <Script id='gtm' strategy='lazyOnload'>
+        <Script id='gtm' strategy='afterInteractive'>
           {`
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
               new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

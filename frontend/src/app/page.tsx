@@ -15,6 +15,7 @@ export default function HomePage() {
           src='/images/main_logo.png'
           alt='노래 맞추기 게임 로고'
           fill
+          loading='eager'
           fetchPriority='high'
           sizes='(max-width: 640px) 100vw, 576px'
           draggable={false}

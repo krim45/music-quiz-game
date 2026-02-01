@@ -13,9 +13,9 @@ export default function HomePage() {
         <Image
           className='object-contain'
           src='/images/main_logo.png'
-          priority
           alt='노래 맞추기 게임 로고'
           fill
+          fetchPriority='high'
           sizes='(max-width: 640px) 100vw, 576px'
           draggable={false}
         />

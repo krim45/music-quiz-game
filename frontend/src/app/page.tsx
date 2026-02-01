@@ -12,9 +12,10 @@ export default function HomePage() {
       <div className='relative mt-20 aspect-video w-full max-w-xl'>
         <Image
           className='object-contain'
-          src='/images/main_logo.png'
+          src='/images/main_logo.webp'
           alt='노래 맞추기 게임 로고'
           fill
+          unoptimized
           loading='eager'
           fetchPriority='high'
           sizes='(max-width: 640px) 100vw, 576px'

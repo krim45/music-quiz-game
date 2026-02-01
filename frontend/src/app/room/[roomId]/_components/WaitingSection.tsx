@@ -57,7 +57,6 @@ export default function WaitingSection({ roomId, roomInfo, players }: Props) {
     <>
       <div className='scrollbar-custom flex flex-2 flex-col items-center justify-center gap-2 overflow-auto rounded border border-green-900 p-3'>
         <div className={clsx(descClassName, 'text-orange')}>{roomInfo.playlist.name}</div>
-        <div className={descClassName}>{roomInfo.playlist.description}</div>
         <div className={clsx(descClassName, 'text-blue-500')}>{roomInfo.room.songCount}곡</div>
       </div>
 

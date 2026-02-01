@@ -169,6 +169,18 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Licenses */}
+        <section className='mt-10'>
+          <h2 className='text-xl font-bold'>오픈소스 / 글꼴 라이선스</h2>
+          <div className='mt-2'>
+            <span className='mt-2 text-sm text-white/75'>사용 중인 글꼴 및 오픈소스: </span>
+
+            <Link href='/licenses' className='inline-flex items-center justify-center text-sm font-semibold underline'>
+              라이선스 보기
+            </Link>
+          </div>
+        </section>
+
         {/* Footer CTA */}
         <section className='mt-12 rounded-2xl border border-white/10 bg-linear-to-b from-white/10 to-white/5 p-6 text-center'>
           <h2 className='text-lg font-bold'>준비됐으면, 바로 시작!</h2>

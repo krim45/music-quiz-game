@@ -77,6 +77,9 @@ export async function GET(req: Request, ctx: { params: Promise<{ path: string[] 
       method: 'GET',
       headers: buildForwardHeaders(req),
       cache: 'no-store',
+      // ✅ 쿠키 인증을 쓸 경우: 서버->서버 fetch에서도 쿠키를 함께 쓰겠다는 의도
+      // 단, 실제로는 위에서 Cookie 헤더를 전달했기 때문에 이것만으로 해결되진 않지만 같이 두면 명확함
+      // credentials: 'include',
     });
 
     const body = await safeReadBody(res);

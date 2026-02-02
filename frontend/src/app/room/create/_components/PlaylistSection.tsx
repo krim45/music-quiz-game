@@ -45,9 +45,7 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
     refetchOnWindowFocus: false,
   });
 
-  const items: PlaylistListItem[] = useMemo(() => {
-    return (data?.pages ?? []).flatMap((p) => p.items ?? []);
-  }, [data]);
+  const items: PlaylistListItem[] = data?.pages.flatMap((p) => p.items || []);
 
   const openPlaylistDetail = (id: string) => {
     setDetailId(id);

@@ -12,7 +12,9 @@ export const metadata: Metadata = {
 
 export default async function CreateRoomPage() {
   const limit = 20;
+  console.time('CreateRoomPage:fetchPlaylistsServer');
   const initial = await fetchPlaylistsServer({ limit, offset: 0 });
+  console.timeEnd('CreateRoomPage:fetchPlaylistsServer');
 
   return (
     <>

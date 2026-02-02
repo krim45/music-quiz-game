@@ -43,7 +43,7 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
     refetchOnWindowFocus: false,
   });
 
-  const items: SongItem[] = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
+  const items: SongItem[] = (data?.pages ?? []).flatMap((p) => p.items || []);
 
   const columns: TableColumn<SongItem>[] = [
     {

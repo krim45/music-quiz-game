@@ -12,15 +12,17 @@ export const metadata: Metadata = {
 
 export default async function CreateRoomPage() {
   const limit = 20;
+  console.time('CreateRoomPage:fetchPlaylistsServer');
   const initial = await fetchPlaylistsServer({ limit, offset: 0 });
+  console.timeEnd('CreateRoomPage:fetchPlaylistsServer');
 
   return (
     <>
-      <div className='pt-4 pl-6'>
+      <nav className='pt-4 pl-6'>
         <GoBack className='text-md' href='/'>
-          <span>홈으로</span>
+          홈으로
         </GoBack>
-      </div>
+      </nav>
 
       <CreateRoomClient initial={initial.ok ? initial : null} limit={limit} />
     </>

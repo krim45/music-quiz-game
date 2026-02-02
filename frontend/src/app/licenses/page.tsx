@@ -39,11 +39,11 @@ function readLicenseText(filePathFromRoot: string) {
 export default function LicensesPage() {
   return (
     <div className='min-h-screen w-full bg-black/95 text-white'>
-      <div className='pt-4 pl-6'>
+      <nav className='pt-4 pl-6'>
         <GoBack className='text-sm' href='/'>
-          <span>홈으로</span>
+          홈으로
         </GoBack>
-      </div>
+      </nav>
 
       <div className='mx-auto max-w-3xl px-5 py-10'>
         <header className='text-center'>

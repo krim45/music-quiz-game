@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/about', freq: 'daily' as const, pr: 0.2 },
     { path: '/privacy', freq: 'daily' as const, pr: 0.2 },
     { path: '/terms', freq: 'daily' as const, pr: 0.2 },
+    { path: '/licenses', freq: 'daily' as const, pr: 0.2 },
   ];
 
   return routes.map(({ path, freq, pr }) => ({

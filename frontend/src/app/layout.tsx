@@ -65,6 +65,41 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}#organization`,
+      name: 'Play Music Quiz',
+      url: siteUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/og.png`,
+        width: 1200,
+        height: 630,
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}#website`,
+      name: 'Play Music Quiz',
+      url: siteUrl,
+      publisher: { '@id': `${siteUrl}#organization` },
+      inLanguage: 'ko-KR',
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}#webpage`,
+      url: siteUrl,
+      name: title,
+      isPartOf: { '@id': `${siteUrl}#website` },
+      about: { '@id': `${siteUrl}#organization` },
+      inLanguage: 'ko-KR',
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,6 +109,8 @@ export default function RootLayout({
     <html lang='ko' className={dos.variable}>
       <head>
         <meta name='version' content='1.0.0'></meta>
+        <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
         {/* GTM - head */}
         <Script id='gtm' strategy='afterInteractive'>
           {`

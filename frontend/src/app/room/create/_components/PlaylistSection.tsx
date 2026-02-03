@@ -65,6 +65,10 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
     await fetchNextPage();
   };
 
+  const tryRefetch = async () => {
+    await refetch();
+  };
+
   const columns: TableColumn<PlaylistListItem>[] = [
     {
       key: 'id',
@@ -103,7 +107,7 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
     return (
       <div className='w-full rounded border p-4'>
         <p className='text-sm'>플레이리스트를 불러오지 못했어요.</p>
-        <Button className='mt-2' color='gray' onClick={() => refetch()}>
+        <Button className='mt-2' color='gray' onClick={tryRefetch}>
           다시 시도
         </Button>
       </div>

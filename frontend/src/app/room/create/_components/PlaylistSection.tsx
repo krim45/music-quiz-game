@@ -10,22 +10,22 @@ import Button from '@/components/button/Button';
 import Radio from '@/components/form/radio/Radio';
 import PlaylistMusic from '@/components/icon/PlaylistMusic';
 import PlaylistDetailModal from '@/app/room/create/_components/PlaylistDetailModal';
-import type { FindPlaylistsResponse, PlaylistListItem } from '@/app/services/playlists/types';
+import SkeletonBlock from '@/components/skeleton/SkeletonBlock';
 
+import type { PlaylistListItem } from '@/app/services/playlists/types';
 interface Props {
-  limit: number;
-  initial: FindPlaylistsResponse | null;
+  limit?: number;
   selectedId: string;
   onSelect: (id: string) => void;
 }
 
-export default function PlaylistSection({ limit, initial, selectedId, onSelect }: Props) {
+export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Props) {
   const [input, setInput] = useState('');
   const [q, setQ] = useState<string>('');
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailId, setDetailId] = useState<string>('');
 
   const queryKey = useMemo(() => ['playlists', { q, limit }] as const, [q, limit]);
-  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
+  const { error, data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery({
     queryKey,
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
@@ -38,14 +38,14 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
       return data;
     },
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.offset + lastPage.limit : undefined),
-    initialData: initial?.ok && (initial.q ?? '') === q ? { pages: [initial], pageParams: [0] } : undefined,
-    staleTime: 0,
+    staleTime: 30 * 1000,
     gcTime: 5 * 60 * 1000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
-  const items: PlaylistListItem[] = data?.pages.flatMap((p) => p.items || []);
+  const items: PlaylistListItem[] = data?.pages.flatMap((p) => p.items || []) || [];
+  const isInitialLoading = isLoading && items.length === 0;
 
   const openPlaylistDetail = (id: string) => {
     setDetailId(id);
@@ -58,6 +58,7 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
 
     const next = input.trim();
     setQ(next);
+    onSelect('');
   };
 
   const onLoadMore = async () => {
@@ -98,6 +99,17 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
     },
   ];
 
+  if (error && items.length === 0) {
+    return (
+      <div className='w-full rounded border p-4'>
+        <p className='text-sm'>플레이리스트를 불러오지 못했어요.</p>
+        <Button className='mt-2' color='gray' onClick={() => refetch()}>
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className='flex w-full flex-col gap-5'>
       <h2 className='text-2xl font-bold'>플레이리스트 선택</h2>
@@ -117,21 +129,27 @@ export default function PlaylistSection({ limit, initial, selectedId, onSelect }
           />
         </div>
 
-        <Table
-          className='mt-3 min-h-120 flex-1'
-          stickyHead
-          columns={columns}
-          data={items}
-          onRowClick={(row) => onSelect(row.id)}
-        >
-          {hasNextPage ? (
-            <div className='mt-3 flex justify-center'>
-              <Button color='gray' onClick={onLoadMore} disabled={isFetchingNextPage || isLoading}>
-                {isFetchingNextPage || isLoading ? '불러오는 중...' : '더보기'}
-              </Button>
-            </div>
-          ) : null}
-        </Table>
+        {isInitialLoading ? (
+          <div className='mt-3 flex-1'>
+            <SkeletonBlock className='min-h-120 w-full' />
+          </div>
+        ) : (
+          <Table
+            className='mt-3 min-h-120 flex-1'
+            stickyHead
+            columns={columns}
+            data={items}
+            onRowClick={(row) => onSelect(row.id)}
+          >
+            {hasNextPage ? (
+              <div className='mt-3 flex justify-center'>
+                <Button color='gray' onClick={onLoadMore} disabled={isFetchingNextPage || isLoading}>
+                  {isFetchingNextPage || isLoading ? '불러오는 중...' : '더보기'}
+                </Button>
+              </div>
+            ) : null}
+          </Table>
+        )}
       </div>
 
       <PlaylistDetailModal open={!!detailId} playlistId={detailId} onClose={closeModal} />

@@ -12,14 +12,8 @@ import PlaylistSection from '@/app/room/create/_components/PlaylistSection';
 import Button from '@/components/button/Button';
 
 import type { CreateRoomPayload, RoomInfo } from '@/app/room/create/_types';
-import type { FindPlaylistsResponse } from '@/app/services/playlists/types';
 
-interface Props {
-  initial: FindPlaylistsResponse | null;
-  limit: number;
-}
-
-export default function CreateRoomClient({ initial, limit }: Props) {
+export default function CreateRoomClient() {
   const [roomInfo, setRoomInfo] = useState<RoomInfo>({ title: '', password: '', isPublic: true });
   const [playlistId, setPlaylistId] = useState<string>('');
   const router = useRouter();
@@ -48,7 +42,7 @@ export default function CreateRoomClient({ initial, limit }: Props) {
 
       <RoomSettingsSection roomInfo={roomInfo} onChange={updateRoomInfo} />
 
-      <PlaylistSection limit={limit} initial={initial} selectedId={playlistId} onSelect={setPlaylistId} />
+      <PlaylistSection selectedId={playlistId} onSelect={setPlaylistId} />
 
       <Button className='w-full md:w-[25%]' size='lg' onClick={createRoom}>
         게임 생성

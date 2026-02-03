@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { fetchPlaylistsServer } from '@/app/services/playlists/server';
 
 import GoBack from '@/components/nav/GoBack';
 import CreateRoomClient from '@/app/room/create/_components/CreateRoomClient';
@@ -10,12 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/room/create' },
 };
 
-export default async function CreateRoomPage() {
-  const limit = 20;
-  console.time('CreateRoomPage:fetchPlaylistsServer');
-  const initial = await fetchPlaylistsServer({ limit, offset: 0 });
-  console.timeEnd('CreateRoomPage:fetchPlaylistsServer');
-
+export default function CreateRoomPage() {
   return (
     <>
       <nav className='pt-4 pl-6'>
@@ -24,7 +18,7 @@ export default async function CreateRoomPage() {
         </GoBack>
       </nav>
 
-      <CreateRoomClient initial={initial.ok ? initial : null} limit={limit} />
+      <CreateRoomClient />
     </>
   );
 }

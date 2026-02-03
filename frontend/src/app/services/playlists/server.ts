@@ -10,7 +10,7 @@ export async function fetchPlaylistsServer(params: FindPlaylistsParams): Promise
   const qs = buildPlaylistsQuery(params);
   const url = `${baseUrl}/playlists?${qs}`;
 
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url, { next: { revalidate: 30 } });
 
   if (!res.ok) {
     const errorBody = await res.text();

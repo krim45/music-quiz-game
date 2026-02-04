@@ -56,7 +56,7 @@ export default function ArcadeMenu({ className, initialIndex = 0, items }: Arcad
   }, [items]);
 
   return (
-    <div className={clsx('flex flex-col', className)}>
+    <nav className={clsx('flex flex-col', className)}>
       {items.map((item, i) => (
         <ArcadeButton
           className='mx-auto my-3 w-fit'
@@ -74,6 +74,6 @@ export default function ArcadeMenu({ className, initialIndex = 0, items }: Arcad
           {item.label}
         </ArcadeButton>
       ))}
-    </div>
+    </nav>
   );
 }

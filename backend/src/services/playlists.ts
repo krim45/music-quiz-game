@@ -10,7 +10,7 @@ export type CreatePlaylistSongInput = { songId?: string; startSeconds?: number }
 
 export type CreatePlaylistInput = {
   name: string;
-  description: string;
+  description?: string;
   songs: CreatePlaylistSongInput[];
 };
 
@@ -20,8 +20,6 @@ export async function createPlaylist(input: CreatePlaylistInput) {
   const songs = input.songs ?? [];
 
   if (!name) throw new HttpError(400, 'name is required');
-
-  if (!description) throw new HttpError(400, 'description is required');
 
   if (!Array.isArray(songs) || songs.length === 0) throw new HttpError(400, 'songs is required');
 

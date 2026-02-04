@@ -9,6 +9,7 @@ export type SongPayload = {
   url: string;
   title: string;
   singer: string;
+  startSeconds?: number;
   extraAnswers?: string;
 };
 

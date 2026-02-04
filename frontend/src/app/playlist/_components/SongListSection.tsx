@@ -5,7 +5,7 @@ import BaseInput from '@/components/form/input/BaseInput';
 import Button from '@/components/button/Button';
 import Minus from '@/components/icon/Minus';
 
-import type { SongInfo } from '@/app/services/songs/types';
+import type { SongInfo } from '@/services/songs/types';
 
 interface Props {
   songList: SongInfo[];

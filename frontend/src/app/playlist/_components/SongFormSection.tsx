@@ -3,7 +3,7 @@
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
 
-import type { SongInfo } from '@/app/services/songs/types';
+import type { SongInfo } from '@/services/songs/types';
 
 interface Props {
   songInfo: SongInfo;

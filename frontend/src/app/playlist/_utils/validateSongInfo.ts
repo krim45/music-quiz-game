@@ -1,5 +1,5 @@
 import { extractVideoId } from '@/utils/youtube';
-import type { SongInfo } from '@/app/services/songs/types';
+import type { SongInfo } from '@/services/songs/types';
 
 const SONG_ERRORS = {
   INVALID_LINK: '유효한 유튜브 링크를 입력해 주세요.',

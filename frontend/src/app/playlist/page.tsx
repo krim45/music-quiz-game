@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/store/useToastStore';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { useSongForm } from '@/app/playlist/_hooks/useSongForm';
-import { createPlaylistClient } from '@/app/services/playlists/client';
+import { createPlaylistClient } from '@/services/playlists/client';
 
 // component
 import SongSearchModal from '@/app/playlist/_components/SongSearchModal';
@@ -16,7 +16,7 @@ import Button from '@/components/button/Button';
 import GoBack from '@/components/nav/GoBack';
 import InputField from '@/components/form/input/InputField';
 
-import type { SongInfo, SongItem } from '@/app/services/songs/types';
+import type { SongInfo, SongItem } from '@/services/songs/types';
 
 export default function PlaylistPage() {
   const [open, setOpen] = useState<boolean>(false);

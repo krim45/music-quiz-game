@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { toast } from '@/lib/store/useToastStore';
 import { validatePreview, validateSongInfo } from '@/app/playlist/_utils/validateSongInfo';
 
-import type { SongInfo } from '@/app/services/songs/types';
+import type { SongInfo } from '@/services/songs/types';
 
 export function useSongForm(playerRef: React.RefObject<YT.Player | null>) {
   const [songInfo, setSongInfo] = useState<SongInfo>({ url: '', singer: '', title: '' });

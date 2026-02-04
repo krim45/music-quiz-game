@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchPlaylistsClient } from '@/app/services/playlists/client';
+import { fetchPlaylistsClient } from '@/services/playlists/client';
 
 import InputField from '@/components/form/input/InputField';
 import Table, { type TableColumn } from '@/components/table/Table';
@@ -12,7 +12,8 @@ import PlaylistMusic from '@/components/icon/PlaylistMusic';
 import PlaylistDetailModal from '@/app/room/create/_components/PlaylistDetailModal';
 import SkeletonBlock from '@/components/skeleton/SkeletonBlock';
 
-import type { PlaylistListItem } from '@/app/services/playlists/types';
+import type { PlaylistListItem } from '@/services/playlists/types';
+
 interface Props {
   limit?: number;
   selectedId: string;

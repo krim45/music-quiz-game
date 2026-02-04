@@ -4,15 +4,6 @@ export type RoomInfo = {
   isPublic: boolean;
 };
 
-export type SongInfo = {
-  url: string;
-  startSeconds?: number;
-  singer: string;
-  title: string;
-  extraAnswers?: string;
-  _edit?: string;
-};
-
 export type CreateRoomPayload = {
   title: string;
   password?: string;

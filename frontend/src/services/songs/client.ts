@@ -1,4 +1,4 @@
-import { SongsResponse } from '@/app/services/songs/types';
+import { SongsResponse } from '@/services/songs/types';
 
 export async function fetchSongs(params: {
   q?: string;

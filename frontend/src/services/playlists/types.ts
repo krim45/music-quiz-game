@@ -1,4 +1,4 @@
-import type { SongInfo, SongItem } from '@/app/services/songs/types';
+import type { SongInfo, SongItem } from '@/services/songs/types';
 
 export type FindPlaylistsParams = {
   q?: string;

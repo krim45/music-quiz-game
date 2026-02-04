@@ -1,6 +1,6 @@
 'use client';
 
-import { buildPlaylistsQuery } from '@/app/services/playlists/buildUrl';
+import { buildPlaylistsQuery } from '@/services/playlists/buildUrl';
 
 import type {
   FindPlaylistsParams,
@@ -8,7 +8,7 @@ import type {
   PlaylistDetailResponse,
   CreatePlaylistInput,
   CreatePlaylistResponse,
-} from '@/app/services/playlists/types';
+} from '@/services/playlists/types';
 
 export async function fetchPlaylistsClient(params: FindPlaylistsParams): Promise<FindPlaylistsResponse> {
   const qs = buildPlaylistsQuery(params);

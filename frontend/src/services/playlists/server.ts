@@ -1,7 +1,7 @@
 import 'server-only';
 
-import type { FindPlaylistsParams, FindPlaylistsResponse } from '@/app/services/playlists/types';
-import { buildPlaylistsQuery } from '@/app/services/playlists/buildUrl';
+import type { FindPlaylistsParams, FindPlaylistsResponse } from '@/services/playlists/types';
+import { buildPlaylistsQuery } from '@/services/playlists/buildUrl';
 
 export async function fetchPlaylistsServer(params: FindPlaylistsParams): Promise<FindPlaylistsResponse> {
   const baseUrl = process.env.API_BASE_URL;

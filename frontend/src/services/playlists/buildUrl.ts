@@ -1,4 +1,4 @@
-import { FindPlaylistsParams } from '@/app/services/playlists/types';
+import { FindPlaylistsParams } from '@/services/playlists/types';
 
 export function buildPlaylistsQuery(params: FindPlaylistsParams) {
   const sp = new URLSearchParams();

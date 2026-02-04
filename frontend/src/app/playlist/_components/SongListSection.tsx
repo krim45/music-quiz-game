@@ -57,7 +57,8 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong }
 
   return (
     <div className='flex w-full flex-col gap-5'>
-      <h2 className='text-2xl font-bold'>플레이리스트 목록 ({songList.length})</h2>
+      <h2 className='text-2xl font-bold'>노래 목록 ({songList.length})</h2>
+
       <Table className='h-[500px]' stickyHead columns={columns} data={songList} />
     </div>
   );

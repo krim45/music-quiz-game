@@ -42,7 +42,7 @@ export default function PlaylistPage() {
     const trimmed = name.trim();
     if (!trimmed) return toast.error('플레이리스트 이름을 입력해주세요.');
 
-    if (songList.length >= 5) return toast.error('노래를 5곡 이상 추가하세요.');
+    if (songList.length < 5) return toast.error('노래를 5곡 이상 추가하세요.');
 
     try {
       await createPlaylistClient({ name: trimmed, songs: songList });

@@ -10,9 +10,11 @@ import type {
   CreatePlaylistResponse,
 } from '@/services/playlists/types';
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export async function fetchPlaylistsClient(params: FindPlaylistsParams): Promise<FindPlaylistsResponse> {
   const qs = buildPlaylistsQuery(params);
-  const res = await fetch(`/api/backend/playlists?${qs}`, { cache: 'no-store' });
+  const res = await fetch(`${BASE_URL}/playlists?${qs}`, { cache: 'no-store' });
   const data: FindPlaylistsResponse = await res.json();
 
   if (!res.ok) {
@@ -29,7 +31,7 @@ export async function fetchPlaylistDetail({
   id: string;
   signal?: AbortSignal;
 }): Promise<PlaylistDetailResponse> {
-  const res = await fetch(`/api/backend/playlists/${id}`, { signal, cache: 'no-store' });
+  const res = await fetch(`${BASE_URL}/playlists/${id}`, { signal, cache: 'no-store' });
   const data: PlaylistDetailResponse = await res.json();
 
   if (!data.ok) throw new Error(data.message ?? '플레이리스트 상세 조회 실패');
@@ -37,7 +39,7 @@ export async function fetchPlaylistDetail({
 }
 
 export async function createPlaylistClient(input: CreatePlaylistInput): Promise<CreatePlaylistResponse> {
-  const res = await fetch(`/api/backend/playlists`, {
+  const res = await fetch(`${BASE_URL}/playlists`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     cache: 'no-store',

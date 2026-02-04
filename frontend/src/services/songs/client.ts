@@ -1,5 +1,7 @@
 import { SongsResponse } from '@/services/songs/types';
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export async function fetchSongs(params: {
   q?: string;
   limit?: number;
@@ -12,7 +14,7 @@ export async function fetchSongs(params: {
   qs.set('limit', String(params.limit ?? 50));
   qs.set('offset', String(params.offset ?? 0));
 
-  const res = await fetch(`/api/backend/songs?${qs.toString()}`, {
+  const res = await fetch(`${BASE_URL}/songs?${qs.toString()}`, {
     method: 'GET',
     headers: { Accept: 'application/json' },
     cache: 'no-store',

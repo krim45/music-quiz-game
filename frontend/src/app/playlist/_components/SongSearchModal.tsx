@@ -3,13 +3,15 @@
 import { useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchSongs } from '@/app/services/songs/client';
+import { toast } from '@/lib/store/useToastStore';
+
 import Modal from '@/components/overlay/Modal';
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
-import { toast } from '@/lib/store/useToastStore';
 import Table, { type TableColumn } from '@/components/table/Table';
 import Checkbox from '@/components/form/checkbox/Checkbox';
-import { SongItem } from '@/app/services/songs/types';
+
+import type { SongItem } from '@/app/services/songs/types';
 
 interface Props {
   open: boolean;
@@ -23,7 +25,6 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
   const [input, setInput] = useState('');
   const [q, setQ] = useState<string>('');
 
-  // ✅ key는 song.id(uuid)
   const [selectedMap, setSelectedMap] = useState<Map<string, SongItem>>(new Map());
 
   const queryKey = useMemo(() => ['songs', q] as const, [q]);
@@ -71,9 +72,6 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
     { key: 'title', label: '제목', sortable: true, className: 'w-[120px]' },
     { key: 'extraAnswers', label: '추가 정답', className: 'w-[160px]' },
     { key: 'url', label: '링크', className: 'w-[350px]' },
-
-    // (선택) 영상 ID를 보고 싶으면 컬럼 추가
-    // { key: 'externalId', label: '영상ID', className: 'w-[140px]' },
   ];
 
   const errMsg = error instanceof Error ? error.message : null;
@@ -83,8 +81,6 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
 
     const nextQ = input.trim();
     setQ(nextQ);
-
-    // ✅ 검색어 바뀌면 선택 초기화(현재 네 의도)
     setSelectedMap(new Map());
   };
 
@@ -99,9 +95,8 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
     const selectedSongs = Array.from(selectedMap.values());
     onAdd(selectedSongs);
 
-    // 취향: 닫을 때 선택도 초기화하고 싶으면
+    // 닫을 때 선택도 초기화하고 싶으면
     // setSelectedMap(new Map());
-
     onClose();
   };
 

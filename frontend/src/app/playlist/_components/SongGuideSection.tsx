@@ -37,7 +37,7 @@ export default function SongGuideSection() {
         </ul>
       </section>
 
-      <section className='space-y-3 rounded-xl border border-gray-700 bg-gray-900/40 p-5'>
+      <section className='space-y-3 rounded-xl border border-gray-700 bg-gray-900/40 p-5 break-all'>
         <h3 className='text-lg'>3. 지원되는 유튜브 링크 예시</h3>
 
         <ul className='list-disc space-y-1 pl-5 text-gray-400'>

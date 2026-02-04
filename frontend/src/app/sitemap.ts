@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '', freq: 'daily' as const, pr: 1 },
     { path: '/room/join', freq: 'daily' as const, pr: 0.7 },
     { path: '/room/create', freq: 'daily' as const, pr: 0.7 },
+    { path: '/playlist', freq: 'daily' as const, pr: 0.7 },
     { path: '/about', freq: 'monthly' as const, pr: 0.2 },
     { path: '/privacy', freq: 'monthly' as const, pr: 0.2 },
     { path: '/terms', freq: 'monthly' as const, pr: 0.2 },

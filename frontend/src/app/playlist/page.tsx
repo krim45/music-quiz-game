@@ -91,7 +91,7 @@ export default function PlaylistPage() {
           </div>
 
           <div>
-            <InputField required label='플레이리스트 이름' value={name} onChange={(v) => setName(v)} />
+            <InputField required label='플레이리스트 제목' value={name} onChange={(v) => setName(v)} />
           </div>
 
           <SongGuideSection />

@@ -32,7 +32,7 @@ export default function HomePage() {
         ]}
       />
 
-      <div className='mt-10 flex items-center justify-center gap-4 text-gray-400'>
+      <footer className='mt-10 flex items-center justify-center gap-4 text-gray-400'>
         <Link className={anchor} href='/about'>
           소개
         </Link>
@@ -48,7 +48,7 @@ export default function HomePage() {
         <Link className={anchor} href='/terms'>
           이용약관
         </Link>
-      </div>
+      </footer>
     </div>
   );
 }

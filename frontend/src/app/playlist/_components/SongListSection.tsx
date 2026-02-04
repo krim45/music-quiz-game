@@ -5,7 +5,7 @@ import BaseInput from '@/components/form/input/BaseInput';
 import Button from '@/components/button/Button';
 import Minus from '@/components/icon/Minus';
 
-import type { SongInfo } from '@/app/room/create/_types';
+import type { SongInfo } from '@/services/songs/types';
 
 interface Props {
   songList: SongInfo[];
@@ -58,6 +58,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong }
   return (
     <div className='flex w-full flex-col gap-5'>
       <h2 className='text-2xl font-bold'>노래 목록 ({songList.length})</h2>
+
       <Table className='h-[500px]' stickyHead columns={columns} data={songList} />
     </div>
   );

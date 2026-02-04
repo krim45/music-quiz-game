@@ -16,8 +16,6 @@ interface Props {
   isReady: boolean;
 }
 
-// TODO: 광고
-
 const Header = ({ playerRef, isReady }: Props) => {
   const router = useRouter();
   const [volume, setVolume] = useState<number>(0.5);

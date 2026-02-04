@@ -27,7 +27,8 @@ export default function HomePage() {
         className='mt-10'
         items={[
           { label: '게임 참가', href: '/room/join' },
-          { label: '게임 생성', href: '/room/create' },
+          { label: '게임 만들기', href: '/room/create' },
+          { label: 'NEW 플레이리스트', href: '/playlist' },
         ]}
       />
 

@@ -1,4 +1,4 @@
-import type { SongItem } from '@/app/services/songs/types';
+import type { SongInfo, SongItem } from '@/services/songs/types';
 
 export type FindPlaylistsParams = {
   q?: string;
@@ -32,3 +32,18 @@ export type PlaylistDetailResponse = {
   playlist: { id: string; name: string; description: string };
   songs: Array<SongItem>;
 };
+
+export type CreatePlaylistInput = {
+  name: string;
+  description?: string;
+  songs: SongInfo[];
+};
+
+export type CreatePlaylistResponse =
+  | {
+      ok: true;
+      playlist: { id: string; name: string; description: string };
+      addedCount: number;
+      failed: { url: string; reason: string }[];
+    }
+  | { ok: false; message: string };

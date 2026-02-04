@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchPlaylistsClient } from '@/app/services/playlists/client';
+import { fetchPlaylistsClient } from '@/services/playlists/client';
 
 import InputField from '@/components/form/input/InputField';
 import Table, { type TableColumn } from '@/components/table/Table';
@@ -12,7 +13,8 @@ import PlaylistMusic from '@/components/icon/PlaylistMusic';
 import PlaylistDetailModal from '@/app/room/create/_components/PlaylistDetailModal';
 import SkeletonBlock from '@/components/skeleton/SkeletonBlock';
 
-import type { PlaylistListItem } from '@/app/services/playlists/types';
+import type { PlaylistListItem } from '@/services/playlists/types';
+
 interface Props {
   limit?: number;
   selectedId: string;
@@ -80,7 +82,7 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
         </div>
       ),
     },
-    { key: 'name', label: '플레이리스트' },
+    { key: 'name', label: '제목' },
     {
       key: '_detail',
       label: '목록',
@@ -115,8 +117,10 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
   }
 
   return (
-    <div className='flex w-full flex-col gap-5'>
-      <h2 className='text-2xl font-bold'>플레이리스트 선택</h2>
+    <div className='flex w-full flex-col gap-2'>
+      <div className='flex items-end justify-between'>
+        <h2 className='text-2xl font-bold'>플레이리스트</h2>
+      </div>
 
       <div className='flex h-full flex-col gap-3'>
         <div className='mt-2 flex gap-2'>
@@ -133,13 +137,19 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
           />
         </div>
 
+        <div className='flex items-end justify-end'>
+          <Link className='text-sm text-gray-200' href='/playlist'>
+            나만의 플레이리스트 만들기
+          </Link>
+        </div>
+
         {isInitialLoading ? (
-          <div className='mt-3 flex-1'>
+          <div className='flex-1'>
             <SkeletonBlock className='min-h-120 w-full' />
           </div>
         ) : (
           <Table
-            className='mt-3 min-h-120 flex-1'
+            className='min-h-120 flex-1'
             stickyHead
             columns={columns}
             data={items}

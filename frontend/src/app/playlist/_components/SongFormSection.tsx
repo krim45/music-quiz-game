@@ -2,7 +2,8 @@
 
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
-import type { SongInfo } from '@/app/room/create/_types';
+
+import type { SongInfo } from '@/services/songs/types';
 
 interface Props {
   songInfo: SongInfo;
@@ -35,7 +36,7 @@ export default function SongFormSection({ songInfo, showPreview, onChange, onLoa
             placeholder='90(초)'
           />
 
-          <Button className='w-[25%] min-w-0 self-end truncate' color='green' onClick={onLoadPreview}>
+          <Button className='w-[25%] min-w-0 self-end truncate' color='gray' onClick={onLoadPreview}>
             미리보기
           </Button>
         </div>
@@ -75,7 +76,7 @@ export default function SongFormSection({ songInfo, showPreview, onChange, onLoa
           helperText={'정답으로 인정할 표현을 입력해 주세요. \n복수 정답 가능, 쉼표로 구분해 주세요.'}
         />
 
-        <Button className='mt-[23px] w-[25%] truncate' onClick={onAddSong}>
+        <Button className='mt-[23px] w-[25%] truncate' color='green' onClick={onAddSong}>
           노래 추가
         </Button>
       </div>

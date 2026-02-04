@@ -10,7 +10,7 @@ export default function TanstackQueryProvider({ children }: { children: React.Re
       new QueryClient({
         queryCache: new QueryCache({
           onError: (error) => {
-            const msg = error instanceof Error ? error.message : '서버 에러';
+            const msg = error instanceof Error ? error.message : (error ?? '서버 에러');
             toast.error(msg);
           },
         }),

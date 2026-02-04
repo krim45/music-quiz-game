@@ -17,3 +17,13 @@ export type SongsResponse = {
   items: SongItem[];
   message?: string;
 };
+
+export type SongInfo = {
+  id?: string;
+  url: string;
+  startSeconds?: number;
+  singer: string;
+  title: string;
+  extraAnswers?: string;
+  _edit?: string;
+};

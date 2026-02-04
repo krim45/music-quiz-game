@@ -1,11 +1,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchPlaylistDetail } from '@/app/services/playlists/client';
+import { fetchPlaylistDetail } from '@/services/playlists/client';
 
 import Modal from '@/components/overlay/Modal';
 
-import type { SongItem } from '@/app/services/songs/types';
+import type { SongItem } from '@/services/songs/types';
 
 interface Props {
   open: boolean;

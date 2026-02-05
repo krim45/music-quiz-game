@@ -1,47 +1,58 @@
 'use client';
 
 import clsx from 'clsx';
+import { clamp01 } from '@/sounds/systemSound';
+
 import VolumeLow from '@/components/icon/VolumeLow';
 import VolumeHigh from '@/components/icon/VolumeHigh';
 import Mute from '@/components/icon/Mute';
 
-// TODO: css 정리
-// 사운드 이펙트도 소리 연결
-
 type Props = {
   value: number;
-  onChange: (next: number) => void;
+  onChange: (value: number) => void;
 
-  mute?: boolean;
-  onToggleMute: () => void;
+  mute: boolean;
+  setMute: (value: boolean) => void;
 
-  step?: number; // default 0.01
+  step?: number;
   className?: string;
   disabled?: boolean;
 };
-
-const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 export default function VolumeControl({
   value,
   onChange,
   mute,
-  onToggleMute,
+  setMute,
   step = 0.01,
   className,
   disabled = false,
 }: Props) {
   const volume = mute ? 0 : clamp01(value);
-
   const Icon = mute || volume <= 0.0001 ? Mute : volume < 0.5 ? VolumeLow : VolumeHigh;
 
+  const handleToggleMute = () => {
+    if (disabled) return;
+
+    setMute(!mute);
+  };
+
+  const handleChangeVolume = (value: number) => {
+    if (disabled) return;
+
+    const v = clamp01(value);
+
+    if (mute) setMute(false);
+    onChange(v);
+  };
+
   return (
-    <div className={clsx('items-center, inline-flex rounded-3xl hover:bg-gray-800', className)}>
+    <div className={clsx('inline-flex items-center rounded-3xl hover:bg-gray-800', className)}>
       <div className='group relative inline-flex items-center'>
         <button
           type='button'
           disabled={disabled}
-          onClick={onToggleMute}
+          onClick={handleToggleMute}
           className={clsx(
             'relative inline-flex h-9 w-9 items-center justify-center rounded-md',
             'text-white/90 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none',
@@ -68,7 +79,7 @@ export default function VolumeControl({
               step={step}
               value={volume}
               disabled={disabled}
-              onChange={(e) => onChange(clamp01(Number(e.target.value)))}
+              onChange={(e) => handleChangeVolume(Number(e.target.value))}
               className={clsx(
                 'h-0.5 w-20 cursor-pointer appearance-none rounded-full',
                 'bg-white/80 outline-none',

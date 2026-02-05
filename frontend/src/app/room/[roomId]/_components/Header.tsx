@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useSyncYoutubeAudio } from '@/hooks/useSyncYoutubeAudio';
+import { useSyncSystemSound } from '@/hooks/useSyncSysyemSound';
 
 import Menu from '@/components/icon/Menu';
 import HowToPlayModal from '@/app/room/[roomId]/_components/HowToPlayModal';
@@ -23,6 +24,7 @@ const Header = ({ playerRef, isReady }: Props) => {
   const [hasSeen, setHasSeen, ready] = useLocalStorageState<boolean>('hasSeenHowToPlay', false);
 
   useSyncYoutubeAudio({ playerRef, isReady, volume, mute });
+  useSyncSystemSound({ isReady, volume, mute });
 
   const menuItems: PopupMenuItem[] = [
     {
@@ -41,7 +43,7 @@ const Header = ({ playerRef, isReady }: Props) => {
 
   return (
     <>
-      <div className='flex w-full flex-none items-center justify-between gap-4 px-4 py-2 md:justify-start'>
+      <div className='flex w-full flex-none items-center justify-start gap-4 px-4 py-2'>
         <PopupMenu items={menuItems}>
           <button
             type='button'
@@ -51,7 +53,7 @@ const Header = ({ playerRef, isReady }: Props) => {
           </button>
         </PopupMenu>
 
-        <VolumeControl value={volume} onChange={(v) => setVolume(v)} mute={mute} onToggleMute={() => setMute(!mute)} />
+        <VolumeControl value={volume} onChange={(v) => setVolume(v)} mute={mute} setMute={setMute} />
       </div>
 
       <HowToPlayModal open={ready && !hasSeen} onClose={() => setHasSeen(true)} />

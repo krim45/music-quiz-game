@@ -38,6 +38,8 @@ export const metadata: Metadata = {
     '2000년대 추억의 노래',
     '최신가요 퀴즈',
     '연도별 노래 맞추기',
+    '노래 듣고 맞추기',
+    '나만의 플레이리스트 만들기',
   ],
   alternates: { canonical: '/' },
   openGraph: {

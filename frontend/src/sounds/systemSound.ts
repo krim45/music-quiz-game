@@ -6,32 +6,41 @@ const SOUND_FILES: Record<SoundName, string> = {
   timeout: '/sounds/game-over.mp3',
 };
 
-let audioContext: AudioContext | null = null;
+let ctx: AudioContext | null = null;
+let masterGain: GainNode | null = null;
 const buffers: Partial<Record<SoundName, AudioBuffer>> = {};
 
-function getAudioContext(): AudioContext {
-  if (!audioContext) {
-    audioContext = new AudioContext();
+export const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+
+function ensureAudio() {
+  if (!ctx) ctx = new AudioContext();
+
+  if (!masterGain) {
+    masterGain = ctx.createGain();
+    masterGain.gain.value = 1;
+    masterGain.connect(ctx.destination);
   }
-  return audioContext;
+
+  return { ctx, masterGain };
 }
 
 export async function unlockSound() {
-  const ctx = getAudioContext();
+  const { ctx } = ensureAudio();
+  if (ctx.state === 'suspended') await ctx.resume();
+}
 
-  if (ctx.state === 'suspended') {
-    await ctx.resume();
-  }
+export function setSystemSoundVolume(volume01: number, mute?: boolean) {
+  const { masterGain } = ensureAudio();
+  const v = clamp01(volume01);
+  masterGain.gain.value = mute || v <= 0.0001 ? 0 : v;
 }
 
 async function loadSound(name: SoundName, url: string) {
-  const ctx = getAudioContext();
+  const { ctx } = ensureAudio();
 
   const res = await fetch(url);
   const arrayBuffer = await res.arrayBuffer();
-  const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-
-  buffers[name] = audioBuffer;
+  buffers[name] = await ctx.decodeAudioData(arrayBuffer);
 }
 
 export async function loadAllSounds() {
@@ -39,13 +48,12 @@ export async function loadAllSounds() {
 }
 
 export function playSystemSound(name: SoundName) {
-  const ctx = getAudioContext();
+  const { ctx, masterGain } = ensureAudio();
   const buffer = buffers[name];
-
   if (!buffer) return;
 
   const source = ctx.createBufferSource();
   source.buffer = buffer;
-  source.connect(ctx.destination);
+  source.connect(masterGain);
   source.start(0);
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import { clamp01 } from '@/sounds/systemSound';
 
 import VolumeLow from '@/components/icon/VolumeLow';
 import VolumeHigh from '@/components/icon/VolumeHigh';
@@ -17,8 +18,6 @@ type Props = {
   className?: string;
   disabled?: boolean;
 };
-
-const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 export default function VolumeControl({
   value,

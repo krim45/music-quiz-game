@@ -1,8 +1,8 @@
 'use client';
 
-import { RefObject, useCallback, useEffect } from 'react';
+import { RefObject, useEffect } from 'react';
+import { clamp01 } from '@/sounds/systemSound';
 
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const toYT = (v01: number) => Math.round(clamp01(v01) * 100);
 
 type Params = {
@@ -13,7 +13,7 @@ type Params = {
 };
 
 export function useSyncYoutubeAudio({ playerRef, isReady, volume, mute }: Params) {
-  const apply = useCallback(() => {
+  useEffect(() => {
     const p = playerRef.current;
     if (!isReady || !p) return;
 
@@ -31,8 +31,4 @@ export function useSyncYoutubeAudio({ playerRef, isReady, volume, mute }: Params
     p.unMute?.();
     p.setVolume?.(toYT(v));
   }, [isReady, playerRef, volume, mute]);
-
-  useEffect(() => {
-    apply();
-  }, [apply]);
 }

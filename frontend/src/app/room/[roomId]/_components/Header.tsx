@@ -41,7 +41,7 @@ const Header = ({ playerRef, isReady }: Props) => {
 
   return (
     <>
-      <div className='flex w-full flex-none items-center justify-between gap-4 px-4 py-2 md:justify-start'>
+      <div className='flex w-full flex-none items-center justify-start gap-4 px-4 py-2'>
         <PopupMenu items={menuItems}>
           <button
             type='button'
@@ -51,7 +51,7 @@ const Header = ({ playerRef, isReady }: Props) => {
           </button>
         </PopupMenu>
 
-        <VolumeControl value={volume} onChange={(v) => setVolume(v)} mute={mute} onToggleMute={() => setMute(!mute)} />
+        <VolumeControl value={volume} onChange={(v) => setVolume(v)} mute={mute} setMute={setMute} />
       </div>
 
       <HowToPlayModal open={ready && !hasSeen} onClose={() => setHasSeen(true)} />

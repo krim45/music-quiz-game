@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Script from 'next/script';
@@ -134,11 +135,13 @@ export default function RootLayout({
             style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>
+
         <Provider>
           <main className='h-full w-full'>{children}</main>
         </Provider>
 
         <ToastProvider />
+        <Analytics />
       </body>
     </html>
   );

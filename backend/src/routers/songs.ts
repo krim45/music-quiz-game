@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { deleteSong, findSongs } from '@/services/songs';
+import { adminOnly } from '@/middlewares/adminOnly';
 
 const router = Router();
 
@@ -31,7 +32,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.delete('/:songId', async (req, res) => {
+router.delete('/:songId', adminOnly, async (req, res) => {
   try {
     const result = await deleteSong(req.params.songId);
     return res.json({ ok: true, ...result });

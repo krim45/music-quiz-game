@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { isAllowedOrigin } from '@/config/cors';
 import songsRouter from '@/routers/songs';
 import playlistsRouter from '@/routers/playlists';
+import adminRouter from '@/routers/admin';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const TOKEN_TTL = '30d';
@@ -33,8 +34,8 @@ app.get('/health', (_req, res: Response) => {
 });
 
 app.use('/songs', songsRouter);
-
 app.use('/playlists', playlistsRouter);
+app.use('/admin', adminRouter);
 
 app.get('/session', (_, res) => {
   res.setHeader('Cache-Control', 'no-store');

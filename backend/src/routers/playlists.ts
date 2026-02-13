@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { createPlaylist, deletePlaylist, getPlaylistDetail, getPlaylists } from '@/services/playlists';
 import { HttpError } from '@/errors/HttpError';
+import { adminOnly } from '@/middlewares/adminOnly';
 
 const router = Router();
 
@@ -58,7 +59,7 @@ router.get('/:id', async (req, res) => {
 //   }
 // });
 
-router.delete('/:playlistId', async (req, res, next) => {
+router.delete('/:playlistId', adminOnly, async (req, res, next) => {
   try {
     const result = await deletePlaylist(req.params.playlistId);
     res.json(result);

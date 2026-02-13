@@ -5,7 +5,7 @@ import Section from '@/components/common/Section';
 
 export const metadata: Metadata = {
   title: '이용약관',
-  description: '노래 맞추기 게임 이용약관',
+  description: '노래 맞히기 게임 이용약관',
   alternates: { canonical: '/terms' },
 };
 
@@ -30,7 +30,7 @@ export default function TermsPage() {
         <main className='mt-10 space-y-8'>
           <Section title='1. 목적'>
             <p className='text-white/80'>
-              본 약관은 노래 맞추기 게임(이하 “서비스”)의 이용과 관련하여 서비스 제공자와 이용자 간의 권리·의무 및
+              본 약관은 노래 맞히기 게임(이하 “서비스”)의 이용과 관련하여 서비스 제공자와 이용자 간의 권리·의무 및
               책임사항, 기타 필요한 사항을 정함을 목적으로 합니다.
             </p>
           </Section>
@@ -161,7 +161,7 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <div className='pt-2 text-center text-xs text-white/50'>© {new Date().getFullYear()} 노래 맞추기 게임</div>
+          <div className='pt-2 text-center text-xs text-white/50'>© {new Date().getFullYear()} 노래 맞히기 게임</div>
         </main>
       </div>
     </div>

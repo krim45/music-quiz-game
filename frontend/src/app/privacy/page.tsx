@@ -6,7 +6,7 @@ import SubSection from '@/components/common/SubSection';
 
 export const metadata: Metadata = {
   title: '개인정보처리방침',
-  description: '노래 맞추기 게임 개인정보처리방침',
+  description: '노래 맞히기 게임 개인정보처리방침',
   alternates: { canonical: '/privacy' },
 };
 
@@ -176,7 +176,7 @@ export default function PrivacyPage() {
             </p>
           </Section>
 
-          <div className='pt-2 text-center text-xs text-white/50'>© {new Date().getFullYear()} 노래 맞추기 게임</div>
+          <div className='pt-2 text-center text-xs text-white/50'>© {new Date().getFullYear()} 노래 맞히기 게임</div>
         </main>
       </div>
     </div>

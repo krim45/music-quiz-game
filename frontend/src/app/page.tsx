@@ -13,7 +13,7 @@ export default function HomePage() {
         <Image
           className='w-full object-contain'
           src='/images/main_logo.webp'
-          alt='노래 맞추기 게임 로고'
+          alt='노래 맞히기 게임 로고'
           width={576}
           height={301}
           loading='eager'

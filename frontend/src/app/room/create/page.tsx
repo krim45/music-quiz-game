@@ -5,7 +5,7 @@ import CreateRoomClient from '@/app/room/create/_components/CreateRoomClient';
 
 export const metadata: Metadata = {
   title: '게임 방 생성',
-  description: '노래 맞추기 게임을 만들어 친구들과 즐겨보세요.',
+  description: '노래 맞히기 게임을 만들어 친구들과 즐겨보세요.',
   alternates: { canonical: '/room/create' },
 };
 

@@ -68,7 +68,7 @@ export default function AboutPage() {
         <header className='text-center'>
           <p className='text-xs tracking-[0.35em] text-white/60'>MUSIC QUIZ ARCADE</p>
           <h1 className='mt-3 text-3xl font-extrabold tracking-tight'>
-            노래 맞추기 게임 <span className='text-white/60'>소개</span>
+            노래 맞히기 게임 <span className='text-white/60'>소개</span>
           </h1>
           <p className='mt-4 leading-7 text-white/80'>
             들리는 노래를 듣고 <b>제한 시간 안에 ‘노래 제목’만</b> 맞히면 점수를 얻어요.

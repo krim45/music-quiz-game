@@ -5,7 +5,7 @@ import JoinClient from '@/app/room/join/JoinClient';
 
 export const metadata: Metadata = {
   title: '게임 방 참가',
-  description: '노래 맞추기 게임 방에 참가하세요.',
+  description: '노래 맞히기 게임 방에 참가하세요.',
   alternates: { canonical: '/room/join' },
 };
 

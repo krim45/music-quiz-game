@@ -109,6 +109,7 @@ export default function AboutPage() {
             <a
               href='https://open.kakao.com/o/gIXXVHdi'
               target='_blank'
+              rel='noreferrer'
               className='border border-white/20 bg-white/10 px-5 py-3 text-center font-semibold hover:bg-white/15'
             >
               개발자 문의

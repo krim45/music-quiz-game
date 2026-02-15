@@ -14,7 +14,15 @@ export const metadata: Metadata = {
 
 export default async function PlaylistsPage() {
   const LIMIT = 40;
-  const firstPage = await fetchPlaylistsServer({ limit: LIMIT, offset: 0 });
+  let firstPage;
+
+  try {
+    firstPage = await fetchPlaylistsServer({ limit: LIMIT, offset: 0 });
+  } catch (error) {
+    console.error('fetch failed:', error);
+    firstPage = { q: '', playlists: [], hasMore: false, offset: 0, limit: LIMIT, ok: false };
+  }
+
   const initialInfiniteData = { pages: [firstPage], pageParams: [0] };
 
   return (

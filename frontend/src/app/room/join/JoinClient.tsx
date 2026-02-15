@@ -126,7 +126,7 @@ export default function JoinClient() {
 
         <div className='flex items-center gap-3'>
           <Button color='blue' size='lg' onClick={() => router.push('/room/new')}>
-            게임 생성
+            게임 만들기
           </Button>
 
           <Button className='flex w-12 items-center justify-center' size='lg' color='gray' onClick={handleRefresh}>

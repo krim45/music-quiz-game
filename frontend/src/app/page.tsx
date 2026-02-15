@@ -26,7 +26,7 @@ export default function HomePage() {
       <ArcadeMenu
         className='mt-10'
         items={[
-          { label: '게임 참가', href: '/room/join' },
+          { label: '게임 찾기', href: '/room/join' },
           { label: '게임 만들기', href: '/room/new' },
           { label: 'NEW 플레이리스트', href: '/playlists/new' },
         ]}

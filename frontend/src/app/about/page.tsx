@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 
 const steps = [
   {
-    title: '1) 게임 참가(방 찾기)',
-    desc: '‘게임 참가’에서 방 목록을 보고 들어가거나, 검색으로 방을 찾을 수 있어요.',
+    title: '1) 게임 찾기(방 찾기)',
+    desc: '‘게임 찾기’에서 방 목록을 보고 들어가거나, 검색으로 방을 찾을 수 있어요.',
   },
   {
-    title: '2) 게임 생성(방 만들기)',
+    title: '2) 게임 만들기(방 만들기)',
     desc: '방 제목을 입력하고 공개/비공개를 고른 다음 플레이리스트를 선택해 방을 만들어요.',
   },
   {
@@ -73,10 +73,10 @@ export default function AboutPage() {
         href='/room/join'
         className='rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-center font-semibold hover:bg-white/15'
       >
-        게임 참가
+        게임 찾기
       </Link>
       <Link href='/room/new' className='rounded-xl bg-blue-600 px-5 py-3 text-center font-semibold hover:bg-blue-500'>
-        게임 생성
+        게임 만들기
       </Link>
     </div>
   );

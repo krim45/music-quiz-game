@@ -80,14 +80,10 @@ export default function PlaylistPage() {
       </nav>
 
       <div className='m-auto flex w-full max-w-3xl flex-col items-center p-6'>
-        <div className='flex w-full flex-col gap-5'>
-          <div className='flex items-center justify-between'>
-            <h2 className='text-2xl font-bold'>플레이리스트 추가</h2>
-          </div>
+        <div className='flex w-full flex-col gap-6'>
+          <h1 className='mb-2 text-center text-3xl font-bold'>플레이리스트 추가</h1>
 
-          <div>
-            <InputField required label='플레이리스트 제목' value={name} onChange={(v) => setName(v)} />
-          </div>
+          <InputField required label='플레이리스트 제목' value={name} onChange={(v) => setName(v)} />
 
           <SongGuideSection />
 
@@ -106,7 +102,9 @@ export default function PlaylistPage() {
             onAddSearchSong={addSearchSong}
           />
 
-          <Button onClick={createPlaylist}>플레이리스트 생성</Button>
+          <Button className='w-full self-center md:w-[25%]' size='lg' onClick={createPlaylist}>
+            플레이리스트 추가
+          </Button>
         </div>
       </div>
     </div>

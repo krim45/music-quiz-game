@@ -38,14 +38,14 @@ export default function CreateRoomClient() {
 
   return (
     <div className='m-auto flex w-full max-w-xl flex-col items-center gap-7 p-6'>
-      <h1 className='text-center text-3xl font-bold'>게임 생성</h1>
+      <h1 className='text-center text-3xl font-bold'>게임 만들기</h1>
 
       <RoomSettingsSection roomInfo={roomInfo} onChange={updateRoomInfo} />
 
       <PlaylistSection selectedId={playlistId} onSelect={setPlaylistId} />
 
       <Button className='w-full md:w-[25%]' size='lg' onClick={createRoom}>
-        게임 생성
+        게임 만들기
       </Button>
     </div>
   );

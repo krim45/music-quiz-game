@@ -4,14 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/store/useToastStore';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
-import { useSongForm } from '@/app/playlist/new/_hooks/useSongForm';
+import { useSongForm } from '@/app/playlists/new/_hooks/useSongForm';
 import { createPlaylistClient } from '@/services/playlists/client';
 
-// component
-import SongSearchModal from '@/app/playlist/new/_components/SongSearchModal';
-import SongGuideSection from '@/app/playlist/new/_components/SongGuideSection';
-import SongFormSection from '@/app/playlist/new/_components/SongFormSection';
-import SongListSection from '@/app/playlist/new/_components/SongListSection';
+import SongGuideSection from '@/app/playlists/new/_components/SongGuideSection';
+import SongFormSection from '@/app/playlists/new/_components/SongFormSection';
+import SongListSection from '@/app/playlists/new/_components/SongListSection';
 import Button from '@/components/button/Button';
 import GoBack from '@/components/nav/GoBack';
 import InputField from '@/components/form/input/InputField';
@@ -19,7 +17,6 @@ import InputField from '@/components/form/input/InputField';
 import type { SongInfo, SongItem } from '@/services/songs/types';
 
 export default function PlaylistPage() {
-  const [open, setOpen] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
 
   const { playerRef } = useYouTubePlayer('preview', { width: '100%', height: '100%' });
@@ -77,8 +74,8 @@ export default function PlaylistPage() {
   return (
     <div className='h-full w-full'>
       <nav className='pt-4 pl-6'>
-        <GoBack className='text-md' href='/'>
-          홈으로
+        <GoBack className='text-md' href='/playlists'>
+          플레이리스트 목록
         </GoBack>
       </nav>
 
@@ -86,8 +83,6 @@ export default function PlaylistPage() {
         <div className='flex w-full flex-col gap-5'>
           <div className='flex items-center justify-between'>
             <h2 className='text-2xl font-bold'>플레이리스트 추가</h2>
-
-            <Button onClick={() => setOpen((prev) => !prev)}>노래 검색</Button>
           </div>
 
           <div>
@@ -104,17 +99,16 @@ export default function PlaylistPage() {
             onAddSong={addSong}
           />
 
-          <SongListSection songList={songList} onChangeSong={handleSongChange} onRemoveSong={handleRemoveSong} />
+          <SongListSection
+            songList={songList}
+            onChangeSong={handleSongChange}
+            onRemoveSong={handleRemoveSong}
+            onAddSearchSong={addSearchSong}
+          />
 
           <Button onClick={createPlaylist}>플레이리스트 생성</Button>
         </div>
       </div>
-
-      <SongSearchModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onAdd={(selectedSongs) => addSearchSong(selectedSongs)}
-      />
     </div>
   );
 }

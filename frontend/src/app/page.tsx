@@ -28,7 +28,7 @@ export default function HomePage() {
         items={[
           { label: '게임 참가', href: '/room/join' },
           { label: '게임 만들기', href: '/room/new' },
-          { label: 'NEW 플레이리스트', href: '/playlist/new' },
+          { label: 'NEW 플레이리스트', href: '/playlists/new' },
         ]}
       />
 

@@ -138,7 +138,7 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
         </div>
 
         <div className='flex items-end justify-end'>
-          <Link className='text-sm text-gray-200' href='/playlist/new'>
+          <Link className='text-sm text-gray-200' href='/playlists/new'>
             나만의 플레이리스트 만들기
           </Link>
         </div>

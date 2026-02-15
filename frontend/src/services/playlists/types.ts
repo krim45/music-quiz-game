@@ -3,13 +3,15 @@ import type { SongInfo, SongItem } from '@/services/songs/types';
 export type FindPlaylistsParams = {
   q?: string;
   limit: number;
-  offset: number;
+  offset?: number;
 };
 
 export type PlaylistListItem = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type PlaylistColumn = PlaylistListItem & {
@@ -22,7 +24,7 @@ export type FindPlaylistsResponse = {
   limit: number;
   offset: number;
   hasMore: boolean;
-  items: PlaylistListItem[];
+  playlists: PlaylistListItem[];
   message?: string;
 };
 

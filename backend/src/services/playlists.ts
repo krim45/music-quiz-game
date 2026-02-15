@@ -141,7 +141,7 @@ export async function getPlaylist(params: GetPlaylistParams): Promise<PlaylistDT
 
 export async function getPlaylists(
   params: FindPlaylistsParams
-): Promise<{ items: PlaylistListItem[]; hasMore: boolean }> {
+): Promise<{ playlists: PlaylistListItem[]; hasMore: boolean }> {
   const repo = AppDataSource.getRepository(Playlist);
   const qb = repo.createQueryBuilder('playlist');
 
@@ -151,16 +151,15 @@ export async function getPlaylists(
   }
 
   const rows = await qb
-    .select(['playlist.id', 'playlist.name', 'playlist.description'])
     .orderBy('playlist.createdAt', 'DESC')
     .skip(params.offset)
     .take(params.limit + 1)
     .getMany();
 
   const hasMore = rows.length > params.limit;
-  const items = hasMore ? rows.slice(0, params.limit) : rows;
+  const playlists = hasMore ? rows.slice(0, params.limit) : rows;
 
-  return { items, hasMore };
+  return { playlists, hasMore };
 }
 
 export async function getPlaylistDetail(playlistId: string) {

@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
     const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 50;
     const offset = Number.isFinite(offsetRaw) ? Math.max(offsetRaw, 0) : 0;
 
-    const { items, hasMore } = await getPlaylists({ q, limit, offset });
+    const { playlists, hasMore } = await getPlaylists({ q, limit, offset });
 
     return res.json({
       ok: true,
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
       limit,
       offset,
       hasMore,
-      items,
+      playlists,
     });
   } catch (e) {
     handleError(e, res);

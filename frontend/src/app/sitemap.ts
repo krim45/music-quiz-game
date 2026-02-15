@@ -30,9 +30,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // 한 번에 가져올 개수 설정 너무 많으면 페이징 로직 필요하지만 일단 최신 1000개면 충분
-    const { playlists } = await fetchPlaylistsServer({ limit: 1000 });
+    const { playlists = [] } = await fetchPlaylistsServer({ limit: 1000 });
 
-    dynamicSitemap = playlists?.map((playlist) => ({
+    dynamicSitemap = playlists.map((playlist) => ({
       url: `${siteUrl}/playlists/${playlist.id}`,
       lastModified: new Date(playlist.updatedAt),
       changeFrequency: 'weekly',

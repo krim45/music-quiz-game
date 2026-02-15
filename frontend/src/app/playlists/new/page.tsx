@@ -7,6 +7,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/playlists/new' },
 };
 
-export default function PlaylistPage() {
+export default function NewPlaylistPage() {
   return <PlaylistClient />;
 }

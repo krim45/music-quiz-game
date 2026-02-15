@@ -10,7 +10,7 @@ import Table, { type TableColumn } from '@/components/table/Table';
 import Button from '@/components/button/Button';
 import Radio from '@/components/form/radio/Radio';
 import PlaylistMusic from '@/components/icon/PlaylistMusic';
-import PlaylistDetailModal from '@/app/room/create/_components/PlaylistDetailModal';
+import PlaylistDetailModal from '@/app/room/new/_components/PlaylistDetailModal';
 import SkeletonBlock from '@/components/skeleton/SkeletonBlock';
 
 import type { PlaylistListItem } from '@/services/playlists/types';
@@ -138,7 +138,7 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
         </div>
 
         <div className='flex items-end justify-end'>
-          <Link className='text-sm text-gray-200' href='/playlist'>
+          <Link className='text-sm text-gray-200' href='/playlist/new'>
             나만의 플레이리스트 만들기
           </Link>
         </div>

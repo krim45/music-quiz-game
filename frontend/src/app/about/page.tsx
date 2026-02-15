@@ -75,10 +75,7 @@ export default function AboutPage() {
       >
         게임 참가
       </Link>
-      <Link
-        href='/room/create'
-        className='rounded-xl bg-blue-600 px-5 py-3 text-center font-semibold hover:bg-blue-500'
-      >
+      <Link href='/room/new' className='rounded-xl bg-blue-600 px-5 py-3 text-center font-semibold hover:bg-blue-500'>
         게임 생성
       </Link>
     </div>

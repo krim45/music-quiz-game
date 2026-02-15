@@ -4,7 +4,7 @@ import InputField from '@/components/form/input/InputField';
 import Label from '@/components/form/element/Label';
 import Radio from '@/components/form/radio/Radio';
 import RadioGroup from '@/components/form/radio/RadioGroup';
-import type { RoomInfo } from '@/app/room/create/_types';
+import type { RoomInfo } from '@/app/room/new/_types';
 
 interface Props {
   roomInfo: RoomInfo;

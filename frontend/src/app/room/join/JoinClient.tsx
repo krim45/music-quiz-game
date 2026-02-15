@@ -125,7 +125,7 @@ export default function JoinClient() {
         />
 
         <div className='flex items-center gap-3'>
-          <Button color='blue' size='lg' onClick={() => router.push('/room/create')}>
+          <Button color='blue' size='lg' onClick={() => router.push('/room/new')}>
             게임 생성
           </Button>
 

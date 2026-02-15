@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/store/useToastStore';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
-import { useSongForm } from '@/app/playlist/_hooks/useSongForm';
+import { useSongForm } from '@/app/playlist/new/_hooks/useSongForm';
 import { createPlaylistClient } from '@/services/playlists/client';
 
 // component
-import SongSearchModal from '@/app/playlist/_components/SongSearchModal';
-import SongGuideSection from '@/app/playlist/_components/SongGuideSection';
-import SongFormSection from '@/app/playlist/_components/SongFormSection';
-import SongListSection from '@/app/playlist/_components/SongListSection';
+import SongSearchModal from '@/app/playlist/new/_components/SongSearchModal';
+import SongGuideSection from '@/app/playlist/new/_components/SongGuideSection';
+import SongFormSection from '@/app/playlist/new/_components/SongFormSection';
+import SongListSection from '@/app/playlist/new/_components/SongListSection';
 import Button from '@/components/button/Button';
 import GoBack from '@/components/nav/GoBack';
 import InputField from '@/components/form/input/InputField';
@@ -48,7 +48,7 @@ export default function PlaylistPage() {
       await createPlaylistClient({ name: trimmed, songs: songList });
 
       toast.success('플레이리스트 생성 완료');
-      router.push('/room/create');
+      router.push('/room/new');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '플레이리스트 생성 실패');
     }

@@ -7,11 +7,11 @@ import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
 import { pushEvent } from '@/lib/analytics';
 
-import RoomSettingsSection from '@/app/room/create/_components/RoomSettingSection';
-import PlaylistSection from '@/app/room/create/_components/PlaylistSection';
+import RoomSettingsSection from '@/app/room/new/_components/RoomSettingSection';
+import PlaylistSection from '@/app/room/new/_components/PlaylistSection';
 import Button from '@/components/button/Button';
 
-import type { CreateRoomPayload, RoomInfo } from '@/app/room/create/_types';
+import type { CreateRoomPayload, RoomInfo } from '@/app/room/new/_types';
 
 export default function CreateRoomClient() {
   const [roomInfo, setRoomInfo] = useState<RoomInfo>({ title: '', password: '', isPublic: true });

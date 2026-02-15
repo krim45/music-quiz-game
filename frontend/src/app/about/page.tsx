@@ -106,13 +106,13 @@ export default function AboutPage() {
           </div>
 
           <div className='mt-7 flex items-center justify-center gap-3'>
-            <Link
+            <a
               href='https://open.kakao.com/o/gIXXVHdi'
               target='_blank'
               className='border border-white/20 bg-white/10 px-5 py-3 text-center font-semibold hover:bg-white/15'
             >
               개발자 문의
-            </Link>
+            </a>
           </div>
         </header>
 

@@ -36,6 +36,10 @@ export default function PlaylistListSection({ initialData, limit }: Props) {
     setActiveQ(input.trim());
   };
 
+  const onLoadMore = async () => {
+    await fetchNextPage();
+  };
+
   return (
     <div className='flex flex-col gap-8'>
       <InputField
@@ -56,7 +60,7 @@ export default function PlaylistListSection({ initialData, limit }: Props) {
             <Button
               color='gray'
               className='w-full md:w-80'
-              onClick={() => fetchNextPage()}
+              onClick={onLoadMore}
               disabled={isFetchingNextPage || isLoading}
             >
               더보기

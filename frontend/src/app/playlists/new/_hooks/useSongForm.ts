@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from '@/lib/store/useToastStore';
-import { validatePreview, validateSongInfo } from '@/app/playlist/_utils/validateSongInfo';
+import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/validateSongInfo';
 
 import type { SongInfo } from '@/services/songs/types';
 

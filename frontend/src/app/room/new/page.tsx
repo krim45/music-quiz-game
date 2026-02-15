@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 
 import GoBack from '@/components/nav/GoBack';
-import CreateRoomClient from '@/app/room/create/_components/CreateRoomClient';
+import CreateRoomClient from '@/app/room/new/_components/CreateRoomClient';
 
 export const metadata: Metadata = {
   title: '게임 방 생성',
   description: '노래 맞히기 게임을 만들어 친구들과 즐겨보세요.',
-  alternates: { canonical: '/room/create' },
+  alternates: { canonical: '/room/new' },
 };
 
 export default function CreateRoomPage() {

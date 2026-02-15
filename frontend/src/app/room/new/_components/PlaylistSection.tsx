@@ -10,7 +10,7 @@ import Table, { type TableColumn } from '@/components/table/Table';
 import Button from '@/components/button/Button';
 import Radio from '@/components/form/radio/Radio';
 import PlaylistMusic from '@/components/icon/PlaylistMusic';
-import PlaylistDetailModal from '@/app/room/create/_components/PlaylistDetailModal';
+import PlaylistDetailModal from '@/app/room/new/_components/PlaylistDetailModal';
 import SkeletonBlock from '@/components/skeleton/SkeletonBlock';
 
 import type { PlaylistListItem } from '@/services/playlists/types';
@@ -26,27 +26,17 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
   const [q, setQ] = useState<string>('');
   const [detailId, setDetailId] = useState<string>('');
 
-  const queryKey = useMemo(() => ['playlists', { q, limit }] as const, [q, limit]);
   const { error, data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery({
-    queryKey,
-    initialPageParam: 0,
-    queryFn: async ({ pageParam }) => {
-      const offset = typeof pageParam === 'number' ? pageParam : 0;
-      const data = await fetchPlaylistsClient({ q, limit, offset });
-
-      if (!data.ok) {
-        throw new Error(data.message ?? 'playlists 조회 실패');
-      }
-      return data;
-    },
+    queryKey: ['playlists', { q, limit }],
+    queryFn: ({ pageParam }) => fetchPlaylistsClient({ q, limit, offset: pageParam }),
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.offset + lastPage.limit : undefined),
+    initialPageParam: 0,
     staleTime: 30 * 1000,
     gcTime: 5 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
-  const items: PlaylistListItem[] = data?.pages.flatMap((p) => p.items || []) || [];
+  const items: PlaylistListItem[] = useMemo(() => data?.pages.flatMap((page) => page.playlists) ?? [], [data]);
   const isInitialLoading = isLoading && items.length === 0;
 
   const openPlaylistDetail = (id: string) => {
@@ -138,7 +128,7 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
         </div>
 
         <div className='flex items-end justify-end'>
-          <Link className='text-sm text-gray-200' href='/playlist'>
+          <Link className='text-sm text-gray-200' href='/playlists/new'>
             나만의 플레이리스트 만들기
           </Link>
         </div>

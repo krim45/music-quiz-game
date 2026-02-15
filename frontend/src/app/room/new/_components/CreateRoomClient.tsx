@@ -7,11 +7,11 @@ import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
 import { pushEvent } from '@/lib/analytics';
 
-import RoomSettingsSection from '@/app/room/create/_components/RoomSettingSection';
-import PlaylistSection from '@/app/room/create/_components/PlaylistSection';
+import RoomSettingsSection from '@/app/room/new/_components/RoomSettingSection';
+import PlaylistSection from '@/app/room/new/_components/PlaylistSection';
 import Button from '@/components/button/Button';
 
-import type { CreateRoomPayload, RoomInfo } from '@/app/room/create/_types';
+import type { CreateRoomPayload, RoomInfo } from '@/app/room/new/_types';
 
 export default function CreateRoomClient() {
   const [roomInfo, setRoomInfo] = useState<RoomInfo>({ title: '', password: '', isPublic: true });
@@ -38,14 +38,14 @@ export default function CreateRoomClient() {
 
   return (
     <div className='m-auto flex w-full max-w-xl flex-col items-center gap-7 p-6'>
-      <h1 className='text-center text-3xl font-bold'>게임 생성</h1>
+      <h1 className='text-center text-3xl font-bold'>게임 만들기</h1>
 
       <RoomSettingsSection roomInfo={roomInfo} onChange={updateRoomInfo} />
 
       <PlaylistSection selectedId={playlistId} onSelect={setPlaylistId} />
 
       <Button className='w-full md:w-[25%]' size='lg' onClick={createRoom}>
-        게임 생성
+        게임 만들기
       </Button>
     </div>
   );

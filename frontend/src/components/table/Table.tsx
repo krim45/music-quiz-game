@@ -123,34 +123,38 @@ export default function Table<T>({ className, columns, data, stickyHead = true, 
           </thead>
 
           <tbody>
-            {getSortedData().map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={clsx('transition', onRowClick && 'cursor-pointer hover:bg-gray-800')}
-                onClick={() => onRowClick?.(row, rowIndex)}
-              >
-                {columns.map((col) => {
-                  const cell = row._cell?.[col.key];
-                  let display: React.ReactNode;
+            {getSortedData().map((row, rowIndex) => {
+              if (!row) return null;
 
-                  if (col.accessor) {
-                    display = col.render ? col.render({ row, customKey: col.key, rowIndex }) : col.accessor(row);
-                  } else {
-                    display = col.render ? col.render({ row, key: col.key, rowIndex }) : String(row[col.key]);
-                  }
+              return (
+                <tr
+                  key={rowIndex}
+                  className={clsx('transition', onRowClick && 'cursor-pointer hover:bg-gray-800')}
+                  onClick={() => onRowClick?.(row, rowIndex)}
+                >
+                  {columns.map((col) => {
+                    const cell = row._cell?.[col.key];
+                    let display: React.ReactNode;
 
-                  return (
-                    <td
-                      key={String(col.key)}
-                      style={{ ...col._style, ...cell?._style }}
-                      className={clsx('truncate border border-gray-700 px-2 py-2 whitespace-pre', col.className)}
-                    >
-                      {display}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+                    if (col.accessor) {
+                      display = col.render ? col.render({ row, customKey: col.key, rowIndex }) : col.accessor(row);
+                    } else {
+                      display = col.render ? col.render({ row, key: col.key, rowIndex }) : String(row[col.key]);
+                    }
+
+                    return (
+                      <td
+                        key={String(col.key)}
+                        style={{ ...col._style, ...cell?._style }}
+                        className={clsx('truncate border border-gray-700 px-2 py-2 whitespace-pre', col.className)}
+                      >
+                        {display}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

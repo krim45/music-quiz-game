@@ -46,7 +46,7 @@ export default function PlaylistSection({ limit = 20, selectedId, onSelect }: Pr
     refetchOnWindowFocus: false,
   });
 
-  const items: PlaylistListItem[] = data?.pages.flatMap((p) => p.items || []) || [];
+  const items: PlaylistListItem[] = data?.pages.flatMap((p) => p.playlists || []) || [];
   const isInitialLoading = isLoading && items.length === 0;
 
   const openPlaylistDetail = (id: string) => {

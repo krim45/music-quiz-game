@@ -58,7 +58,7 @@ export default async function PlaylistDetail({ params }: Props) {
           </p>
 
           <Link href={`/room/new?playlistId=${playlist.id}`}>
-            <Button className='rounded-xl !p-4'>🎮 게임 시작하기</Button>
+            <Button className='rounded-xl !px-4'>🎮 게임 시작하기</Button>
           </Link>
         </section>
 

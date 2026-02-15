@@ -1,6 +1,8 @@
-import GoBack from '@/components/nav/GoBack';
-import type { Metadata } from 'next';
 import Link from 'next/link';
+import GoBack from '@/components/nav/GoBack';
+import OpenChat from '@/components/nav/OpenChat';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '소개',
@@ -105,15 +107,8 @@ export default function AboutPage() {
             룰은 단순하게: <b>정답이면 +1점</b>
           </div>
 
-          <div className='mt-7 flex items-center justify-center gap-3'>
-            <a
-              href='https://open.kakao.com/o/gIXXVHdi'
-              target='_blank'
-              rel='noreferrer'
-              className='border border-white/20 bg-white/10 px-5 py-3 text-center font-semibold hover:bg-white/15'
-            >
-              개발자 문의
-            </a>
+          <div className='mt-7 flex items-center justify-center'>
+            <OpenChat />
           </div>
         </header>
 

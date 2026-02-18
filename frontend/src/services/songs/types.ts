@@ -6,6 +6,7 @@ export type SongItem = {
   title: string;
   singer: string;
   extraAnswers?: string;
+  defaultStartSeconds: number;
 };
 
 export type SongsResponse = {
@@ -26,4 +27,5 @@ export type SongInfo = {
   title: string;
   extraAnswers?: string;
   _edit?: string;
+  _preview?: string;
 };

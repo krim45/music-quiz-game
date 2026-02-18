@@ -39,6 +39,7 @@ export async function upsertSongWithManager(manager: EntityManager, payload: Son
       title: payload.title,
       singer: payload.singer,
       extraAnswers: payload.extraAnswers ?? null,
+      defaultStartSeconds: payload.startSeconds ?? 0,
     },
     ['provider', 'externalId']
   );

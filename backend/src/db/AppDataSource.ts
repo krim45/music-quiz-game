@@ -12,4 +12,6 @@ export const AppDataSource = new DataSource({
   entities: [Song, Playlist, PlaylistSong],
   synchronize: !isProd,
   logging: false,
+  migrationsRun: true,
+  migrations: [isProd ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
 });

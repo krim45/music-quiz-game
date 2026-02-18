@@ -28,6 +28,8 @@ export type Song = {
   singer: string;
   title: string;
   extraAnswers?: string | null;
+  defaultStartSeconds: number;
+  defaultEndSeconds?: number | null;
 };
 
 export type PlaylistItem = Song & {

@@ -30,6 +30,12 @@ export class Song {
   @Column({ type: 'text', nullable: true })
   extraAnswers?: string | null;
 
+  @Column({ type: 'int', default: 0 })
+  defaultStartSeconds!: number;
+
+  @Column({ type: 'int', nullable: true })
+  defaultEndSeconds?: number | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

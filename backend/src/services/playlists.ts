@@ -6,7 +6,7 @@ import { HttpError } from '@/errors/HttpError';
 import { type SongPayload, upsertSongWithManager } from '@/services/songs';
 import type { PlaylistDTO } from '@/types';
 
-export type CreatePlaylistSongInput = { songId?: string; startSeconds?: number } & SongPayload;
+export type CreatePlaylistSongInput = { songId: string; startSeconds: number } & SongPayload;
 
 export type CreatePlaylistInput = {
   name: string;

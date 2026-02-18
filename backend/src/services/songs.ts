@@ -98,20 +98,10 @@ export async function findSongs(params: FindSongsParams): Promise<{ items: SongL
   }
 
   const rows = await qb
-    .select([
-      'song.id',
-      'song.provider',
-      'song.externalId',
-      'song.url',
-      'song.title',
-      'song.singer',
-      'song.extraAnswers',
-    ])
     .orderBy('song.title', 'ASC')
     .skip(params.offset)
     .take(params.limit + 1)
     .getMany();
-
   const hasMore = rows.length > params.limit;
   const items = hasMore ? rows.slice(0, params.limit) : rows;
 

@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+
 import Table, { type TableColumn } from '@/components/table/Table';
 import BaseInput from '@/components/form/input/BaseInput';
 import Button from '@/components/button/Button';
 import Minus from '@/components/icon/Minus';
+import Play from '@/components/icon/Play';
 import SongSearchModal from '@/app/playlists/new/_components/SongSearchModal';
+import PreviewModal from '@/app/playlists/new/_components/PreviewModal';
 
 import type { SongInfo, SongItem } from '@/services/songs/types';
 
@@ -18,14 +21,32 @@ interface Props {
 
 export default function SongListSection({ songList, onChangeSong, onRemoveSong, onAddSearchSong }: Props) {
   const [open, setOpen] = useState<boolean>(false);
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [songInfo, setSongInfo] = useState<SongInfo>({ url: '', singer: '', title: '' });
+
+  const loadPreview = (songInfo: SongInfo) => {
+    setShowPreview(true);
+    setSongInfo(songInfo);
+  };
 
   const columns: TableColumn<SongInfo>[] = [
     {
       key: '_edit',
-      className: 'w-[46px] !p-0 text-center',
-      render: ({ rowIndex }: { rowIndex: number }) => (
-        <Button className='mt-[7px]' color='red' onClick={() => onRemoveSong(rowIndex)}>
-          <Minus size={20} />
+      label: '삭제',
+      className: 'w-10 !p-1 text-center',
+      render: ({ rowIndex }) => (
+        <Button className='mt-1.5 !h-7' size='sm' color='red' onClick={() => onRemoveSong(rowIndex)}>
+          <Minus className='mb-0.5' size={18} />
+        </Button>
+      ),
+    },
+    {
+      key: '_preview',
+      label: '미리보기',
+      className: 'w-16 !p-1 text-center',
+      render: ({ row }) => (
+        <Button className='mt-1 !h-7' size='sm' color='green' onClick={() => loadPreview(row)}>
+          <Play size={18} />
         </Button>
       ),
     },
@@ -77,6 +98,8 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
         onClose={() => setOpen(false)}
         onAdd={(selectedSongs) => onAddSearchSong(selectedSongs)}
       />
+
+      {showPreview && <PreviewModal open={showPreview} onClose={() => setShowPreview(false)} songInfo={songInfo} />}
     </div>
   );
 }

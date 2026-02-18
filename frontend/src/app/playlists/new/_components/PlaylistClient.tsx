@@ -58,11 +58,11 @@ export default function PlaylistPage() {
       const existing = new Set(prev.map((s: SongInfo) => s.id));
       const next = [...prev];
 
-      for (const s of songs) {
-        if (existing.has(s.id)) continue;
+      for (const song of songs) {
+        if (existing.has(song.id)) continue;
 
-        next.push(s);
-        existing.add(s.id);
+        next.push({ ...song, startSeconds: song.defaultStartSeconds });
+        existing.add(song.id);
       }
 
       return next;

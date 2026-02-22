@@ -14,11 +14,12 @@ import { ChatMessage } from '@/types/game';
 // 스크롤 이벤트 스로틀 디바운스
 
 interface Props {
+  actions: React.ReactNode;
   messages: ChatMessage[];
   onSendMessage?: (message: string) => void;
 }
 
-export default function ChatRoom({ messages, onSendMessage }: Props) {
+export default function ChatRoom({ actions, messages, onSendMessage }: Props) {
   const [input, setInput] = useState('');
   const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
 
@@ -99,9 +100,13 @@ export default function ChatRoom({ messages, onSendMessage }: Props) {
           placeholder='정답을 입력하세요'
         />
 
-        <Button type='submit' size='sm' color='green'>
-          <Send />
-        </Button>
+        <div className='flex items-center gap-2'>
+          {actions}
+
+          <Button className='!px-2' type='submit' size='sm' color='green'>
+            <Send />
+          </Button>
+        </div>
       </form>
 
       {isUserScrolledUp && (

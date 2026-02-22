@@ -17,6 +17,7 @@ import JoinSection from '@/app/room/[roomId]/_components/JoinSection';
 import WaitingSection from '@/app/room/[roomId]/_components/WaitingSection';
 import PlayingSection from '@/app/room/[roomId]/_components/PlayingSection';
 import ChatRoom from '@/app/room/[roomId]/_components/ChatRoom';
+import Button from '@/components/button/Button';
 
 import type {
   ChatMessage,
@@ -194,6 +195,28 @@ export default function RoomPage() {
     socket.emit('chat:message', { roomId, message });
   };
 
+  const onSkip = () => {
+    const socket = getSocket();
+
+    socket.emit(
+      'game:skip',
+      { roomId, currentSongIndex: playState?.currentSongIndex },
+      (res: { ok: boolean; message?: string }) => {
+        if (!res.ok) {
+          toast.error(res.message || '스킵 실패');
+          return;
+        }
+      }
+    );
+  };
+
+  const skip = playState?.skip ?? startState?.skip;
+  const SkipButton = (
+    <Button className='!px-2' type='button' size='sm' onClick={onSkip} disabled={!started}>
+      {skip ? `스킵 ${skip.current}/${skip.required}` : '스킵'}
+    </Button>
+  );
+
   return (
     <div className='relative flex h-full w-full touch-pan-y flex-col items-center'>
       <div id='player' className='pointer-events-none absolute top-0 -left-[9999px] h-px w-px opacity-0' />
@@ -215,7 +238,6 @@ export default function RoomPage() {
           <section className='flex flex-none basis-60 gap-3 overflow-hidden'>
             {started ? (
               <PlayingSection
-                roomId={roomId}
                 roomInfo={roomInfo!}
                 runtime={runtime!}
                 startState={startState}
@@ -228,7 +250,7 @@ export default function RoomPage() {
             )}
           </section>
 
-          <ChatRoom messages={messages} onSendMessage={onSendMessage} />
+          <ChatRoom actions={SkipButton} messages={messages} onSendMessage={onSendMessage} />
         </div>
       ) : null}
     </div>

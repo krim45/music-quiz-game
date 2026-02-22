@@ -16,7 +16,7 @@ export default function MessageItem({ message }: Props) {
     return (
       <div className={`my-2 flex items-center justify-center gap-2 rounded p-3 text-center ${color}`}>
         {isCorrect && (
-          <span className='mt-0.5 inline-block h-4 w-4 rounded-sm' style={{ backgroundColor: message.color }}></span>
+          <span className='mt-0.5 inline-block h-5 w-5 rounded-sm' style={{ backgroundColor: message.color }}></span>
         )}
 
         <span>{message.message}</span>

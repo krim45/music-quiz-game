@@ -1,14 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { getSocket } from '@/lib/socket';
-import { toast } from '@/lib/store/useToastStore';
-import Button from '@/components/button/Button';
 
 import type { RoomInfo, RoomRuntime, GameStart, GamePlay, GameHint, GameReveal } from '@/types/game';
 
 type Props = {
-  roomId: string;
   runtime: RoomRuntime;
   roomInfo: RoomInfo;
   startState: GameStart | null;
@@ -17,7 +13,7 @@ type Props = {
   reveal: GameReveal | null;
 };
 
-export default function PlayingSection({ roomId, runtime, roomInfo, startState, playState, hint, reveal }: Props) {
+export default function PlayingSection({ runtime, roomInfo, startState, playState, hint, reveal }: Props) {
   const [remainSec, setRemainSec] = useState<number>(0);
   const [countdownSec, setCountdownSec] = useState<number>(0);
 
@@ -62,23 +58,6 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
     return () => window.clearInterval(id);
   }, [startState]);
 
-  const skip = playState?.skip ?? startState?.skip;
-
-  const onSkip = () => {
-    const socket = getSocket();
-
-    socket.emit(
-      'game:skip',
-      { roomId, currentSongIndex: playState?.currentSongIndex },
-      (res: { ok: boolean; message?: string }) => {
-        if (!res.ok) {
-          toast.error(res.message || '스킵 실패');
-          return;
-        }
-      }
-    );
-  };
-
   const isCountingDown = countdownSec > 0;
 
   return (
@@ -92,19 +71,13 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
           노래를 듣고 <span className='text-orange'>답</span>을 입력하세요.
         </div>
 
-        {/* ✅ 카운트다운 UI */}
+        {/* 카운트다운 UI */}
         {isCountingDown && <div className='text-blue-700'>{countdownSec > 1 ? countdownSec - 1 : 'Start'}</div>}
 
-        {/* ✅ 라운드 타이머 (초단위) */}
+        {/* 라운드 타이머 (초단위) */}
         {remainSec > 0 && <div className='text-green-700'>- {remainSec}초 -</div>}
 
-        {!!skip && (
-          <div className='text-xs'>
-            스킵 {skip.current} / {skip.required}
-          </div>
-        )}
-
-        {/* ✅ 힌트 UI */}
+        {/* 힌트 UI */}
         {hint && !reveal && (
           <div className='w-full rounded text-center text-sm text-blue-500'>
             <div>
@@ -113,7 +86,7 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
           </div>
         )}
 
-        {/* ✅ 정답 공개 UI */}
+        {/* 정답 공개 UI */}
         {reveal && (
           <div className='mt-3 w-full rounded bg-orange-50 px-3 py-2 text-center text-sm'>
             <div className='mt-1'>
@@ -148,10 +121,6 @@ export default function PlayingSection({ roomId, runtime, roomInfo, startState, 
             </li>
           ))}
         </ul>
-
-        <Button onClick={onSkip} disabled={isCountingDown}>
-          스킵 {!!skip && `${skip.current} / ${skip.required}`}
-        </Button>
       </div>
     </>
   );

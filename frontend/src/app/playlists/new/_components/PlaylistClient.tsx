@@ -3,37 +3,38 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/lib/store/useToastStore';
-import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
-import { useSongForm } from '@/app/playlists/new/_hooks/useSongForm';
 import { createPlaylistClient } from '@/services/playlists/client';
 
-import SongGuideSection from '@/app/playlists/new/_components/SongGuideSection';
-import SongFormSection from '@/app/playlists/new/_components/SongFormSection';
-import SongListSection from '@/app/playlists/new/_components/SongListSection';
 import Button from '@/components/button/Button';
 import GoBack from '@/components/nav/GoBack';
 import InputField from '@/components/form/input/InputField';
+import SongGuideSection from '@/app/playlists/new/_components/SongGuideSection';
+import SongFormSection from '@/app/playlists/new/_components/SongFormSection';
+import SongListSection from '@/app/playlists/new/_components/SongListSection';
 
 import type { SongInfo, SongItem } from '@/services/songs/types';
 
-export default function PlaylistPage() {
+export default function PlaylistClient() {
   const [name, setName] = useState<string>('');
-
-  const { playerRef } = useYouTubePlayer('preview', { width: '100%', height: '100%' });
-  // TODO: useSongForm 훅만 따로 쓰는 구조가 조금 이상함 SongFormSection 안에서 처리해도 될거같음, 사실 위에서 필요한거 songList하나뿐임. 구조 개선 가능해보임
-  const {
-    songInfo,
-    songList,
-    showPreview,
-    updateSongInfo,
-    loadPreview,
-    addSong,
-    setSongList,
-    handleSongChange,
-    handleRemoveSong,
-  } = useSongForm(playerRef);
+  const [songList, setSongList] = useState<SongInfo[]>([]);
 
   const router = useRouter();
+
+  const addSongToList = (newSong: SongInfo) => {
+    setSongList((prev) => [...prev, newSong]);
+  };
+
+  const handleSongChange = (rowIndex: number, key: keyof SongInfo, value: SongInfo[keyof SongInfo]) => {
+    setSongList((prev) => {
+      const next = [...prev];
+      next[rowIndex] = { ...next[rowIndex], [key]: value };
+      return next;
+    });
+  };
+
+  const handleRemoveSong = (rowIndex: number) => {
+    setSongList((prev) => prev.filter((_, idx) => idx !== rowIndex));
+  };
 
   const createPlaylist = async () => {
     const trimmed = name.trim();
@@ -87,13 +88,7 @@ export default function PlaylistPage() {
 
           <SongGuideSection />
 
-          <SongFormSection
-            songInfo={songInfo}
-            showPreview={showPreview}
-            onChange={updateSongInfo}
-            onLoadPreview={loadPreview}
-            onAddSong={addSong}
-          />
+          <SongFormSection onAddSong={addSongToList} />
 
           <SongListSection
             songList={songList}

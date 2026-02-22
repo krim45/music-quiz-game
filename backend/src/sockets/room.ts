@@ -130,6 +130,10 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
       isOwner: room.players.size === 0,
     };
 
+    io.to(roomId).emit('chat:message', {
+      type: 'system',
+      message: `${nickname}님이 방에 들어왔습니다.`,
+    });
     socket.join(roomId);
     room.players.set(playerId, player);
 

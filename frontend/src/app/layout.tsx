@@ -1,18 +1,13 @@
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import Script from 'next/script';
+import { dgm } from '@/assets/fonts';
 
 import ToastProvider from '@/components/feedback/ToastProvider';
 import Provider from '@/lib/TanstackQueryProvider';
 import '@/styles/global.css';
 
-const dos = localFont({
-  src: [{ path: '../../public/fonts/neodgm.woff2', weight: '400', style: 'normal' }],
-  variable: '--font-dos',
-  display: 'swap',
-});
+import type { Metadata } from 'next';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID!;
@@ -117,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='ko' className={dos.variable}>
+    <html lang='ko' className={dgm.className}>
       <head>
         <meta name='version' content='1.0.0'></meta>
         <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

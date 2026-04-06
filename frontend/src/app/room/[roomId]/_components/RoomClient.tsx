@@ -20,7 +20,6 @@ import ChatRoom from '@/app/room/[roomId]/_components/ChatRoom';
 import Button from '@/components/button/Button';
 
 import type {
-  ChatMessage,
   RoomInfo,
   RoomInfoResponse,
   RoomUpdateResponse,
@@ -42,8 +41,6 @@ export default function RoomPage() {
   const [playState, setPlayState] = useState<GamePlay | null>(null);
   const [hint, setHint] = useState<GameHint | null>(null);
   const [reveal, setReveal] = useState<GameReveal | null>(null);
-
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const router = useRouter();
   const params = useParams();
@@ -73,14 +70,6 @@ export default function RoomPage() {
         currentSongIndex: payload.currentSongIndex,
         players: payload.players,
       });
-    };
-
-    const onChat = (msg: ChatMessage) => {
-      setMessages((prev) => [...prev, msg]);
-
-      if (msg.type === 'system' && msg.systemType !== 'skip') {
-        playSystemSound(msg.systemType);
-      }
     };
 
     const onGameStart = (payload: GameStart) => {
@@ -154,7 +143,6 @@ export default function RoomPage() {
     };
 
     socket.on('room:update', onRoomUpdate);
-    socket.on('chat:message', onChat);
     socket.on('game:start', onGameStart);
     socket.on('game:play', onGamePlay);
     socket.on('game:skip:update', onSkipUpdate);
@@ -175,7 +163,6 @@ export default function RoomPage() {
 
     return () => {
       socket.off('room:update', onRoomUpdate);
-      socket.off('chat:message', onChat);
       socket.off('game:start', onGameStart);
       socket.off('game:play', onGamePlay);
       socket.off('game:skip:update', onSkipUpdate);
@@ -188,11 +175,6 @@ export default function RoomPage() {
 
   const onJoined = () => {
     setJoined(true);
-  };
-
-  const onSendMessage = (message: string) => {
-    const socket = getSocket();
-    socket.emit('chat:message', { roomId, message });
   };
 
   const onSkip = () => {
@@ -250,7 +232,7 @@ export default function RoomPage() {
             )}
           </section>
 
-          <ChatRoom actions={SkipButton} messages={messages} onSendMessage={onSendMessage} />
+          <ChatRoom roomId={roomId} actions={SkipButton} />
         </div>
       ) : null}
     </div>

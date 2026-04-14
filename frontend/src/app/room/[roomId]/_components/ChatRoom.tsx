@@ -1,121 +1,53 @@
-import { useEffect, useRef, useState } from 'react';
-import { isTypingElement } from '@/utils/reactUtils';
+import { useEffect, useState } from 'react';
+import { getSocket } from '@/lib/socket';
+import { playSystemSound } from '@/sounds/systemSound';
 
-import MessageItem from '@/app/room/[roomId]/_components/MessageItem';
-import BaseInput from '@/components/form/input/BaseInput';
-import Button from '@/components/button/Button';
-import Send from '@/components/icon/Send';
-import ChevronDown from '@/components/icon/ChevronDown';
+import ChatMessageList from '@/app/room/[roomId]/_components/ChatMessageList';
+import ChatInput from '@/app/room/[roomId]/_components/ChatInput';
 
 import { ChatMessage } from '@/types/game';
 
-// TODO
-// 채팅창 가상 스크롤
-// 스크롤 이벤트 스로틀 디바운스
 
 interface Props {
   actions: React.ReactNode;
-  messages: ChatMessage[];
-  onSendMessage?: (message: string) => void;
+  roomId: string;
 }
 
-export default function ChatRoom({ actions, messages, onSendMessage }: Props) {
-  const [input, setInput] = useState('');
-  const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
+const MAX_MESSAGES = 300;
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+export default function ChatRoom({ actions, roomId }: Props) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  const onSendMessage = (message: string) => {
+    const socket = getSocket();
+    socket.emit('chat:message', { roomId, message });
+  };
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const socket = getSocket();
 
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const isBottom = scrollHeight - scrollTop - clientHeight < 100;
+    const onChat = (msg: ChatMessage) => {
+      setMessages((prev) => {
+        const next = [...prev, msg];
+        return next.length > MAX_MESSAGES ? next.slice(next.length - MAX_MESSAGES) : next;
+      });
 
-      setIsUserScrolledUp(!isBottom);
+      if (msg.type === 'system' && msg.systemType !== 'skip') {
+        playSystemSound(msg.systemType);
+      }
     };
 
-    const onEnterFocus = (e: KeyboardEvent) => {
-      if (e.key !== 'Enter') return;
+    socket.on('chat:message', onChat);
 
-      if (e.isComposing) return;
-
-      if (isTypingElement(document.activeElement)) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-      inputRef.current?.focus();
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    window.addEventListener('keydown', onEnterFocus);
     return () => {
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('keydown', onEnterFocus);
+      socket.off('chat:message', onChat);
     };
-  }, []);
-
-  useEffect(() => {
-    if (isUserScrolledUp) return;
-
-    scrollToMessageEnd();
-  }, [messages, isUserScrolledUp]);
-
-  const sendMessage = () => {
-    const message = input.trim();
-    if (!message) return;
-
-    onSendMessage?.(message);
-    setInput('');
-  };
-
-  const scrollToMessageEnd = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [roomId]);
 
   return (
     <section className='relative flex min-h-0 flex-1 flex-col overflow-hidden rounded border border-green-900'>
-      <div ref={containerRef} className='scrollbar-custom min-h-0 flex-1 overflow-y-scroll pr-2 pl-2 md:pr-1'>
-        {messages.map((message, idx) => (
-          <MessageItem key={idx} message={message} />
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <form
-        className='flex flex-none items-center gap-2 border-t border-green-900 p-2'
-        onSubmit={(e) => {
-          e.preventDefault();
-          sendMessage();
-        }}
-      >
-        <BaseInput
-          ref={inputRef}
-          className='flex-1 rounded border border-green-900 p-1 text-base focus:border-green-600'
-          value={input}
-          onChange={(v) => setInput(v)}
-          placeholder='정답을 입력하세요'
-        />
-
-        <div className='flex items-center gap-2'>
-          {actions}
-
-          <Button className='!px-2' type='submit' size='sm' color='green'>
-            <Send />
-          </Button>
-        </div>
-      </form>
-
-      {isUserScrolledUp && (
-        <ChevronDown
-          className='absolute right-4 bottom-14 cursor-pointer rounded-full bg-gray-300 text-gray-700 hover:bg-white'
-          size={28}
-          onClick={scrollToMessageEnd}
-        />
-      )}
+      <ChatMessageList messages={messages} />
+      <ChatInput actions={actions} onSendMessage={onSendMessage} />
     </section>
   );
 }

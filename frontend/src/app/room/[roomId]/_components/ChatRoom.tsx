@@ -7,7 +7,6 @@ import ChatInput from '@/app/room/[roomId]/_components/ChatInput';
 
 import { ChatMessage } from '@/types/game';
 
-
 interface Props {
   actions: React.ReactNode;
   roomId: string;

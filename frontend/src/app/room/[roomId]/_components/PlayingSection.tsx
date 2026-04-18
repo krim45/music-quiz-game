@@ -4,14 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { RoomInfo, RoomRuntime, GameStart, GamePlay, GameHint, GameReveal } from '@/types/game';
 
-type Props = {
+interface Props {
   runtime: RoomRuntime;
   roomInfo: RoomInfo;
   startState: GameStart | null;
   playState: GamePlay | null;
   hint: GameHint | null;
   reveal: GameReveal | null;
-};
+}
 
 export default function PlayingSection({ runtime, roomInfo, startState, playState, hint, reveal }: Props) {
   const [remainSec, setRemainSec] = useState<number>(0);
@@ -23,10 +23,7 @@ export default function PlayingSection({ runtime, roomInfo, startState, playStat
 
   // 실제 라운드 타이머(초)
   useEffect(() => {
-    if (!playState) {
-      setRemainSec(0);
-      return;
-    }
+    if (!playState) return;
 
     const { roundStartedAtMs, durationSec } = playState;
 
@@ -43,10 +40,7 @@ export default function PlayingSection({ runtime, roomInfo, startState, playStat
 
   // 매 라운드 시작 전 카운트다운(초)
   useEffect(() => {
-    if (!startState?.startsAtMs) {
-      setCountdownSec(0);
-      return;
-    }
+    if (!startState?.startsAtMs) return;
 
     const tick = () => {
       const ms = startState.startsAtMs - Date.now();
@@ -58,7 +52,9 @@ export default function PlayingSection({ runtime, roomInfo, startState, playStat
     return () => window.clearInterval(id);
   }, [startState]);
 
-  const isCountingDown = countdownSec > 0;
+  const isRoundActive = !!playState;
+  const isCountingDown = !!startState?.startsAtMs && countdownSec > 0;
+  const showRemainSec = isRoundActive && remainSec > 0;
 
   return (
     <>
@@ -75,7 +71,7 @@ export default function PlayingSection({ runtime, roomInfo, startState, playStat
         {isCountingDown && <div className='text-blue-700'>{countdownSec > 1 ? countdownSec - 1 : 'Start'}</div>}
 
         {/* 라운드 타이머 (초단위) */}
-        {remainSec > 0 && <div className='text-green-700'>- {remainSec}초 -</div>}
+        {showRemainSec && <div className='text-green-700'>- {remainSec}초 -</div>}
 
         {/* 힌트 UI */}
         {hint && !reveal && (

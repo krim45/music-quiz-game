@@ -17,7 +17,7 @@ import JoinSection from '@/app/room/[roomId]/_components/JoinSection';
 import WaitingSection from '@/app/room/[roomId]/_components/WaitingSection';
 import PlayingSection from '@/app/room/[roomId]/_components/PlayingSection';
 import ChatRoom from '@/app/room/[roomId]/_components/ChatRoom';
-import Button from '@/components/button/Button';
+import GameSkipButton from '@/app/room/[roomId]/_components/GameSkipButton';
 
 import type {
   RoomInfo,
@@ -171,32 +171,15 @@ export default function RoomPage() {
       socket.off('game:finished', onGameFinished);
       socket.off('room:kicked', onKicked);
     };
-  }, [isReady, roomId]);
+  }, [isReady, roomId, router, playerRef]);
 
   const onJoined = () => {
     setJoined(true);
   };
 
-  const onSkip = () => {
-    const socket = getSocket();
-
-    socket.emit(
-      'game:skip',
-      { roomId, currentSongIndex: playState?.currentSongIndex },
-      (res: { ok: boolean; message?: string }) => {
-        if (!res.ok) {
-          toast.error(res.message || '스킵 실패');
-          return;
-        }
-      }
-    );
-  };
-
   const skip = playState?.skip ?? startState?.skip;
-  const SkipButton = (
-    <Button className='!px-2' type='button' size='sm' onClick={onSkip} disabled={!started}>
-      {skip ? `스킵 ${skip.current}/${skip.required}` : '스킵'}
-    </Button>
+  const skipButton = (
+    <GameSkipButton roomId={roomId} currentSongIndex={playState?.currentSongIndex} skip={skip} disabled={!started} />
   );
 
   return (
@@ -232,7 +215,7 @@ export default function RoomPage() {
             )}
           </section>
 
-          <ChatRoom roomId={roomId} actions={SkipButton} />
+          <ChatRoom roomId={roomId} actions={skipButton} />
         </div>
       ) : null}
     </div>

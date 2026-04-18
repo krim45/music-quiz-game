@@ -21,13 +21,9 @@ export default function ArcadeMenu({ className, initialIndex = 0, items }: Arcad
   const [index, setIndex] = useState(initialIndex);
   const refs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  const focusCurrent = () => {
+  useEffect(() => {
     const el = refs.current[index];
     el?.focus();
-  };
-
-  useEffect(() => {
-    focusCurrent();
   }, [index]);
 
   useEffect(() => {

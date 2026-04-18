@@ -11,57 +11,62 @@ export const useYouTubePlayer = (containerId: string, options: YT.PlayerOptions)
   const playerRef = useRef<YT.Player | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+  useEffect(
+    () => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
 
-    const initPlayer = () => {
-      if (playerRef.current) return;
+      const initPlayer = () => {
+        if (playerRef.current) return;
 
-      playerRef.current = new window.YT.Player(containerId, {
-        ...options,
-        playerVars: {
-          origin: window.location.origin,
-          playsinline: 1,
-          ...options.playerVars,
-        },
-        events: {
-          ...options.events,
-          onReady: (event: YT.PlayerEvent) => {
-            setIsReady(true);
-            options.events?.onReady?.(event);
+        playerRef.current = new window.YT.Player(containerId, {
+          ...options,
+          playerVars: {
+            origin: window.location.origin,
+            playsinline: 1,
+            ...options.playerVars,
           },
-        },
-      });
-    };
-
-    // YT API 로딩 여부
-    if (window.YT && window.YT.Player) {
-      initPlayer();
-    } else {
-      const prev = window.onYouTubeIframeAPIReady;
-
-      window.onYouTubeIframeAPIReady = () => {
-        prev?.();
-        initPlayer();
+          events: {
+            ...options.events,
+            onReady: (event: YT.PlayerEvent) => {
+              setIsReady(true);
+              options.events?.onReady?.(event);
+            },
+          },
+        });
       };
 
-      // 스크립트 최초 로드
-      if (!document.getElementById('youtube-iframe-api')) {
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        tag.id = 'youtube-iframe-api';
-        document.body.appendChild(tag);
-      }
-    }
+      // YT API 로딩 여부
+      if (window.YT && window.YT.Player) {
+        initPlayer();
+      } else {
+        const prev = window.onYouTubeIframeAPIReady;
 
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.destroy();
-        playerRef.current = null;
+        window.onYouTubeIframeAPIReady = () => {
+          prev?.();
+          initPlayer();
+        };
+
+        // 스크립트 최초 로드
+        if (!document.getElementById('youtube-iframe-api')) {
+          const tag = document.createElement('script');
+          tag.src = 'https://www.youtube.com/iframe_api';
+          tag.id = 'youtube-iframe-api';
+          document.body.appendChild(tag);
+        }
       }
-    };
-  }, [containerId]);
+
+      return () => {
+        if (playerRef.current) {
+          playerRef.current.destroy();
+          playerRef.current = null;
+        }
+        setIsReady(false);
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- options: mount snapshot only
+    [containerId]
+  );
 
   return { playerRef, isReady };
 };

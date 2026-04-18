@@ -36,12 +36,14 @@ export default function PreviewModal({ open, onClose, songInfo }: Props) {
   );
 
   useEffect(() => {
+    const player = playerRef.current;
+
     if (open && isReady) {
       loadPreview(songInfo);
     }
 
     return () => {
-      playerRef.current?.stopVideo();
+      player?.stopVideo();
     };
   }, [open, isReady, songInfo, loadPreview, playerRef]);
 

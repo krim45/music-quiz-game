@@ -21,7 +21,7 @@ const Header = ({ playerRef, isReady }: Props) => {
   const router = useRouter();
   const [volume, setVolume] = useState<number>(0.5);
   const [mute, setMute] = useState<boolean>(false);
-  const [hasSeen, setHasSeen, ready] = useLocalStorageState<boolean>('hasSeenHowToPlay', false);
+  const [hasSeen, setHasSeen] = useLocalStorageState<boolean>('hasSeenHowToPlay', false);
 
   useSyncYoutubeAudio({ playerRef, isReady, volume, mute });
   useSyncSystemSound({ isReady, volume, mute });
@@ -56,7 +56,7 @@ const Header = ({ playerRef, isReady }: Props) => {
         <VolumeControl value={volume} onChange={(v) => setVolume(v)} mute={mute} setMute={setMute} />
       </div>
 
-      <HowToPlayModal open={ready && !hasSeen} onClose={() => setHasSeen(true)} />
+      <HowToPlayModal open={!hasSeen} onClose={() => setHasSeen(true)} />
     </>
   );
 };

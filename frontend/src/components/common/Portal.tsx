@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface PortalProps {
@@ -9,11 +8,7 @@ interface PortalProps {
 }
 
 export default function Portal({ children, container }: PortalProps) {
-  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setMountNode(container ?? document.body);
-  }, [container]);
+  const mountNode = container ?? (typeof document !== 'undefined' ? document.body : null);
 
   if (!mountNode) return null;
 

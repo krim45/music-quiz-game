@@ -29,3 +29,11 @@ export type SongInfo = {
   _edit?: string;
   _preview?: string;
 };
+
+export type SongFormState = {
+  url: string;
+  startSeconds: string;
+  singer: string;
+  title: string;
+  extraAnswers: string;
+};

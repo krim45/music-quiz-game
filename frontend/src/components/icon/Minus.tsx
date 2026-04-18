@@ -8,13 +8,13 @@ const Minus = ({ className = '', size = 20, fill = 'currentColor', ...rest }: Ic
         width={size}
         height={size}
         viewBox='0 0 24 24'
-        fill='currentColor'
-        stroke='currentColor'
+        fill={fill}
+        stroke={fill}
         strokeWidth='5'
         strokeLinecap='round'
       >
         <title>minus</title>
-        <line x1='5' y1='12' x2='19' y2='12' /> {/* 둥근 minus */}
+        <line x1='5' y1='12' x2='19' y2='12' />
       </svg>
     </span>
   );

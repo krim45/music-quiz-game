@@ -31,15 +31,17 @@ const Radio = forwardRef(
           className
         )}
         role='radio'
+        aria-checked={!!checked}
+        aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
       >
         <span
           className={clsx(
-            'relative  h-4 w-4 inline-flex items-center justify-center rounded-full transition-colors border',
+            'relative inline-flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
             { 'border-orange bg-black': checked }
           )}
         >
-          {checked && <span className='h-2.5 w-2.5 absolute top-1/2 -translate-y-1/2 bg-orange rounded-full'></span>}
+          {checked && <span className='bg-orange absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full'></span>}
           <input
             type='radio'
             ref={ref}

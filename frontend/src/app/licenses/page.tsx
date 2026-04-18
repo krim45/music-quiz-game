@@ -31,7 +31,7 @@ function readLicenseText(filePathFromRoot: string) {
   const fullPath = path.join(process.cwd(), filePathFromRoot);
   try {
     return fs.readFileSync(fullPath, 'utf8');
-  } catch (e) {
+  } catch {
     return `라이선스 파일을 읽을 수 없습니다: ${filePathFromRoot}\n(경로/파일명을 확인해주세요)`;
   }
 }

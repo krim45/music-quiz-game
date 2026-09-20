@@ -1,0 +1,23 @@
+.git
+.github
+docs
+*.md
+
+**/node_modules
+**/dist
+**/.next
+**/out
+
+# 로컬 DB와 비밀값은 이미지에 절대 들어가면 안 된다
+**/*.db
+**/*.db-journal
+**/*.sqlite
+**/*.sqlite3
+**/.env
+**/.env.*
+
+# 런타임에 불필요 (fly.toml은 flyctl이 --config로 따로 읽는다)
+**/fly.toml
+
+**/.DS_Store
+**/*.tsbuildinfo

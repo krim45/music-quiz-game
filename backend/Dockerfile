@@ -30,6 +30,12 @@ COPY backend ./backend
 # 3) 빌드 (tsc && tsc-alias)
 RUN pnpm --filter backend build
 
+# NODE_ENV은 반드시 install/build 이후에 설정한다.
+# 앞에 두면 pnpm이 devDependencies를 건너뛰어 tsc가 사라진다.
+# 이 값이 production이 아니면 AppDataSource가 dev 분기를 타서
+# src/migrations/*.ts 를 읽으려다 기동에 실패한다.
+ENV NODE_ENV=production
+
 # AppDataSource의 migrations 경로가 'dist/migrations/*.js' (cwd 상대)라
 # 실행 시 cwd가 반드시 /app/backend 여야 한다.
 WORKDIR /app/backend

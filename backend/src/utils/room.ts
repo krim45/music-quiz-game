@@ -53,8 +53,6 @@ export function normalizeAnswer(input: string) {
   return input.replace(/\s+/g, '').trim().toLowerCase();
 }
 
-
-
 export function isCorrect(message: string, song: PlaylistItem) {
   const guess = normalizeAnswer(message);
   if (!guess) return false;

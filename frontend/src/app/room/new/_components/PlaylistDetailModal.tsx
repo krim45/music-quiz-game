@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchPlaylistDetail } from '@/services/playlists/client';
 
 import Modal from '@/components/overlay/Modal';
-
 import type { SongItem } from '@/services/songs/types';
 
 interface Props {

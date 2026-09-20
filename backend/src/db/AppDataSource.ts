@@ -13,18 +13,26 @@ const isProd = process.env.NODE_ENV === 'production';
 /**
  * Postgres(Neon) 접속 문자열.
  *
- * 이전에는 SQLite 파일(/data/prod.db)을 썼으나, fly 볼륨 한 개에만 존재해
- * 유실 시 복구할 방법이 없었다. 관리형 Postgres로 옮겨 백업·복제를 위임한다.
+ * 환경마다 "다른 변수"를 본다. 한 변수의 값을 바꿔 끼우면 로컬에 운영 URL이
+ * 남아 있어도 알아챌 방법이 없기 때문이다.
  *
- * dev/prod 모두 이 값이 필요하다. 로컬은 Neon의 개발용 브랜치를 쓰면 된다 —
- * 그러면 마이그레이션을 운영 사본 브랜치에 먼저 돌려보는 것도 가능하다.
+ *   개발: DATABASE_URL_DEV   (backend/.env — Neon의 dev 브랜치)
+ *   운영: DATABASE_URL       (fly 시크릿 — Neon의 production 브랜치)
+ *
+ * 덕분에 두 값을 .env에 함께 두고도 NODE_ENV로만 갈린다.
  */
-const url = process.env.DATABASE_URL;
+const urlVar = isProd ? 'DATABASE_URL' : 'DATABASE_URL_DEV';
+const url = process.env[urlVar];
 
 if (!url) {
   throw new Error(
-    'DATABASE_URL이 설정되지 않았습니다. backend/.env 에 Neon 접속 문자열을 넣으세요.\n' +
-      '  DATABASE_URL=postgresql://<user>:<password>@<host>/<db>?sslmode=require'
+    `${urlVar}이(가) 설정되지 않았습니다.\n` +
+      (isProd
+        ? '  운영은 fly 시크릿에 DATABASE_URL을 등록해야 합니다.\n' +
+          '    flyctl secrets set DATABASE_URL="postgresql://..." -a <app>'
+        : '  backend/.env 에 Neon dev 브랜치 접속 문자열을 넣으세요.\n' +
+          '    DATABASE_URL_DEV=postgresql://<user>:<password>@<host>/<db>?sslmode=require\n' +
+          '  운영 URL을 여기에 넣지 마세요 — dev는 스키마를 자동으로 맞춥니다.')
   );
 }
 

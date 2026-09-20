@@ -44,9 +44,17 @@ export default function PlaylistClient() {
     if (songList.length < 5) return toast.error('노래를 5곡 이상 추가하세요.');
 
     try {
-      await createPlaylistClient({ name: trimmed, songs: songList.map(toSongPayload) });
+      const res = await createPlaylistClient({ name: trimmed, songs: songList.map(toSongPayload) });
 
-      toast.success('플레이리스트 생성 완료');
+      // 일부 곡이 빠졌으면 알려준다. 그냥 "완료"만 띄우면
+      // 유효하지 않은 링크가 조용히 사라져서 나중에야 눈치채게 된다.
+      const failed = res.ok ? res.failed : [];
+      if (failed.length > 0) {
+        toast.error(`${res.ok ? res.addedCount : 0}곡 추가됨. ${failed.length}곡은 링크가 유효하지 않아 제외되었습니다.`);
+      } else {
+        toast.success(`플레이리스트 생성 완료 (${res.ok ? res.addedCount : 0}곡)`);
+      }
+
       router.push('/room/new');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '플레이리스트 생성 실패');

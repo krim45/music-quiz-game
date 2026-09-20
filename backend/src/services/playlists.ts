@@ -78,7 +78,9 @@ export async function createPlaylist(input: CreatePlaylistInput) {
     }
 
     // 4) 신규 곡 등록 → songId 확보
-    const created: string[] = [];
+    //    upsertSongWithManager는 (source, startSeconds)가 같으면 같은 id를 돌려준다.
+    //    playlist_songs는 (playlistId, songId) 유니크이므로 여기서 한 번만 담는다.
+    const createdIds = new Set<string>();
     const failed: { url: string; reason: string }[] = [];
 
     for (const payload of newPayloads) {
@@ -87,22 +89,31 @@ export async function createPlaylist(input: CreatePlaylistInput) {
         failed.push({ url: payload.url, reason: 'invalid youtube url (cannot extract videoId)' });
         continue;
       }
-      created.push(id);
+      createdIds.add(id);
     }
-
-    if (existing.length + created.length === 0) throw new HttpError(400, 'no valid songs to add');
 
     // 5) 플레이리스트에 담기
     //    startSeconds가 null이면 곡 자체의 구간을 쓴다.
-    const values = [
+    //    songId 기준으로 한 행만 — 신규 upsert 중복·기존 곡 중복·둘의 겹침을 모두 막는다.
+    const linkBySongId = new Map<string, { playlistId: string; songId: string; startSeconds: number | null }>();
+
+    for (const songId of createdIds) {
       // 새로 만든 곡은 곡의 구간이 곧 원하는 구간이므로 덮어쓰지 않는다
-      ...created.map((songId) => ({ playlistId: playlist.id, songId, startSeconds: null })),
-      ...existing.map(({ songId, startSeconds }) => ({
+      linkBySongId.set(songId, { playlistId: playlist.id, songId, startSeconds: null });
+    }
+
+    for (const { songId, startSeconds } of existing) {
+      if (linkBySongId.has(songId)) continue;
+      linkBySongId.set(songId, {
         playlistId: playlist.id,
         songId,
         startSeconds: startSeconds === ownStartById.get(songId) ? null : startSeconds,
-      })),
-    ];
+      });
+    }
+
+    if (linkBySongId.size === 0) throw new HttpError(400, 'no valid songs to add');
+
+    const values = Array.from(linkBySongId.values());
 
     await psRepo.createQueryBuilder().insert().into(PlaylistSong).values(values).execute();
 

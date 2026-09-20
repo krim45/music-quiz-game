@@ -32,7 +32,7 @@ export type PlaylistDetailResponse = {
   ok: boolean;
   message?: string;
   playlist: { id: string; name: string; description: string };
-  songs: Array<SongItem>;
+  songs: SongItem[];
 };
 
 export type CreatePlaylistInput = {

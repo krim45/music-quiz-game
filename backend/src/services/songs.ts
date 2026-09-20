@@ -1,6 +1,7 @@
 import { AppDataSource } from '@/db/AppDataSource';
 import { PlaylistSong } from '@/entities/PlaylistSong';
-import { Song, SongProvider } from '@/entities/Song';
+import { Song } from '@/entities/Song';
+import { Source, SourceProvider } from '@/entities/Source';
 import { HttpError } from '@/errors/HttpError';
 import { extractVideoId } from '@/utils/youtube';
 import { EntityManager } from 'typeorm';
@@ -9,76 +10,89 @@ export type SongPayload = {
   url: string;
   title: string;
   singer: string;
+  /** 영상에서 이 곡이 시작하는 지점(초) */
   startSeconds?: number;
-  extraAnswers?: string;
+  /** 끝나는 지점(초). 비우면 라운드 길이만큼 재생한다. */
+  endSeconds?: number | null;
+  extraAnswers?: string[];
 };
 
 /**
- * URL에서 videoId를 뽑아 youtube externalId로 저장하고,
- * (provider, externalId) 기준으로 upsert한다.
+ * 영상(Source)을 찾거나 만든다.
  *
- * 반환: upsert된 Song의 id(uuid) 또는 null(영상 id 추출 실패)
+ * 영상 하나에 곡이 여러 개 달릴 수 있으므로, 유니크 제약은 영상에만 있다.
+ * 같은 URL이 다시 들어오면 기존 영상을 재사용한다.
  */
-export async function upsertSongWithManager(manager: EntityManager, payload: SongPayload): Promise<string | null> {
-  const repo = manager.getRepository(Song);
-
-  const videoId = extractVideoId(payload.url);
+export async function findOrCreateSource(
+  manager: EntityManager,
+  url: string,
+  meta?: { title?: string | null; durationSeconds?: number | null }
+): Promise<Source | null> {
+  const videoId = extractVideoId(url);
   if (!videoId) return null;
 
-  const provider = SongProvider.YOUTUBE; // TODO: 추후 다른 플랫폼도 추가
-  const externalId = videoId;
+  const repo = manager.getRepository(Source);
+  const provider = SourceProvider.YOUTUBE; // TODO: 추후 다른 플랫폼도 추가
 
-  // ✅ TypeORM upsert는 결과로 id를 안정적으로 돌려주지 않는 DB가 있어서
-  // 1) upsert
-  // 2) 다시 조회
-  await repo.upsert(
-    {
+  const existing = await repo.findOne({ where: { provider, externalId: videoId } });
+  if (existing) {
+    // 메타데이터가 새로 들어왔고 아직 비어 있으면 채워둔다
+    const patch: Partial<Source> = {};
+    if (meta?.title && !existing.title) patch.title = meta.title;
+    if (meta?.durationSeconds && !existing.durationSeconds) patch.durationSeconds = meta.durationSeconds;
+    if (Object.keys(patch).length > 0) {
+      await repo.update({ id: existing.id }, patch);
+      Object.assign(existing, patch);
+    }
+    return existing;
+  }
+
+  return repo.save(
+    repo.create({
       provider,
-      externalId,
-      url: payload.url,
-      title: payload.title,
-      singer: payload.singer,
-      extraAnswers: payload.extraAnswers ?? null,
-      defaultStartSeconds: payload.startSeconds ?? 0,
-    },
-    ['provider', 'externalId']
+      externalId: videoId,
+      url,
+      title: meta?.title ?? null,
+      durationSeconds: meta?.durationSeconds ?? null,
+    })
   );
-
-  const saved = await repo.findOne({
-    where: { provider, externalId },
-    select: ['id'],
-  });
-
-  return saved?.id ?? null;
 }
 
-// 기존 API 유지(트랜잭션 밖에서 쓰는 곳을 위해)
+/**
+ * 곡을 등록한다. 같은 영상의 같은 지점이면 기존 곡을 재사용한다.
+ *
+ * 반환: 곡 id, 또는 null(영상 id를 뽑지 못한 경우)
+ */
+export async function upsertSongWithManager(manager: EntityManager, payload: SongPayload): Promise<string | null> {
+  const source = await findOrCreateSource(manager, payload.url);
+  if (!source) return null;
+
+  const repo = manager.getRepository(Song);
+  const startSeconds = Math.max(0, Math.floor(payload.startSeconds ?? 0));
+
+  const existing = await repo.findOne({
+    where: { sourceId: source.id, startSeconds },
+    select: ['id'],
+  });
+  if (existing) return existing.id;
+
+  const saved = await repo.save(
+    repo.create({
+      sourceId: source.id,
+      title: payload.title,
+      singer: payload.singer,
+      extraAnswers: payload.extraAnswers ?? [],
+      startSeconds,
+      endSeconds: payload.endSeconds ?? null,
+    })
+  );
+
+  return saved.id;
+}
+
 export async function upsertSong(payload: SongPayload): Promise<string | null> {
   return AppDataSource.transaction((manager) => upsertSongWithManager(manager, payload));
 }
-
-// function chunk<T>(arr: T[], size: number): T[][] {
-//   const out: T[][] = [];
-//   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-//   return out;
-// }
-
-// export async function upsertSongsInBatches(songList: SongPayload[], batchSize = 10) {
-//   const safeBatchSize = Math.min(Math.max(batchSize, 1), 50);
-//   const batches = chunk(songList, safeBatchSize);
-
-//   const failed: { url: string; reason: unknown }[] = [];
-
-//   for (const batch of batches) {
-//     const results = await Promise.allSettled(batch.map((song) => upsertSong(song)));
-
-//     results.forEach((r, idx) => {
-//       if (r.status === 'rejected') failed.push({ url: batch[idx].url, reason: r.reason });
-//     });
-//   }
-
-//   return { failed };
-// }
 
 export type FindSongsParams = {
   q?: string;
@@ -86,11 +100,21 @@ export type FindSongsParams = {
   offset: number;
 };
 
-export type SongListItem = Pick<Song, 'id' | 'provider' | 'externalId' | 'url' | 'title' | 'singer' | 'extraAnswers'>;
+export type SongListItem = {
+  id: string;
+  title: string;
+  singer: string;
+  extraAnswers: string[];
+  startSeconds: number;
+  endSeconds: number | null;
+  provider: SourceProvider;
+  externalId: string;
+  url: string;
+};
 
 export async function findSongs(params: FindSongsParams): Promise<{ items: SongListItem[]; hasMore: boolean }> {
   const repo = AppDataSource.getRepository(Song);
-  const qb = repo.createQueryBuilder('song');
+  const qb = repo.createQueryBuilder('song').innerJoinAndSelect('song.source', 'source');
 
   if (params.q) {
     const q = `%${params.q.toLowerCase()}%`;
@@ -102,8 +126,22 @@ export async function findSongs(params: FindSongsParams): Promise<{ items: SongL
     .skip(params.offset)
     .take(params.limit + 1)
     .getMany();
+
   const hasMore = rows.length > params.limit;
-  const items = hasMore ? rows.slice(0, params.limit) : rows;
+  const page = hasMore ? rows.slice(0, params.limit) : rows;
+
+  // 선언한 형태로만 내보낸다. 엔티티를 그대로 넘기면 선언에 없는 필드가 새어나간다.
+  const items: SongListItem[] = page.map((s) => ({
+    id: s.id,
+    title: s.title,
+    singer: s.singer,
+    extraAnswers: s.extraAnswers,
+    startSeconds: s.startSeconds,
+    endSeconds: s.endSeconds ?? null,
+    provider: s.source.provider,
+    externalId: s.source.externalId,
+    url: s.source.url,
+  }));
 
   return { items, hasMore };
 }
@@ -116,11 +154,10 @@ export async function deleteSong(songId: string) {
     const songRepo = manager.getRepository(Song);
     const psRepo = manager.getRepository(PlaylistSong);
 
-    const exists = await songRepo.find({ where: { id } });
+    const exists = await songRepo.findOne({ where: { id } });
     if (!exists) throw new HttpError(404, 'song not found');
 
     await psRepo.delete({ songId: id });
-
     await songRepo.delete({ id });
 
     return { deleted: true };

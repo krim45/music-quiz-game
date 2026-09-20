@@ -5,7 +5,7 @@
 // 여기 있는 타입이 그대로 네트워크로 나가면 안 된다 — 정답(singer/title/extraAnswers),
 // 접속 정보(ip/socketId), 타이머 핸들이 섞여 있다.
 
-import type { SongProvider } from '@/entities/Song';
+import type { SourceProvider } from '@/entities/Source';
 import type { PlayerId, RoomId, RoomStatus } from '@music-quiz/shared';
 
 /** ---------- domain (server-side) ---------- */
@@ -25,22 +25,24 @@ export type ServerPlayer = {
   lastCorrectAtMs?: number | null;
 };
 
-/** 정답을 포함한다. 클라이언트로 그대로 내보내지 말 것. */
-export type Song = {
-  id?: string;
+/**
+ * 플레이리스트에서 꺼낸, 재생 준비가 끝난 곡 하나.
+ *
+ * 영상(Source)과 곡(Song)을 조인하고 플레이리스트별 구간 덮어쓰기까지 적용한 결과다.
+ * 정답(title/singer/extraAnswers)을 포함하므로 클라이언트로 그대로 내보내지 말 것 —
+ * 재생에 필요한 것만 추린 RoundSong(@music-quiz/shared)을 쓴다.
+ */
+export type PlaylistItem = {
+  songId: string;
+  provider: SourceProvider;
   externalId: string;
-  provider: SongProvider;
   url: string;
-  singer: string;
   title: string;
-  extraAnswers?: string | null;
-  defaultStartSeconds: number;
-  defaultEndSeconds?: number | null;
-};
-
-export type PlaylistItem = Song & {
+  singer: string;
+  extraAnswers: string[];
+  /** 덮어쓰기가 적용된 최종 시작 지점 */
   startSeconds: number;
-  endSeconds?: number;
+  endSeconds?: number | null;
 };
 
 /** ---------- game runtime (server-only) ---------- */

@@ -59,7 +59,7 @@ export default function ChatInput({ actions, onSendMessage }: Props) {
       <div className='flex items-center gap-2'>
         {actions}
 
-        <Button className='!px-2' type='submit' size='sm' color='green'>
+        <Button className='px-2!' type='submit' size='sm' color='green'>
           <Send />
         </Button>
       </div>

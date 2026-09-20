@@ -49,7 +49,7 @@ export default function PreviewModal({ open, onClose, songInfo }: Props) {
 
   return (
     <Modal
-      className='!h-auto rounded-4xl !p-0'
+      className='h-auto! rounded-4xl p-0!'
       width={640}
       open={open}
       onClose={onClose}

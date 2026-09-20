@@ -24,7 +24,7 @@ export default function GameSkipButton({ roomId, currentSongIndex, skip, disable
   };
 
   return (
-    <Button className='!px-2' type='button' size='sm' onClick={onSkip} disabled={disabled}>
+    <Button className='px-2!' type='button' size='sm' onClick={onSkip} disabled={disabled}>
       {skip ? `스킵 ${skip.current}/${skip.required}` : '스킵'}
     </Button>
   );

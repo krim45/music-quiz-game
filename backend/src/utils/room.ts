@@ -1,4 +1,5 @@
-import { PlaylistItem, Room, RoomListItemDTO } from '@/types';
+import { PlaylistItem, Room } from '@/types';
+import type { RoomListItem } from '@music-quiz/shared';
 import { RoomManager } from '@/sockets/RoomManager';
 
 export const randomRoomCode = (): string => {
@@ -39,7 +40,7 @@ export const reassignOwner = (room: Room): void => {
   room.players.set(nextOwner.playerId, nextOwner);
 };
 
-export const toRoomListItemDTO = (roomId: string, room: Room): RoomListItemDTO => ({
+export const toRoomListItemDTO = (roomId: string, room: Room): RoomListItem => ({
   roomId,
   title: room.title,
   curPlayers: room.players.size,

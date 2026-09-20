@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint"
   },
-  "packageManager": "pnpm@10.28.2",
   "dependencies": {
+    "@music-quiz/shared": "workspace:*",
     "@next/third-parties": "^16.2.4",
     "@tanstack/react-query": "^5.90.14",
     "@vercel/analytics": "^1.6.1",

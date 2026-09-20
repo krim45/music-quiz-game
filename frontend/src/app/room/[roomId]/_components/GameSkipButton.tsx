@@ -3,7 +3,7 @@
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
 import Button from '@/components/button/Button';
-import type { SkipState } from '@/types/game';
+import type { SkipState } from '@music-quiz/shared';
 
 type Props = {
   roomId: string;

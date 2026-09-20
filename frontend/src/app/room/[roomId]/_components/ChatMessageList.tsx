@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import ChevronDown from '@/components/icon/ChevronDown';
 import MessageItem from '@/app/room/[roomId]/_components/MessageItem';
 
-import type { ChatMessage } from '@/types/game';
+import type { ChatMessage } from '@music-quiz/shared';
 
 type Props = {
   messages: ChatMessage[];

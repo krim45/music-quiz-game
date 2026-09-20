@@ -5,7 +5,7 @@ import { playSystemSound } from '@/sounds/systemSound';
 import ChatMessageList from '@/app/room/[roomId]/_components/ChatMessageList';
 import ChatInput from '@/app/room/[roomId]/_components/ChatInput';
 
-import { ChatMessage } from '@/types/game';
+import type { ChatMessage } from '@music-quiz/shared';
 
 interface Props {
   actions: React.ReactNode;
@@ -31,7 +31,8 @@ export default function ChatRoom({ actions, roomId }: Props) {
         return next.length > MAX_MESSAGES ? next.slice(next.length - MAX_MESSAGES) : next;
       });
 
-      if (msg.type === 'system' && msg.systemType !== 'skip') {
+      // 입장/퇴장 알림은 systemType 없이 오므로 효과음 대상이 아니다
+      if (msg.type === 'system' && msg.systemType && msg.systemType !== 'skip') {
         playSystemSound(msg.systemType);
       }
     };

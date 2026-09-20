@@ -1,4 +1,10 @@
+packages:
+  - 'backend'
+  - 'frontend'
+  - 'packages/*'
+
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - sharp
   - unrs-resolver
+  - sqlite3

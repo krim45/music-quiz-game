@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import type { RoomInfo, RoomRuntime, GameStart, GamePlay, GameHint, GameReveal } from '@/types/game';
+import type { RoomInfo, GameStart, GamePlay, GameHint, GameReveal } from '@music-quiz/shared';
+import type { RoomRuntime } from '@/types/game';
 
 interface Props {
   runtime: RoomRuntime;

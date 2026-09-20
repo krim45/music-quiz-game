@@ -6,15 +6,15 @@ import { computeRequiredSkipCount, getClientIp, handleSkipMajority, reveal, sche
 import { assignColor, getMe, isCorrect, randomRoomCode, reassignOwner, shuffle, toRoomListItemDTO } from '@/utils/room';
 
 import type { Server, Socket } from 'socket.io';
+import type { ServerPlayer } from '@/types';
 import type {
-  Player,
   CreateRoomPayload,
   RoomJoinPayload,
   RoomResponse,
-  RoomListItemDTO,
+  RoomListItem,
   RoomInfoPayload,
   RoomInfoResponse,
-} from '@/types';
+} from '@music-quiz/shared';
 import { addBan, getSid, getUserAgent, hashUA, isBanned, makeBanEntry, toIpPrefix } from '@/utils/ban';
 
 export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: RoomManager) {
@@ -119,7 +119,7 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
     // ✅ 서버 발급 playerId
     const playerId = crypto.randomUUID();
 
-    const player: Player = {
+    const player: ServerPlayer = {
       ip,
       playerId,
       socketId: socket.id,
@@ -271,8 +271,8 @@ export function registerRoomHandlers(io: Server, socket: Socket, RoomManager: Ro
   });
 
   // 방 목록 조회
-  socket.on('room:list', (ack: (res: { ok: boolean; rooms: RoomListItemDTO[] }) => void) => {
-    const rooms: RoomListItemDTO[] = [];
+  socket.on('room:list', (ack: (res: { ok: boolean; rooms: RoomListItem[] }) => void) => {
+    const rooms: RoomListItem[] = [];
 
     for (const [roomId, room] of RoomManager.rooms.entries()) {
       if (room.players.size === 0) continue;

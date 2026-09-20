@@ -61,7 +61,7 @@ router.get('/:id', async (req, res) => {
 
 router.delete('/:playlistId', adminOnly, async (req, res, next) => {
   try {
-    const result = await deletePlaylist(req.params.playlistId);
+    const result = await deletePlaylist(String(req.params.playlistId));
     res.json(result);
   } catch (err) {
     next(err);

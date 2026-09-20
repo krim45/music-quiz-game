@@ -23,13 +23,13 @@ import type {
   RoomInfo,
   RoomInfoResponse,
   RoomUpdateResponse,
-  RoomRuntime,
   GameStart,
   GamePlay,
   GameHint,
   GameReveal,
   GameSkipUpdate,
-} from '@/types/game';
+} from '@music-quiz/shared';
+import type { RoomRuntime } from '@/types/game';
 
 export default function RoomPage() {
   const [joined, setJoined] = useState<boolean>(false);

@@ -8,3 +8,6 @@
 
 # Claude Code - 머신별 로컬 설정
 .claude/settings.local.json
+
+# pnpm workspace
+node_modules/

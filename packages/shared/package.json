@@ -1,0 +1,14 @@
+{
+  "name": "@music-quiz/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "프론트엔드/백엔드가 공유하는 소켓 계약 타입. 런타임 코드 없음(타입 전용).",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["src"]
+}

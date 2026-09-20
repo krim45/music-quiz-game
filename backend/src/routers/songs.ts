@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 
 router.delete('/:songId', adminOnly, async (req, res) => {
   try {
-    const result = await deleteSong(req.params.songId);
+    const result = await deleteSong(String(req.params.songId));
     return res.json({ ok: true, ...result });
   } catch (e) {
     console.error('[DELETE /songs/:songId] error', e);

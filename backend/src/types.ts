@@ -1,25 +1,31 @@
 // backend/src/types.ts
+//
+// 서버 전용 타입만 둔다.
+// 프론트엔드와 공유하는 소켓 계약은 @music-quiz/shared 에 있다.
+// 여기 있는 타입이 그대로 네트워크로 나가면 안 된다 — 정답(singer/title/extraAnswers),
+// 접속 정보(ip/socketId), 타이머 핸들이 섞여 있다.
+
 import type { SongProvider } from '@/entities/Song';
+import type { PlayerId, RoomId, RoomStatus } from '@music-quiz/shared';
 
-/** ---------- primitives ---------- */
-export type PlayerId = string;
-export type RoomId = string;
+/** ---------- domain (server-side) ---------- */
 
-/** ---------- domain ---------- */
-export type Player = {
+/**
+ * 서버가 들고 있는 플레이어. 클라이언트로 내려보낼 때는
+ * @music-quiz/shared 의 `Player`로 좁혀서 직렬화한다.
+ */
+export type ServerPlayer = {
   ip: string;
   playerId: PlayerId; // 서버 발급 고정 ID
   socketId: string | null; // 서버 런타임 연결 정보
   nickname: string;
   color: string;
   score: number;
-  // ready: boolean;
   isOwner: boolean;
   lastCorrectAtMs?: number | null;
 };
 
-export type PlayerPublic = Omit<Player, 'socketId' | 'ip'>;
-
+/** 정답을 포함한다. 클라이언트로 그대로 내보내지 말 것. */
 export type Song = {
   id?: string;
   externalId: string;
@@ -37,10 +43,7 @@ export type PlaylistItem = Song & {
   endSeconds?: number;
 };
 
-export type RoomStatus = 'waiting' | 'playing';
-
 /** ---------- game runtime (server-only) ---------- */
-export type SkipState = { current: number; required: number };
 
 export type GamePhase = 'countdown' | 'round';
 
@@ -78,7 +81,7 @@ export type Room = {
   status: RoomStatus;
   maxPlayers: number;
 
-  players: Map<PlayerId, Player>;
+  players: Map<PlayerId, ServerPlayer>;
   songList: PlaylistItem[];
   currentSongIndex: number;
 
@@ -94,124 +97,8 @@ export type BanEntry = {
   expiresAt: number;
 };
 
-/** ---------- socket payloads ---------- */
-export type CreateRoomPayload = {
-  title: string;
-  password?: string;
-  playlistId: string;
-  maxPlayers: number;
-};
-
-export type RoomJoinPayload = {
-  roomId: RoomId;
-  nickname: string;
-  password?: string;
-};
-
-export type RoomResponse = {
-  ok: boolean;
-  roomId?: RoomId;
-  playerId?: PlayerId;
-  message?: string;
-};
-
-export type RoomListItemDTO = {
-  roomId: RoomId;
-  title: string;
-  curPlayers: number;
-  maxPlayers: number;
-  hasPassword: boolean;
-  status: RoomStatus;
-};
-
+/** socket.id -> 참여 중인 방 매핑 (RoomManager 내부용) */
 export type SocketRoom = {
   roomId: RoomId;
   playerId: PlayerId;
-};
-
-export type RoomInfoPayload = { roomId: RoomId };
-
-export type RoomInfoDTO = {
-  id: RoomId;
-  title: string;
-  hasPassword: boolean;
-  status: RoomStatus;
-  songCount: number;
-};
-
-export type PlaylistDTO = {
-  id: string;
-  name: string;
-  description: string | null;
-};
-
-export type RoomInfoResponse =
-  | { ok: true; data: { room: RoomInfoDTO; playlist: PlaylistDTO } }
-  | { ok: false; message: string };
-
-export type RoomUpdateResponse = {
-  status: RoomStatus;
-  currentSongIndex: number;
-  players: PlayerPublic[];
-};
-
-/** ---------- game events ---------- */
-/**
- * ✅ 설계 변경 반영:
- * - game:start = 매 라운드 시작 전 4초 준비
- * - game:play = 실제 재생 시작
- */
-export type GameStart = {
-  currentSongIndex: number;
-  startsAtMs: number;
-  delayMs: number;
-  durationSec: number;
-  song: Pick<PlaylistItem, 'externalId' | 'startSeconds' | 'endSeconds'>;
-  skip: SkipState;
-};
-
-export type GamePlay = {
-  currentSongIndex: number;
-  roundStartedAtMs: number;
-  durationSec: number;
-  song: Pick<PlaylistItem, 'externalId' | 'startSeconds' | 'endSeconds'>;
-  skip: SkipState;
-};
-
-export type GameSkipUpdate = {
-  currentSongIndex: number;
-  skip: SkipState;
-};
-
-export type GameHint = {
-  currentSongIndex: number;
-  singer: string;
-};
-
-export type GameReveal = {
-  currentSongIndex: number;
-  reason: 'correct' | 'skip' | 'timeout';
-  answer: {
-    singer: string;
-    title: string;
-    extraAnswers?: string | null;
-  };
-  answeredBy?: {
-    nickname: string;
-    color: string;
-  };
-};
-
-export type SystemChatPayload = {
-  color?: string;
-  systemType: 'correct' | 'skip' | 'timeout';
-  message: string;
-};
-
-export type SummaryChatPayload = {
-  players: {
-    nickname: string;
-    color: string;
-    score: number;
-  }[];
 };

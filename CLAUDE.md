@@ -45,11 +45,37 @@ frontend/src/
 
 SQLite. 환경에 따라 동작이 갈린다:
 
-- **dev**: `backend/dev.db`, `synchronize: true`. 엔티티에서 스키마가 자동 생성되므로
-  파일이 없어도 실행된다. **gitignore 대상이고, 안에 든 데이터는 버려도 되는 테스트 데이터다.**
+- **dev**: `backend/dev.db`, `synchronize: true`, 마이그레이션은 실행되지 않는다.
+  엔티티에서 스키마가 자동 생성되므로 파일이 없어도 실행된다.
+  gitignore 대상이고, 안에 든 데이터는 버려도 되는 테스트 데이터다.
 - **prod**: fly.io 볼륨의 `/data/prod.db`, `synchronize: false`, `migrationsRun: true`.
   **prod 스키마를 바꾸려면 반드시 마이그레이션을 추가해야 한다.** 엔티티만 고치면
   dev에서는 통과하고 prod에서 깨진다.
+
+### 마이그레이션 검증
+
+마이그레이션은 prod에서만 실행되므로 잘못 쓰면 운영에서 처음 드러난다.
+그래서 DB 경로를 `DATABASE_PATH`로 분리해 두었다 — 임시 파일에 체인 전체를 돌려볼 수 있다.
+
+```bash
+# 빈 DB에 전체 체인 실행 후 운영 스키마와 대조
+DATABASE_PATH=/tmp/mig-test.db pnpm --filter backend migration:run
+sqlite3 /tmp/mig-test.db .schema
+
+# 운영 사본에 적용해 데이터가 보존되는지 확인
+cp backend/backup_prod.db /tmp/prod-sim.db
+DATABASE_PATH=/tmp/prod-sim.db pnpm --filter backend migration:run
+
+# 적용 현황
+DATABASE_PATH=/tmp/mig-test.db pnpm --filter backend migration:show
+```
+
+`InitialSchema`는 기존 prod에 기록되어 있지 않아 다음 배포 때 한 번 실행된다.
+그래서 모든 구문이 멱등이어야 한다(`IF NOT EXISTS`). 새 마이그레이션을 추가할 때도
+운영 사본에 먼저 돌려보고 데이터·스키마가 보존되는지 확인할 것.
+
+DDL은 한 줄로 유지한다. SQLite가 `CREATE` 구문 원문을 그대로 저장하므로,
+포맷을 맞춰두면 `.schema` diff로 운영 스키마와 바로 대조할 수 있다.
 
 ## 배포
 
@@ -62,6 +88,7 @@ SQLite. 환경에 따라 동작이 갈린다:
 
 backend(`.env`): `PORT`, `NODE_ENV`, `CORS_ORIGINS`(쉼표 구분, 쿠키 기반이라 `*` 불가),
 `JWT_SECRET`, `ADMIN_ID`, `ADMIN_PASSWORD`, `API_BASE_URL`
+`DATABASE_PATH`(선택) — 지정하면 DB 경로를 덮어쓴다. 마이그레이션 검증용.
 frontend: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GTM_ID`
 
 ## 컨벤션

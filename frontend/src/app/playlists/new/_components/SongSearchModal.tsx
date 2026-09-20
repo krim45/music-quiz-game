@@ -70,7 +70,13 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
     },
     { key: 'singer', label: '가수', sortable: true, className: 'w-[120px]' },
     { key: 'title', label: '제목', sortable: true, className: 'w-[120px]' },
-    { key: 'extraAnswers', label: '추가 정답', className: 'w-[160px]' },
+    {
+      key: 'extraAnswers',
+      label: '추가 정답',
+      className: 'w-[160px]',
+      // 배열을 그대로 두면 React가 구분자 없이 이어붙인다
+      render: ({ row }) => <span>{row.extraAnswers.join(', ')}</span>,
+    },
     { key: 'url', label: '링크', className: 'w-[350px]' },
   ];
 

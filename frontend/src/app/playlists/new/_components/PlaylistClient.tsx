@@ -11,6 +11,7 @@ import InputField from '@/components/form/input/InputField';
 import SongGuideSection from '@/app/playlists/new/_components/SongGuideSection';
 import SongFormSection from '@/app/playlists/new/_components/SongFormSection';
 import SongListSection from '@/app/playlists/new/_components/SongListSection';
+import { toSongPayload } from '@/app/playlists/new/_utils/songForm';
 
 import type { SongInfo, SongItem } from '@/services/songs/types';
 
@@ -43,7 +44,7 @@ export default function PlaylistClient() {
     if (songList.length < 5) return toast.error('노래를 5곡 이상 추가하세요.');
 
     try {
-      await createPlaylistClient({ name: trimmed, songs: songList });
+      await createPlaylistClient({ name: trimmed, songs: songList.map(toSongPayload) });
 
       toast.success('플레이리스트 생성 완료');
       router.push('/room/new');
@@ -56,13 +57,22 @@ export default function PlaylistClient() {
     if (!songs.length) return;
 
     setSongList((prev) => {
-      const existing = new Set(prev.map((s: SongInfo) => s.id));
+      const existing = new Set(prev.map((s: SongInfo) => s.songId).filter(Boolean));
       const next = [...prev];
 
       for (const song of songs) {
         if (existing.has(song.id)) continue;
 
-        next.push({ ...song, startSeconds: song.defaultStartSeconds });
+        next.push({
+          songId: song.id,
+          url: song.url,
+          singer: song.singer,
+          title: song.title,
+          startSeconds: song.startSeconds,
+          endSeconds: song.endSeconds,
+          // 배열로 받은 값을 목록에서 편집할 수 있게 쉼표 문자열로 되돌린다
+          extraAnswers: song.extraAnswers.join(', '),
+        });
         existing.add(song.id);
       }
 

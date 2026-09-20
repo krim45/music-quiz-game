@@ -62,9 +62,9 @@ export default function PlaylistDetailModal({ open, onClose, playlistId }: Props
                     </a>
                   </div>
 
-                  {s.extraAnswers ? (
+                  {s.extraAnswers.length > 0 ? (
                     <div className='text-xs text-zinc-500'>
-                      추가 정답: <span className='text-zinc-400'>{s.extraAnswers}</span>
+                      추가 정답: <span className='text-zinc-400'>{s.extraAnswers.join(', ')}</span>
                     </div>
                   ) : null}
                 </li>

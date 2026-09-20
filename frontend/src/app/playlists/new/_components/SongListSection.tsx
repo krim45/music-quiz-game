@@ -59,7 +59,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       render: ({ row, key, rowIndex }) => (
         <BaseInput
           className='w-full border border-white p-2'
-          value={row[key]}
+          value={row[key] ?? ''}
           onChange={(v) => onChangeSong(rowIndex, key, v)}
           placeholder='복수 정답 가능, 쉼표로 구분'
         />
@@ -73,7 +73,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
         <BaseInput
           type='number'
           className='w-full border border-white p-2'
-          value={row[key]}
+          value={row[key] ?? ''}
           onChange={(v) => onChangeSong(rowIndex, key, v === '' ? v : Number(v))}
         />
       ),

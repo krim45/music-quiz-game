@@ -58,7 +58,7 @@ export default async function PlaylistDetail({ params }: Props) {
           </p>
 
           <Link href={`/room/new?playlistId=${playlist.id}`}>
-            <Button className='rounded-xl !px-4'>🎮 게임 시작하기</Button>
+            <Button className='rounded-xl px-4!'>🎮 게임 시작하기</Button>
           </Link>
         </section>
 
@@ -81,7 +81,9 @@ export default async function PlaylistDetail({ params }: Props) {
                         <span className='text-gray-200'>{song.singer} - </span> {song.title}
                       </div>
 
-                      {song.extraAnswers && <div className='text-xs text-gray-600'>추가 정답: {song.extraAnswers}</div>}
+                      {song.extraAnswers.length > 0 && (
+                        <div className='text-xs text-gray-600'>추가 정답: {song.extraAnswers.join(', ')}</div>
+                      )}
                     </div>
                   </div>
 

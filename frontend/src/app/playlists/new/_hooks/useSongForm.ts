@@ -6,8 +6,10 @@ import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/va
 
 import type { SongInfo } from '@/services/songs/types';
 
+const EMPTY_SONG: SongInfo = { url: '', singer: '', title: '', extraAnswers: '' };
+
 export function useSongForm(playerRef: React.RefObject<YT.Player | null>) {
-  const [songInfo, setSongInfo] = useState<SongInfo>({ url: '', singer: '', title: '' });
+  const [songInfo, setSongInfo] = useState<SongInfo>(EMPTY_SONG);
   const [songList, setSongList] = useState<SongInfo[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -32,7 +34,7 @@ export function useSongForm(playerRef: React.RefObject<YT.Player | null>) {
     if (error) return toast.error(error);
 
     setSongList((prev) => [...prev, songInfo]);
-    setSongInfo({ url: '', singer: '', title: '' });
+    setSongInfo(EMPTY_SONG);
 
     setShowPreview(false);
     playerRef.current?.stopVideo?.();

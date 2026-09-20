@@ -33,9 +33,9 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
     {
       key: '_edit',
       label: '삭제',
-      className: 'w-10 !p-1 text-center',
+      className: 'w-10 p-1! text-center',
       render: ({ rowIndex }) => (
-        <Button className='mt-1.5 !h-7' size='sm' color='red' onClick={() => onRemoveSong(rowIndex)}>
+        <Button className='mt-1.5 h-7!' size='sm' color='red' onClick={() => onRemoveSong(rowIndex)}>
           <Minus className='mb-0.5' size={18} />
         </Button>
       ),
@@ -43,9 +43,9 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
     {
       key: '_preview',
       label: '미리보기',
-      className: 'w-16 !p-1 text-center',
+      className: 'w-16 p-1! text-center',
       render: ({ row }) => (
-        <Button className='mt-1 !h-7' size='sm' color='green' onClick={() => loadPreview(row)}>
+        <Button className='mt-1 h-7!' size='sm' color='green' onClick={() => loadPreview(row)}>
           <Play size={18} />
         </Button>
       ),
@@ -59,7 +59,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       render: ({ row, key, rowIndex }) => (
         <BaseInput
           className='w-full border border-white p-2'
-          value={row[key]}
+          value={row[key] ?? ''}
           onChange={(v) => onChangeSong(rowIndex, key, v)}
           placeholder='복수 정답 가능, 쉼표로 구분'
         />
@@ -73,7 +73,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
         <BaseInput
           type='number'
           className='w-full border border-white p-2'
-          value={row[key]}
+          value={row[key] ?? ''}
           onChange={(v) => onChangeSong(rowIndex, key, v === '' ? v : Number(v))}
         />
       ),
@@ -86,12 +86,12 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       <div className='flex justify-between'>
         <h2 className='text-2xl font-bold'>노래 목록 ({songList.length})</h2>
 
-        <Button className='!px-2' size='sm' color='orange' onClick={() => setIsSearchOpen((prev) => !prev)}>
+        <Button className='px-2!' size='sm' color='orange' onClick={() => setIsSearchOpen((prev) => !prev)}>
           노래 검색
         </Button>
       </div>
 
-      <Table className='h-[500px]' stickyHead columns={columns} data={songList} />
+      <Table className='h-125' stickyHead columns={columns} data={songList} />
 
       <SongSearchModal
         open={isSearchOpen}

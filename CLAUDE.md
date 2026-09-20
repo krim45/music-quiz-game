@@ -43,13 +43,30 @@ frontend/src/
 
 ## 데이터베이스
 
-SQLite. 환경에 따라 동작이 갈린다:
+**Postgres (Neon).** 접속은 `DATABASE_URL` 하나로 한다. dev/prod 모두 필요하다.
 
-- **dev**: `backend/dev.db`, `synchronize: true`. 엔티티에서 스키마가 자동 생성되므로
-  파일이 없어도 실행된다. **gitignore 대상이고, 안에 든 데이터는 버려도 되는 테스트 데이터다.**
-- **prod**: fly.io 볼륨의 `/data/prod.db`, `synchronize: false`, `migrationsRun: true`.
+이전에는 SQLite 파일(`/data/prod.db`)을 썼으나 fly 볼륨 한 개에만 존재해
+유실 시 복구할 방법이 없었다. 관리형 Postgres로 옮겨 백업·복제를 업체에 위임했다.
+
+- **dev**: `synchronize: true`, 마이그레이션은 실행되지 않는다.
+  엔티티에서 스키마가 자동 생성된다. Neon의 개발용 브랜치를 쓰면 된다.
+- **prod**: `synchronize: false`, `migrationsRun: true`.
   **prod 스키마를 바꾸려면 반드시 마이그레이션을 추가해야 한다.** 엔티티만 고치면
   dev에서는 통과하고 prod에서 깨진다.
+
+### 마이그레이션
+
+엔티티를 바꾼 뒤 TypeORM이 차이를 보고 생성하게 한다. 손으로 쓰지 않는다.
+
+```bash
+pnpm --filter backend migration:generate src/migrations/<이름>
+pnpm --filter backend migration:show
+pnpm --filter backend migration:run
+```
+
+마이그레이션은 prod에서만 실행되므로 잘못 쓰면 운영에서 처음 드러난다.
+**Neon 브랜치로 먼저 검증할 것** — 운영 브랜치를 복제해 `DATABASE_URL`을 그쪽으로
+돌린 뒤 `migration:run`을 돌려보면, 실제 데이터 위에서 안전한지 확인할 수 있다.
 
 ## 배포
 
@@ -61,7 +78,8 @@ SQLite. 환경에 따라 동작이 갈린다:
 ## 환경변수
 
 backend(`.env`): `PORT`, `NODE_ENV`, `CORS_ORIGINS`(쉼표 구분, 쿠키 기반이라 `*` 불가),
-`JWT_SECRET`, `ADMIN_ID`, `ADMIN_PASSWORD`, `API_BASE_URL`
+`JWT_SECRET`, `ADMIN_ID`, `ADMIN_PASSWORD`, `API_BASE_URL`,
+`DATABASE_URL`(필수) — Neon Postgres 접속 문자열. 없으면 기동하지 않는다.
 frontend: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GTM_ID`
 
 ## 컨벤션

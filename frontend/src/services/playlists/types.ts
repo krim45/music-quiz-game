@@ -1,4 +1,4 @@
-import type { SongInfo, SongItem } from '@/services/songs/types';
+import type { SongPayload, SongItem } from '@/services/songs/types';
 
 export type FindPlaylistsParams = {
   q?: string;
@@ -32,13 +32,13 @@ export type PlaylistDetailResponse = {
   ok: boolean;
   message?: string;
   playlist: { id: string; name: string; description: string };
-  songs: Array<SongItem>;
+  songs: SongItem[];
 };
 
 export type CreatePlaylistInput = {
   name: string;
   description?: string;
-  songs: SongInfo[];
+  songs: SongPayload[];
 };
 
 export type CreatePlaylistResponse =

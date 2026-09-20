@@ -53,20 +53,11 @@ export function normalizeAnswer(input: string) {
   return input.replace(/\s+/g, '').trim().toLowerCase();
 }
 
-export function parseExtraAnswers(extraAnswers?: string | null): string[] {
-  if (!extraAnswers) return [];
-
-  return extraAnswers
-    .split(/[,]/g)
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 export function isCorrect(message: string, song: PlaylistItem) {
   const guess = normalizeAnswer(message);
   if (!guess) return false;
 
-  const accepted = [song.title, ...parseExtraAnswers(song.extraAnswers)];
+  const accepted = [song.title, ...song.extraAnswers];
   return accepted.some((ans) => normalizeAnswer(ans) === guess);
 }
 

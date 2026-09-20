@@ -7,9 +7,11 @@ const router = Router();
 
 router.post('/', async (req, res) => {
   try {
-    const playlist = await createPlaylist(req.body);
+    // addedCount/failed를 빠뜨리면 유효하지 않은 링크가 섞여 있어도
+    // 사용자가 알 방법이 없다. 프론트 CreatePlaylistResponse가 이 둘을 기대한다.
+    const { playlist, addedCount, failed } = await createPlaylist(req.body);
 
-    return res.status(201).json({ ok: true, playlist });
+    return res.status(201).json({ ok: true, playlist, addedCount, failed });
   } catch (e) {
     handleError(e, res);
   }
@@ -43,8 +45,15 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const detail = await getPlaylistDetail(req.params.id);
-    res.json({ ok: true, ...detail });
+    const { playlist, songs } = await getPlaylistDetail(String(req.params.id));
+
+    // 내부 PlaylistItem은 게임 로직과 공유하느라 songId를 쓰지만,
+    // REST에서는 곡 목록 API(/songs)와 같은 이름인 id로 내보낸다.
+    res.json({
+      ok: true,
+      playlist,
+      songs: songs.map(({ songId, ...rest }) => ({ id: songId, ...rest })),
+    });
   } catch (e) {
     handleError(e, res);
   }

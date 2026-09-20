@@ -1,4 +1,5 @@
-import type { PlayerPublic, Room, SocketRoom } from '@/types';
+import type { Room, SocketRoom } from '@/types';
+import type { Player } from '@music-quiz/shared';
 import { toRoomListItemDTO } from '@/utils/room';
 import { Server } from 'socket.io';
 
@@ -38,7 +39,7 @@ export class RoomManager {
     const room = this.rooms.get(roomId);
     if (!room) return;
 
-    const players: PlayerPublic[] = Array.from(room.players, ([playerId, item]) => ({
+    const players: Player[] = Array.from(room.players, ([playerId, item]) => ({
       playerId,
       nickname: item.nickname,
       color: item.color,

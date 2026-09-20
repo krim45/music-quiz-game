@@ -11,7 +11,7 @@ import Button from '@/components/button/Button';
 import Refresh from '@/components/icon/Refresh';
 import Lock from '@/components/icon/Lock';
 import Table, { type TableColumn } from '@/components/table/Table';
-import type { RoomListItem } from '@/types/game';
+import type { RoomListItem } from '@music-quiz/shared';
 
 // TODO: 첫페이지는 서버로 부터 오는게?
 // 방 목록을 무한스크롤로 가져오는건?

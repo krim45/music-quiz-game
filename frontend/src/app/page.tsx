@@ -16,7 +16,7 @@ export default function HomePage() {
           src='/images/main_logo.webp'
           alt='노래 맞히기 게임 로고'
           width={576}
-          height={301}
+          height={314}
           loading='eager'
           fetchPriority='high'
           sizes='(max-width: 640px) 100vw, 576px'

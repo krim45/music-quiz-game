@@ -26,7 +26,7 @@ export default function PopupMenu({ items, children, gap = 2, className, overlay
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
-  const anchorRef = useRef<HTMLDivElement | null>(null);
+  const anchorRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   const toggle = () => setOpen(!open);
@@ -155,9 +155,9 @@ export default function PopupMenu({ items, children, gap = 2, className, overlay
 
   return (
     <>
-      <div ref={anchorRef} onClick={toggle} className='inline-flex'>
+      <button ref={anchorRef} onClick={toggle} aria-haspopup='menu' aria-expanded={open} className='inline-flex'>
         {children}
-      </div>
+      </button>
       {open ? createPortal(panel, document.body) : null}
     </>
   );

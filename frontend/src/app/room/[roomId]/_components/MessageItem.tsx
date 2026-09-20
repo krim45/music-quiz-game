@@ -1,4 +1,4 @@
-import { ChatMessage } from '@/types/game';
+import type { ChatMessage } from '@music-quiz/shared';
 
 interface Props {
   message: ChatMessage;

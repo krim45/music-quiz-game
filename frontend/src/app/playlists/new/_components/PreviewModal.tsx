@@ -36,17 +36,26 @@ export default function PreviewModal({ open, onClose, songInfo }: Props) {
   );
 
   useEffect(() => {
+    const player = playerRef.current;
+
     if (open && isReady) {
       loadPreview(songInfo);
     }
 
     return () => {
-      playerRef.current?.stopVideo();
+      player?.stopVideo();
     };
   }, [open, isReady, songInfo, loadPreview, playerRef]);
 
   return (
-    <Modal className='!h-auto rounded-4xl !p-0' width={640} open={open} onClose={onClose} showCloseButton={false}>
+    <Modal
+      className='!h-auto rounded-4xl !p-0'
+      width={640}
+      open={open}
+      onClose={onClose}
+      showCloseButton={false}
+      ariaLabel='노래 미리보기'
+    >
       <div className='aspect-video w-full bg-black'>
         <div id='preview_popup' />
       </div>

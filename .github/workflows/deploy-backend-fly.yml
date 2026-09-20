@@ -3,8 +3,15 @@ name: Deploy Backend (Fly.io)
 on:
   push:
     branches: ['main']
+    # 워크스페이스 전환으로 backend가 packages/shared와 루트 lock에 의존한다
     paths:
       - 'backend/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.dockerignore'
+      - '.github/workflows/deploy-backend-fly.yml'
 
 concurrency:
   group: fly-backend-prod
@@ -13,16 +20,14 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
+      # 빌드 컨텍스트는 레포 루트('.')여야 한다 — packages/shared가 이미지에 포함되어야 하므로
       - name: Deploy to Fly
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        run: flyctl deploy --config fly.toml
+        run: flyctl deploy . --config backend/fly.toml --dockerfile backend/Dockerfile

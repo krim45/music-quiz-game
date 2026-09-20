@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { trapFocusOnTab } from '@/utils/trapFocusOnTab';
 import clsx from 'clsx';
 
@@ -9,6 +9,7 @@ interface ModalProps {
   onClose: () => void;
 
   title?: React.ReactNode;
+  ariaLabel?: string;
   className?: string;
   children: React.ReactNode;
 
@@ -24,6 +25,7 @@ export default function Modal({
   open,
   onClose,
   title,
+  ariaLabel,
   children,
   className,
   closeOnBackdrop = true,
@@ -32,6 +34,7 @@ export default function Modal({
   width = 640,
   height,
 }: ModalProps) {
+  const titleId = useId();
   const panelRef = useRef<HTMLDivElement | null>(null);
   const lastActiveElRef = useRef<HTMLElement | null>(null);
 
@@ -87,6 +90,9 @@ export default function Modal({
       <div
         ref={panelRef}
         role='dialog'
+        aria-modal='true'
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : ariaLabel}
         tabIndex={-1}
         className={clsx(
           'flex h-full w-full flex-col overflow-hidden border border-gray-800 bg-gray-900 outline-none md:h-[90vh] md:rounded-xl',
@@ -96,10 +102,16 @@ export default function Modal({
       >
         {hasHeader && (
           <div className='flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3'>
-            {title ? <h2 className='m-0 text-base font-semibold'>{title}</h2> : null}
+            {title ? (
+              <h2 id={titleId} className='m-0 text-base font-semibold'>
+                {title}
+              </h2>
+            ) : null}
 
             {showCloseButton && (
               <button
+                type='button'
+                aria-label='닫기'
                 className='inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg outline-none hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-gray-400 active:bg-gray-700'
                 onClick={onClose}
               >

@@ -9,7 +9,7 @@ import { getPlayerId } from '@/utils/playerId';
 
 import Button from '@/components/button/Button';
 
-import type { Player, RoomInfo } from '@/types/game';
+import type { Player, RoomInfo } from '@music-quiz/shared';
 import Close from '@/components/icon/Close';
 
 type Props = {

@@ -4,7 +4,7 @@ import { PlaylistSong } from '@/entities/PlaylistSong';
 import { Song } from '@/entities/Song';
 import { HttpError } from '@/errors/HttpError';
 import { type SongPayload, upsertSongWithManager } from '@/services/songs';
-import type { PlaylistDTO } from '@/types';
+import type { PlaylistDTO } from '@music-quiz/shared';
 
 export type CreatePlaylistSongInput = { songId: string; startSeconds: number } & SongPayload;
 

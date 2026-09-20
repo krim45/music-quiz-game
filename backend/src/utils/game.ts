@@ -1,6 +1,7 @@
 import type { Server, Socket } from 'socket.io';
 import { RoomManager } from '@/sockets/RoomManager';
-import type { PlaylistItem, Room, SummaryChatPayload, SystemChatPayload } from '@/types';
+import type { PlaylistItem, Room } from '@/types';
+import type { SummaryChatPayload, SystemChatPayload } from '@music-quiz/shared';
 
 const DEFAULT_DURATION_SEC = 60;
 const ROUND_START_DELAY_MS = 4000;

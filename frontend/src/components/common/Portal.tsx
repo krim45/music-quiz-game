@@ -9,13 +9,17 @@ interface PortalProps {
 }
 
 export default function Portal({ children, container }: PortalProps) {
-  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMountNode(container ?? document.body);
-  }, [container]);
+    // Client-only portal: SSR renders null; flip after mount so hydration matches.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional post-hydration gate
+    setMounted(true);
+  }, []);
 
-  if (!mountNode) return null;
+  const mountNode = container ?? (typeof document !== 'undefined' ? document.body : null);
+
+  if (!mounted || !mountNode) return null;
 
   return createPortal(children, mountNode);
 }

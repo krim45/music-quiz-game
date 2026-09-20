@@ -1,1 +1,13 @@
 .DS_Store
+
+# SQLite (dev.db는 entities + synchronize로 자동 생성, prod.db는 fly volume)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Claude Code - 머신별 로컬 설정
+.claude/settings.local.json
+
+# pnpm workspace
+node_modules/

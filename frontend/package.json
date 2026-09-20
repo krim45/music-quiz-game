@@ -31,6 +31,7 @@
     "@types/youtube": "^0.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "tailwindcss": "^4",

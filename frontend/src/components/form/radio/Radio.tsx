@@ -30,9 +30,6 @@ const Radio = forwardRef(
           disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
           className
         )}
-        role='radio'
-        aria-checked={!!checked}
-        aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
       >
         <span

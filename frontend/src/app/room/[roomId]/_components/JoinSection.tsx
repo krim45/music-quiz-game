@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getSocket } from '@/lib/socket';
 import { toast } from '@/lib/store/useToastStore';
 import { setPlayerId } from '@/utils/playerId';
@@ -21,6 +21,11 @@ type Props = {
 export default function JoinSection({ roomId, title, hasPassword, playerRef, onJoined }: Props) {
   const [nickname, setNickname] = useLocalStorageState('nickname', '');
   const [password, setPassword] = useState<string>('');
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    nicknameInputRef.current?.focus();
+  }, []);
 
   // 방 입장
   const handleJoin = async () => {
@@ -65,7 +70,7 @@ export default function JoinSection({ roomId, title, hasPassword, playerRef, onJ
         <h2 className='mb-4 text-2xl'>{title}</h2>
 
         <InputField
-          autoFocus
+          ref={nicknameInputRef}
           label='닉네임'
           charLimit={10}
           placeholder='2 ~ 10자'

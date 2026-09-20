@@ -48,7 +48,14 @@ export default function PreviewModal({ open, onClose, songInfo }: Props) {
   }, [open, isReady, songInfo, loadPreview, playerRef]);
 
   return (
-    <Modal className='!h-auto rounded-4xl !p-0' width={640} open={open} onClose={onClose} showCloseButton={false}>
+    <Modal
+      className='!h-auto rounded-4xl !p-0'
+      width={640}
+      open={open}
+      onClose={onClose}
+      showCloseButton={false}
+      ariaLabel='노래 미리보기'
+    >
       <div className='aspect-video w-full bg-black'>
         <div id='preview_popup' />
       </div>

@@ -1,9 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useInterval } from '@/hooks/useInterval';
 
 import type { RoomInfo, GameStart, GamePlay, GameHint, GameReveal } from '@music-quiz/shared';
 import type { RoomRuntime } from '@/types/game';
+
+/** 남은 시간 표시는 초 단위지만, 1초마다 읽으면 초 경계와 어긋나 표시가 밀린다 */
+const ROUND_TICK_MS = 250;
+/** 카운트다운은 더 촘촘해야 "3, 2, 1"이 매끄럽게 넘어간다 */
+const COUNTDOWN_TICK_MS = 100;
 
 interface Props {
   runtime: RoomRuntime;
@@ -22,36 +28,20 @@ export default function PlayingSection({ runtime, roomInfo, startState, playStat
     return [...runtime.players].sort((a, b) => b.score - a.score);
   }, [runtime.players]);
 
-  // 실제 라운드 타이머(초)
-  useEffect(() => {
+  // 실제 라운드 타이머(초). 남은 시간이라 내림한다.
+  useInterval(() => {
     if (!playState) return;
 
-    const { roundStartedAtMs, durationSec } = playState;
+    const elapsedSec = (Date.now() - playState.roundStartedAtMs) / 1000;
+    setRemainSec(Math.max(0, Math.floor(playState.durationSec - elapsedSec)));
+  }, playState ? ROUND_TICK_MS : null);
 
-    const tick = () => {
-      const elapsedSec = (Date.now() - roundStartedAtMs) / 1000;
-      const remain = durationSec - elapsedSec;
-      setRemainSec(Math.max(0, Math.floor(remain)));
-    };
-
-    tick();
-    const id = window.setInterval(tick, 250);
-    return () => window.clearInterval(id);
-  }, [playState]);
-
-  // 매 라운드 시작 전 카운트다운(초)
-  useEffect(() => {
+  // 매 라운드 시작 전 카운트다운(초). "3, 2, 1"로 보이도록 올림한다.
+  useInterval(() => {
     if (!startState?.startsAtMs) return;
 
-    const tick = () => {
-      const ms = startState.startsAtMs - Date.now();
-      setCountdownSec(Math.max(0, Math.ceil(ms / 1000)));
-    };
-
-    tick();
-    const id = window.setInterval(tick, 100);
-    return () => window.clearInterval(id);
-  }, [startState]);
+    setCountdownSec(Math.max(0, Math.ceil((startState.startsAtMs - Date.now()) / 1000)));
+  }, startState?.startsAtMs ? COUNTDOWN_TICK_MS : null);
 
   const isRoundActive = !!playState;
   const isCountingDown = !!startState?.startsAtMs && countdownSec > 0;

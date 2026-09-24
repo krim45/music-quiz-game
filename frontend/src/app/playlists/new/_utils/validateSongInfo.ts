@@ -34,7 +34,9 @@ export function validatePreview(
   const videoId = extractVideoId(song.url);
   if (!videoId) return { ok: false, error: SONG_ERRORS.INVALID_LINK };
 
-  const start = Number(song.startSeconds);
+  // 시작 시간을 비워두면 0초부터 듣는다.
+  // 미리듣기는 "시작점을 찾으려고" 누르는 것이므로, 값이 없다고 막으면 안 된다.
+  const start = Number(song.startSeconds ?? 0);
   if (isNaN(start) || start < 0) {
     return { ok: false, error: SONG_ERRORS.INVALID_START };
   }

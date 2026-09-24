@@ -11,7 +11,9 @@ import Button from '@/components/button/Button';
 import Table, { type TableColumn } from '@/components/table/Table';
 import Checkbox from '@/components/form/checkbox/Checkbox';
 
-import type { SongItem } from '@/services/songs/types';
+import Play from '@/components/icon/Play';
+import PreviewModal from '@/app/playlists/new/_components/PreviewModal';
+import type { SongInfo, SongItem } from '@/services/songs/types';
 
 interface Props {
   open: boolean;
@@ -26,6 +28,7 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
   const [q, setQ] = useState<string>('');
 
   const [selectedMap, setSelectedMap] = useState<Map<string, SongItem>>(new Map());
+  const [previewSong, setPreviewSong] = useState<SongInfo | null>(null);
 
   const queryKey = useMemo(() => ['songs', q] as const, [q]);
 
@@ -68,6 +71,35 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
         </div>
       ),
     },
+    {
+      // 데이터 열이 아니므로 CustomColumn으로 둔다.
+      // 'url'처럼 이미 쓰는 키를 재사용하면 React key가 겹친다.
+      key: '_preview',
+      accessor: () => null,
+      label: '미리보기',
+      className: 'w-16 p-1! text-center',
+      render: ({ row }) => (
+        <Button
+          className='mt-1 h-7!'
+          size='sm'
+          color='green'
+          onClick={() =>
+            // 이미 등록된 곡이라 구간이 정해져 있다. 여기서는 듣기만 한다.
+            setPreviewSong({
+              songId: row.id,
+              url: row.url,
+              title: row.title,
+              singer: row.singer,
+              startSeconds: row.startSeconds,
+              endSeconds: row.endSeconds,
+              extraAnswers: row.extraAnswers.join(', '),
+            })
+          }
+        >
+          <Play size={18} />
+        </Button>
+      ),
+    },
     { key: 'singer', label: '가수', sortable: true, className: 'w-[120px]' },
     { key: 'title', label: '제목', sortable: true, className: 'w-[120px]' },
     {
@@ -77,7 +109,6 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
       // 배열을 그대로 두면 React가 구분자 없이 이어붙인다
       render: ({ row }) => <span>{row.extraAnswers.join(', ')}</span>,
     },
-    { key: 'url', label: '링크', className: 'w-[350px]' },
   ];
 
   const errMsg = error instanceof Error ? error.message : null;
@@ -149,6 +180,10 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
           </div>
         </div>
       </div>
+
+      {previewSong && (
+        <PreviewModal open onClose={() => setPreviewSong(null)} songInfo={previewSong} />
+      )}
     </Modal>
   );
 }

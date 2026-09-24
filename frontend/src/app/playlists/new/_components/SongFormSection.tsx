@@ -6,6 +6,7 @@ import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/validateSongInfo';
 import { EMPTY_SONG_FORM, toSongInfo } from '@/app/playlists/new/_utils/songForm';
 import StartPicker from '@/app/playlists/new/_components/StartPicker';
+import { formatSeconds } from '@/app/playlists/new/_utils/time';
 
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
@@ -26,17 +27,23 @@ export default function SongFormSection({ onAddSong }: Props) {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleLoadPreview = () => {
-    const songInfo = toSongInfo(form);
-    const result = validatePreview(songInfo);
+  const togglePreview = () => {
+    if (showPreview) {
+      setShowPreview(false);
+      try {
+        playerRef.current?.stopVideo?.();
+      } catch {
+        // 이미 정리된 플레이어면 무시
+      }
+      return;
+    }
+
+    const result = validatePreview(toSongInfo(form));
     if (!result.ok) return toast.error(result.error);
 
+    const start = Number(result.startSeconds) || 0;
     setShowPreview(true);
-    playerRef.current?.loadVideoById({
-      videoId: result.videoId,
-      startSeconds: Number(result.startSeconds) || 0,
-      endSeconds: (Number(result.startSeconds) || 0) + 60,
-    });
+    playerRef.current?.loadVideoById({ videoId: result.videoId, startSeconds: start, endSeconds: start + 60 });
   };
 
   const handleAddSong = () => {
@@ -71,10 +78,16 @@ export default function SongFormSection({ onAddSong }: Props) {
             value={form.startSeconds}
             onChange={(v) => updateField('startSeconds', v)}
             placeholder='90(초)'
+            helperText={form.startSeconds ? `${formatSeconds(Number(form.startSeconds) || 0)} 지점` : ' '}
           />
 
-          <Button className='w-[25%] min-w-0 self-end truncate' color='gray' onClick={handleLoadPreview}>
-            미리보기
+          {/* 라벨 높이만큼 내려 입력란과 같은 줄에 맞춘다 */}
+          <Button
+            className='mt-[23px] w-[25%] min-w-0 shrink-0 self-start truncate'
+            color='gray'
+            onClick={togglePreview}
+          >
+            {showPreview ? '미리보기 닫기' : '미리보기'}
           </Button>
         </div>
 
@@ -120,7 +133,9 @@ export default function SongFormSection({ onAddSong }: Props) {
           value={form.extraAnswers}
           onChange={(v) => updateField('extraAnswers', v)}
           placeholder='Good Day, 굿 데이'
-          helperText={'정답으로 인정할 표현을 입력해 주세요. \n복수 정답 가능, 쉼표로 구분해 주세요.'}
+          helperText={
+            '정답으로 인정할 표현을 쉼표로 구분해 입력해 주세요. \n공백과 대소문자는 자동으로 무시되니 따로 넣지 않아도 됩니다.'
+          }
         />
 
         <Button className='mt-[23px] w-[25%] truncate' color='green' onClick={handleAddSong}>

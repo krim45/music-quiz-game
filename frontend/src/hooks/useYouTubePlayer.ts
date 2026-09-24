@@ -57,10 +57,23 @@ export const useYouTubePlayer = (containerId: string, options: YT.PlayerOptions)
       }
 
       return () => {
-        if (playerRef.current) {
-          playerRef.current.destroy();
-          playerRef.current = null;
+        const player = playerRef.current;
+        playerRef.current = null;
+
+        // 언마운트 시 React가 iframe을 먼저 제거하므로, 여기 도달했을 때는
+        // 플레이어가 가리키던 DOM이 이미 없을 수 있다. 그 상태로 destroy를 부르면
+        // YouTube API가 iframe의 src를 읽다가 터진다(모달 딤 클릭 시 흰 화면).
+        // 정리 실패는 무시해도 된다 — 어차피 노드가 사라진 뒤다.
+        try {
+          player?.destroy?.();
+        } catch (e) {
+          // 사라진 iframe을 정리하려다 나는 오류는 무시한다.
+          // 다만 전혀 다른 원인일 수도 있으니 개발 중에는 남겨 둔다.
+          if (process.env.NODE_ENV !== 'production') {
+            console.debug('[useYouTubePlayer] destroy 실패(무시)', e);
+          }
         }
+
         setIsReady(false);
       };
     },

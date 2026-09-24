@@ -43,7 +43,14 @@ export default function PreviewModal({ open, onClose, songInfo }: Props) {
     }
 
     return () => {
-      player?.stopVideo();
+      // 모달이 닫히면 iframe이 먼저 사라진다. 같은 이유로 방어한다.
+      try {
+        player?.stopVideo?.();
+      } catch (e) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.debug('[PreviewModal] stopVideo 실패(무시)', e);
+        }
+      }
     };
   }, [open, isReady, songInfo, loadPreview, playerRef]);
 

@@ -5,6 +5,7 @@ import { toast } from '@/lib/store/useToastStore';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/validateSongInfo';
 import { EMPTY_SONG_FORM, toSongInfo } from '@/app/playlists/new/_utils/songForm';
+import StartPicker from '@/app/playlists/new/_components/StartPicker';
 
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
@@ -80,6 +81,16 @@ export default function SongFormSection({ onAddSong }: Props) {
         <div className={`my-3 aspect-video w-full ${showPreview ? 'h-auto' : 'h-0 overflow-hidden'}`}>
           <div id='preview' />
         </div>
+
+        {showPreview && (
+          <div className='mb-3'>
+            <StartPicker
+              playerRef={playerRef}
+              active={showPreview}
+              onPick={(seconds) => updateField('startSeconds', String(seconds))}
+            />
+          </div>
+        )}
 
         <div className='flex gap-3'>
           <InputField

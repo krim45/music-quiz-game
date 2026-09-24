@@ -23,10 +23,13 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [selectedSong, setSelectedSong] = useState<SongInfo | null>(null);
+  const [previewRow, setPreviewRow] = useState<number | null>(null);
 
-  const loadPreview = (selectedSong: SongInfo) => {
+  // 시작 시간을 되돌려줘야 하므로 어느 행인지도 같이 기억한다
+  const loadPreview = (song: SongInfo, rowIndex: number) => {
     setIsPreviewOpen(true);
-    setSelectedSong(selectedSong);
+    setSelectedSong(song);
+    setPreviewRow(rowIndex);
   };
 
   const columns: TableColumn<SongInfo>[] = [
@@ -44,8 +47,8 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       key: '_preview',
       label: '미리보기',
       className: 'w-16 p-1! text-center',
-      render: ({ row }) => (
-        <Button className='mt-1 h-7!' size='sm' color='green' onClick={() => loadPreview(row)}>
+      render: ({ row, rowIndex }) => (
+        <Button className='mt-1 h-7!' size='sm' color='green' onClick={() => loadPreview(row, rowIndex)}>
           <Play size={18} />
         </Button>
       ),
@@ -100,7 +103,17 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       />
 
       {isPreviewOpen && selectedSong && (
-        <PreviewModal open={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} songInfo={selectedSong} />
+        <PreviewModal
+          open={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          songInfo={selectedSong}
+          onPickStart={(seconds) => {
+            if (previewRow === null) return;
+            // 목록 행만 갱신한다. selectedSong까지 바꾸면 songInfo가 변해
+            // 모달이 영상을 다시 불러오면서 재생이 끊긴다.
+            onChangeSong(previewRow, 'startSeconds', seconds);
+          }}
+        />
       )}
     </div>
   );

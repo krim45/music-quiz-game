@@ -45,8 +45,7 @@ export type SongInfo = {
   endSeconds?: number | null;
   singer: string;
   title: string;
-  /** 쉼표로 구분된 입력 그대로 */
-  extraAnswers: string;
+  extraAnswers: string[];
   _edit?: string;
   _preview?: string;
 };
@@ -68,6 +67,5 @@ export type SongFormState = {
   startSeconds: string;
   singer: string;
   title: string;
-  /** 쉼표로 구분해 입력받는다 */
-  extraAnswers: string;
+  extraAnswers: string[];
 };

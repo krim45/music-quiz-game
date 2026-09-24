@@ -78,8 +78,7 @@ export default function PlaylistClient() {
           title: song.title,
           startSeconds: song.startSeconds,
           endSeconds: song.endSeconds,
-          // 배열로 받은 값을 목록에서 편집할 수 있게 쉼표 문자열로 되돌린다
-          extraAnswers: song.extraAnswers.join(', '),
+          extraAnswers: song.extraAnswers,
         });
         existing.add(song.id);
       }

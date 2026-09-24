@@ -9,6 +9,7 @@ import Minus from '@/components/icon/Minus';
 import Play from '@/components/icon/Play';
 import SongSearchModal from '@/app/playlists/new/_components/SongSearchModal';
 import PreviewModal from '@/app/playlists/new/_components/PreviewModal';
+import ExtraAnswersInput from '@/app/playlists/new/_components/ExtraAnswersInput';
 
 import type { SongInfo, SongItem } from '@/services/songs/types';
 
@@ -59,12 +60,12 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       key: 'extraAnswers',
       label: '추가 정답',
       className: 'w-[240px]',
-      render: ({ row, key, rowIndex }) => (
-        <BaseInput
-          className='w-full border border-white p-2'
-          value={row[key] ?? ''}
-          onChange={(v) => onChangeSong(rowIndex, key, v)}
-          placeholder='복수 정답 가능, 쉼표로 구분'
+      render: ({ row, rowIndex }) => (
+        <ExtraAnswersInput
+          value={row.extraAnswers}
+          onChange={(next) => onChangeSong(rowIndex, 'extraAnswers', next)}
+          title={row.title}
+          placeholder='Enter로 추가'
         />
       ),
     },
@@ -72,12 +73,12 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       key: 'startSeconds',
       label: '시작시간(초)',
       className: 'w-[110px]',
-      render: ({ row, key, rowIndex }) => (
+      render: ({ row, rowIndex }) => (
         <BaseInput
           type='number'
           className='w-full border border-white p-2'
-          value={row[key] ?? ''}
-          onChange={(v) => onChangeSong(rowIndex, key, v === '' ? v : Number(v))}
+          value={row.startSeconds ?? ''}
+          onChange={(v) => onChangeSong(rowIndex, 'startSeconds', v === '' ? undefined : Number(v))}
         />
       ),
     },

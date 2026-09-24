@@ -7,6 +7,7 @@ import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/va
 import { EMPTY_SONG_FORM, toSongInfo } from '@/app/playlists/new/_utils/songForm';
 import StartPicker from '@/app/playlists/new/_components/StartPicker';
 import { formatSeconds } from '@/app/playlists/new/_utils/time';
+import ExtraAnswersInput from '@/app/playlists/new/_components/ExtraAnswersInput';
 
 import InputField from '@/components/form/input/InputField';
 import Button from '@/components/button/Button';
@@ -127,15 +128,14 @@ export default function SongFormSection({ onAddSong }: Props) {
       </div>
 
       <div className='flex gap-3'>
-        <InputField
+        <ExtraAnswersInput
           className='min-w-0 flex-1'
           label='추가 정답'
           value={form.extraAnswers}
-          onChange={(v) => updateField('extraAnswers', v)}
-          placeholder='Good Day, 굿 데이'
-          helperText={
-            '정답으로 인정할 표현을 쉼표로 구분해 입력해 주세요. \n공백과 대소문자는 자동으로 무시되니 따로 넣지 않아도 됩니다.'
-          }
+          onChange={(next) => updateField('extraAnswers', next)}
+          title={form.title}
+          placeholder='Good Day 입력 후 Enter'
+          helperText={'엔터로 하나씩 추가합니다. \nGood Day만 넣어도 goodday, GOOD DAY 모두 정답으로 인정됩니다.'}
         />
 
         <Button className='mt-[23px] w-[25%] truncate' color='green' onClick={handleAddSong}>

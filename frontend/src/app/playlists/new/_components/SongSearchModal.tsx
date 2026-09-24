@@ -92,7 +92,7 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
               singer: row.singer,
               startSeconds: row.startSeconds,
               endSeconds: row.endSeconds,
-              extraAnswers: row.extraAnswers.join(', '),
+              extraAnswers: row.extraAnswers,
             })
           }
         >

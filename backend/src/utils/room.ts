@@ -1,6 +1,7 @@
 import { PlaylistItem, Room } from '@/types';
 import type { RoomListItem } from '@music-quiz/shared';
 import { RoomManager } from '@/sockets/RoomManager';
+import { isAcceptedAnswer } from '@/utils/answer';
 
 export const randomRoomCode = (): string => {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -49,16 +50,9 @@ export const toRoomListItemDTO = (roomId: string, room: Room): RoomListItem => (
   status: room.status,
 });
 
-export function normalizeAnswer(input: string) {
-  return input.replace(/\s+/g, '').trim().toLowerCase();
-}
-
+/** 판정 규칙은 utils/answer.ts 와 docs/policy/answer-judging.md */
 export function isCorrect(message: string, song: PlaylistItem) {
-  const guess = normalizeAnswer(message);
-  if (!guess) return false;
-
-  const accepted = [song.title, ...song.extraAnswers];
-  return accepted.some((ans) => normalizeAnswer(ans) === guess);
+  return isAcceptedAnswer(message, [song.title, ...song.extraAnswers]);
 }
 
 export function getMe(RoomManager: RoomManager, roomId: string, socketId: string) {

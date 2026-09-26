@@ -42,6 +42,10 @@ export default function PlaylistClient() {
 
     if (songList.length < 5) return toast.error('노래를 5곡 이상 추가하세요.');
 
+    // 목록에서 시작 시간을 잘못 고친 곡. 그대로 보내면 이전 값이나 0초로 저장된다
+    const invalidStart = songList.find((s) => s.startSeconds === null);
+    if (invalidStart) return toast.error(`"${invalidStart.title}"의 시작 시간이 올바르지 않습니다.`);
+
     try {
       const res = await createPlaylistClient({ name: trimmed, songs: songList.map(toSongPayload) });
 

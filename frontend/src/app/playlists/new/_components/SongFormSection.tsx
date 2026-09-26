@@ -6,10 +6,10 @@ import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/validateSongInfo';
 import { EMPTY_SONG_FORM, toSongInfo } from '@/app/playlists/new/_utils/songForm';
 import StartPicker from '@/app/playlists/new/_components/StartPicker';
-import { formatSeconds } from '@/app/playlists/new/_utils/time';
 import ExtraAnswersInput from '@/app/playlists/new/_components/ExtraAnswersInput';
 
 import InputField from '@/components/form/input/InputField';
+import TimeInput from '@/components/form/input/TimeInput';
 import Button from '@/components/button/Button';
 
 import type { SongFormState, SongInfo } from '@/services/songs/types';
@@ -42,7 +42,7 @@ export default function SongFormSection({ onAddSong }: Props) {
     const result = validatePreview(toSongInfo(form));
     if (!result.ok) return toast.error(result.error);
 
-    const start = Number(result.startSeconds) || 0;
+    const start = result.startSeconds;
     setShowPreview(true);
     playerRef.current?.loadVideoById({ videoId: result.videoId, startSeconds: start, endSeconds: start + 60 });
   };
@@ -72,14 +72,13 @@ export default function SongFormSection({ onAddSong }: Props) {
             placeholder='https://www.youtube.com/watch?v=9KbsCZUTRbg'
           />
 
-          <InputField
+          <TimeInput
             className='min-w-0 flex-1'
             label='시작 시간'
-            type='number'
             value={form.startSeconds}
             onChange={(v) => updateField('startSeconds', v)}
-            placeholder='90(초)'
-            helperText={form.startSeconds ? `${formatSeconds(Number(form.startSeconds) || 0)} 지점` : ' '}
+            placeholder='1:30'
+            helperText='분:초 또는 시:분:초로 입력합니다.'
           />
 
           {/* 라벨 높이만큼 내려 입력란과 같은 줄에 맞춘다 */}
@@ -101,7 +100,7 @@ export default function SongFormSection({ onAddSong }: Props) {
             <StartPicker
               playerRef={playerRef}
               active={showPreview}
-              onPick={(seconds) => updateField('startSeconds', String(seconds))}
+              onPick={(seconds) => updateField('startSeconds', seconds)}
             />
           </div>
         )}

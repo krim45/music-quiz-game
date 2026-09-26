@@ -12,8 +12,9 @@ const HOW_TO: Record<SongAddMode, React.ReactNode> = {
         </li>
 
         <li>
-          <span className='text-white'>시작 시간(초)</span>: 영상이 시작될 시간을{' '}
-          <span className='text-gray-100'>초(sec)</span> 단위로 입력합니다.
+          <span className='text-white'>시작 시간</span>: 노래가 시작될 지점을{' '}
+          <span className='text-gray-100'>분:초(1:30)</span> 또는{' '}
+          <span className='text-gray-100'>시:분:초(1:02:03)</span>로 입력합니다.
         </li>
 
         <li className='text-gray-300'>

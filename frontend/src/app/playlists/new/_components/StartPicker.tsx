@@ -3,7 +3,7 @@
 import { useState, type RefObject } from 'react';
 import { useInterval } from '@/hooks/useInterval';
 import { toast } from '@/lib/store/useToastStore';
-import { formatSeconds } from '@/app/playlists/new/_utils/time';
+import { formatSeconds } from '@/utils/time';
 import Button from '@/components/button/Button';
 
 /** 표시가 밀려 보이지 않을 만큼 촘촘하되, 불필요하게 잦지 않은 값 */
@@ -40,7 +40,7 @@ export default function StartPicker({ playerRef, active, onPick }: Props) {
 
     const seconds = Math.max(0, Math.floor(t));
     onPick?.(seconds);
-    toast.success(`시작 시간을 ${formatSeconds(seconds)} (${seconds}초)로 맞췄습니다.`);
+    toast.success(`시작 시간을 ${formatSeconds(seconds)}로 맞췄습니다.`);
   };
 
   return (

@@ -2,7 +2,7 @@ import type { SongFormState, SongInfo, SongPayload } from '@/services/songs/type
 
 export const EMPTY_SONG_FORM: SongFormState = {
   url: '',
-  startSeconds: '',
+  startSeconds: undefined,
   singer: '',
   title: '',
   extraAnswers: [],
@@ -10,13 +10,11 @@ export const EMPTY_SONG_FORM: SongFormState = {
 
 /** 입력 폼 -> 목록에 담을 편집 모델 */
 export function toSongInfo(form: SongFormState): SongInfo {
-  const start = form.startSeconds.trim();
-
   return {
     url: form.url.trim(),
     singer: form.singer.trim(),
     title: form.title.trim(),
-    startSeconds: start === '' ? undefined : Number(start),
+    startSeconds: form.startSeconds,
     extraAnswers: form.extraAnswers,
   };
 }
@@ -28,7 +26,8 @@ export function toSongPayload(song: SongInfo): SongPayload {
     url: song.url,
     singer: song.singer,
     title: song.title,
-    startSeconds: song.startSeconds,
+    // null(형식 오류)은 제출 전에 막으므로 여기까지 오지 않는다
+    startSeconds: song.startSeconds ?? undefined,
     endSeconds: song.endSeconds ?? null,
     extraAnswers: song.extraAnswers,
   };

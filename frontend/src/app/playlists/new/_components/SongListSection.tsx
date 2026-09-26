@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import Table, { type TableColumn } from '@/components/table/Table';
-import BaseInput from '@/components/form/input/BaseInput';
+import TimeInput from '@/components/form/input/TimeInput';
 import Button from '@/components/button/Button';
 import Minus from '@/components/icon/Minus';
 import Play from '@/components/icon/Play';
@@ -71,14 +71,14 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
     },
     {
       key: 'startSeconds',
-      label: '시작시간(초)',
+      label: '시작',
       className: 'w-[110px]',
       render: ({ row, rowIndex }) => (
-        <BaseInput
-          type='number'
-          className='w-full border border-white p-2'
-          value={row.startSeconds ?? ''}
-          onChange={(v) => onChangeSong(rowIndex, 'startSeconds', v === '' ? undefined : Number(v))}
+        <TimeInput
+          value={row.startSeconds}
+          onChange={(v) => onChangeSong(rowIndex, 'startSeconds', v)}
+          placeholder='0:00'
+          aria-label={`${row.title || '곡'} 시작 시간`}
         />
       ),
     },

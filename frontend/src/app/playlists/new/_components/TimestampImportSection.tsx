@@ -10,7 +10,7 @@ import {
   type ParseOptions,
   type SeparatorKey,
 } from '@/app/playlists/new/_utils/parseTimestamps';
-import { formatSeconds } from '@/app/playlists/new/_utils/time';
+import { formatSeconds } from '@/utils/time';
 
 import Button from '@/components/button/Button';
 import InputField from '@/components/form/input/InputField';

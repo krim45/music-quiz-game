@@ -10,6 +10,8 @@
  * 파싱 결과를 사용자가 확인·수정하는 화면도 반드시 필요하다.
  */
 
+import { parseClock } from '@/utils/time';
+
 export type ParsedTrack = {
   /** 구간 시작(초) */
   startSeconds: number;
@@ -54,20 +56,6 @@ const TIME = String.raw`\d{1,2}:\d{2}(?::\d{2})?`;
 const TIME_RE = new RegExp(`(${TIME})`);
 /** 구간 표기: "00:00 - 03:42", "0:00~3:42", "00:00 – 03:42" */
 const RANGE_RE = new RegExp(String.raw`(${TIME})\s*[-–—~]\s*(${TIME})`);
-
-/** 00:00 / 0:00 / 1:02:03 을 초로. 형식이 아니면 null */
-function toSeconds(stamp: string): number | null {
-  const parts = stamp.split(':');
-  if (parts.length < 2 || parts.length > 3) return null;
-
-  const nums = parts.map((p) => Number(p));
-  if (nums.some((n) => !Number.isInteger(n) || n < 0)) return null;
-
-  // 분·초는 60 미만이어야 한다. 그렇지 않으면 시간 표기가 아니다
-  if (nums.slice(1).some((n) => n >= 60)) return null;
-
-  return parts.length === 3 ? nums[0] * 3600 + nums[1] * 60 + nums[2] : nums[0] * 60 + nums[1];
-}
 
 const OPEN_OF: Record<string, string> = { ')': '(', ']': '[', '}': '{' };
 const CLOSE_OF: Record<string, string> = { '(': ')', '[': ']', '{': '}' };
@@ -215,8 +203,8 @@ function cleanTitle(title: string): string {
 function readTime(line: string): { start: number; end: number | null; matched: string } | null {
   const range = line.match(RANGE_RE);
   if (range) {
-    const start = toSeconds(range[1]);
-    const end = toSeconds(range[2]);
+    const start = parseClock(range[1]);
+    const end = parseClock(range[2]);
     // 끝이 시작보다 앞이면 표기 실수로 보고 끝은 버린다. 두 시간 모두 곡 정보가 아니므로 함께 걷어낸다
     if (start !== null) return { start, end: end !== null && end > start ? end : null, matched: range[0] };
   }
@@ -224,7 +212,7 @@ function readTime(line: string): { start: number; end: number | null; matched: s
   const m = line.match(TIME_RE);
   if (!m) return null;
 
-  const start = toSeconds(m[1]);
+  const start = parseClock(m[1]);
   return start === null ? null : { start, end: null, matched: m[1] };
 }
 

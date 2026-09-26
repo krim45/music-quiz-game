@@ -21,6 +21,15 @@ interface ModalProps {
   height?: number | string;
 }
 
+/**
+ * 열려 있는 모달. 뒤에 있을수록 위에 떠 있다.
+ *
+ * 모달마다 window에 keydown을 걸기 때문에, 모달 안에 모달을 띄우면(검색 → 미리보기)
+ * ESC 한 번에 둘 다 닫히고 Tab 가두기도 서로 다툰다. 맨 위 모달만 키를 처리한다.
+ */
+const openModals: string[] = [];
+const isTopmost = (id: string) => openModals[openModals.length - 1] === id;
+
 export default function Modal({
   open,
   onClose,
@@ -43,6 +52,7 @@ export default function Modal({
     if (!open) return;
 
     lastActiveElRef.current = document.activeElement as HTMLElement | null;
+    openModals.push(titleId);
 
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -51,16 +61,19 @@ export default function Modal({
 
     return () => {
       clearTimeout(timer);
+      openModals.splice(openModals.indexOf(titleId), 1);
       document.body.style.overflow = prevOverflow;
       lastActiveElRef.current?.focus?.();
     };
-  }, [open]);
+  }, [open, titleId]);
 
   // ESC + Tab 트랩
   useEffect(() => {
     if (!open) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!isTopmost(titleId)) return;
+
       if (closeOnEsc && e.key === 'Escape') {
         onClose();
       }
@@ -72,7 +85,7 @@ export default function Modal({
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [open, closeOnEsc, onClose]);
+  }, [open, closeOnEsc, onClose, titleId]);
 
   if (!open) return null;
 

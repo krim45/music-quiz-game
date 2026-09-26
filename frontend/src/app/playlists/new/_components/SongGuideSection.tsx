@@ -27,7 +27,9 @@ export default function SongGuideSection() {
         <ul className='list-disc space-y-2 pl-5 text-gray-300'>
           <li>
             <span className='text-white'>정답 인정 방식</span>:{' '}
-            <span className='text-gray-100'>대소문자, 띄어쓰기 구분 없이</span> 정답으로 인정됩니다.
+            <span className='text-gray-100'>대소문자·띄어쓰기·특수문자 구분 없이</span> 정답으로 인정되고, 제목 뒤{' '}
+            <span className='text-gray-100'>괄호 부분은 빼고</span> 입력해도 됩니다. 괄호 안의 다른 이름으로도 맞히게
+            하려면 추가 정답에 넣어 주세요.
           </li>
 
           <li>

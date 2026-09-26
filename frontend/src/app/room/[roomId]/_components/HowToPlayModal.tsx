@@ -13,7 +13,8 @@ const HowToPlayModal = ({ open, onClose }: Props) => {
         입력창에 노래 제목을 입력하고 제출하세요. <br />
         <br />
         정답 입력 시, <br />
-        띄어쓰기, 대소문자는 구분 없이 인정됩니다. <br />
+        띄어쓰기·대소문자·특수문자는 구분 없이 인정되고, <br />
+        제목 뒤 괄호 부분은 빼고 입력해도 됩니다. <br />
         <br />
         {'ex) Good bye bye'} <br />
         {'→ goodbyebye, 굿바이바이 (O)'} <br />

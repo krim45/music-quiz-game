@@ -102,7 +102,6 @@ export default function SongAddSection({ onAddSong, onAddSongs }: Props) {
         title={`곡 추가 가이드 · ${MODE_LABEL[mode]}`}
         width={640}
         height='auto'
-        className='md:max-h-[90vh]'
       >
         <div className='flex flex-col gap-4'>
           <SongGuideSection mode={mode} />

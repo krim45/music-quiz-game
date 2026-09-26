@@ -109,12 +109,15 @@ export default function Modal({
         tabIndex={-1}
         className={clsx(
           'flex h-full w-full flex-col overflow-hidden border border-gray-800 bg-gray-900 outline-none md:h-[90vh] md:rounded-xl',
+          // width·height를 직접 줘도(height='auto', 390 등) 화면을 넘지 않게 한다.
+          // 넘으면 제목·닫기 버튼이 화면 밖으로 나가는데, 모달이 열리면 페이지 스크롤이 잠겨 닿을 수 없다
+          'max-h-dvh max-w-full md:max-h-[90vh]',
           className
         )}
         style={{ width, height }}
       >
         {hasHeader && (
-          <div className='flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3'>
+          <div className='flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-3'>
             {title ? (
               <h2 id={titleId} className='m-0 text-base font-semibold'>
                 {title}
@@ -134,7 +137,8 @@ export default function Modal({
           </div>
         )}
 
-        <div className='scrollbar-custom h-full w-full overflow-auto p-4'>{children}</div>
+        {/* h-full이면 제목 줄 높이만큼 아래가 잘린다. 남은 높이만 차지하고 넘치면 안에서 스크롤한다 */}
+        <div className='scrollbar-custom min-h-0 w-full flex-1 overflow-auto p-4'>{children}</div>
       </div>
     </div>
   );

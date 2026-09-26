@@ -8,8 +8,7 @@ import { createPlaylistClient } from '@/services/playlists/client';
 import Button from '@/components/button/Button';
 import GoBack from '@/components/nav/GoBack';
 import InputField from '@/components/form/input/InputField';
-import SongGuideSection from '@/app/playlists/new/_components/SongGuideSection';
-import SongFormSection from '@/app/playlists/new/_components/SongFormSection';
+import SongAddSection from '@/app/playlists/new/_components/SongAddSection';
 import SongListSection from '@/app/playlists/new/_components/SongListSection';
 import { toSongPayload } from '@/app/playlists/new/_utils/songForm';
 
@@ -61,6 +60,29 @@ export default function PlaylistClient() {
     }
   };
 
+  /**
+   * 타임스탬프로 만든 곡들을 목록에 담는다.
+   * 같은 영상의 같은 지점은 서버에서 한 곡으로 합쳐지므로 여기서 미리 걸러낸다.
+   */
+  const addSongs = (songs: SongInfo[]) => {
+    if (!songs.length) return;
+
+    setSongList((prev) => {
+      const seen = new Set(prev.map((s) => `${s.url}@${s.startSeconds ?? 0}`));
+      const next = [...prev];
+
+      for (const song of songs) {
+        const key = `${song.url}@${song.startSeconds ?? 0}`;
+        if (seen.has(key)) continue;
+
+        seen.add(key);
+        next.push(song);
+      }
+
+      return next;
+    });
+  };
+
   const addSearchSong = (songs: SongItem[]) => {
     if (!songs.length) return;
 
@@ -103,9 +125,7 @@ export default function PlaylistClient() {
 
           <InputField required label='플레이리스트 제목' value={name} onChange={(v) => setName(v)} />
 
-          <SongGuideSection />
-
-          <SongFormSection onAddSong={addSongToList} />
+          <SongAddSection onAddSong={addSongToList} onAddSongs={addSongs} />
 
           <SongListSection
             songList={songList}

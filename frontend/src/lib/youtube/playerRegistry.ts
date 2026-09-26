@@ -23,19 +23,26 @@ export function unregisterPlayer(id: string) {
   players.delete(id);
 }
 
+function pause(id: string, player: YT.Player) {
+  try {
+    player.pauseVideo?.();
+  } catch (e) {
+    // 이미 정리된 플레이어는 무시한다.
+    // 해제가 누락된 경우일 수도 있어 개발 중에는 남겨 둔다.
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('[playerRegistry] pauseVideo 실패(무시)', id, e);
+    }
+  }
+}
+
 /** 지정한 하나만 남기고 나머지를 일시정지한다. */
 export function pauseOtherPlayers(exceptId: string) {
   for (const [id, player] of players) {
-    if (id === exceptId) continue;
-
-    try {
-      player.pauseVideo?.();
-    } catch (e) {
-      // 이미 정리된 플레이어는 무시한다.
-      // 해제가 누락된 경우일 수도 있어 개발 중에는 남겨 둔다.
-      if (process.env.NODE_ENV !== 'production') {
-        console.debug('[playerRegistry] pauseVideo 실패(무시)', id, e);
-      }
-    }
+    if (id !== exceptId) pause(id, player);
   }
+}
+
+/** 모두 일시정지한다. 화면 전환으로 플레이어가 가려질 때 쓴다. */
+export function pauseAllPlayers() {
+  for (const [id, player] of players) pause(id, player);
 }

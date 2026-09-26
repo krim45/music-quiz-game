@@ -22,7 +22,8 @@ import SegmentedControl from '@/components/segment/SegmentedControl';
 import type { SongInfo } from '@/services/songs/types';
 
 interface Props {
-  onAdd: (songs: SongInfo[]) => void;
+  /** 곡들을 목록에 담고, 실제로 담긴 수를 돌려준다. 이미 목록에 있는 곡은 건너뛴다 */
+  onAdd: (songs: SongInfo[]) => number;
 }
 
 type TrackEdit = { singer: string; title: string };
@@ -107,7 +108,7 @@ export default function TimestampImportSection({ onAdd }: Props) {
     const tracks = parsed.map((_, i) => trackOf(i));
     if (tracks.some((t) => !t.title.trim())) return toast.error('제목이 비어 있는 곡이 있습니다.');
 
-    onAdd(
+    const added = onAdd(
       parsed.map((t, i) => ({
         url: url.trim(),
         singer: tracks[i].singer.trim(),
@@ -118,7 +119,15 @@ export default function TimestampImportSection({ onAdd }: Props) {
       }))
     );
 
-    toast.success(`${parsed.length}곡을 목록에 담았습니다.`);
+    // 하나도 안 담겼으면 입력을 남긴다 — 지우면 목록은 그대로인데 붙여넣은 내용만 사라진다
+    if (added === 0) return toast.info('모두 이미 목록에 있는 곡입니다.');
+
+    const skipped = parsed.length - added;
+    toast.success(
+      skipped > 0
+        ? `${added}곡을 담았습니다. ${skipped}곡은 이미 목록에 있어 건너뛰었습니다.`
+        : `${added}곡을 목록에 담았습니다.`
+    );
     reset();
   };
 

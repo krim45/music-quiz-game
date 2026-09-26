@@ -18,7 +18,8 @@ import type { SongInfo, SongItem } from '@/services/songs/types';
 interface Props {
   open: boolean;
   onClose: () => void;
-  onAdd: (songs: SongItem[]) => void;
+  /** 고른 곡들을 목록에 담고, 실제로 담긴 수를 돌려준다. 이미 목록에 있는 곡은 건너뛴다 */
+  onAdd: (songs: SongItem[]) => number;
 }
 
 export default function SongSearchModal({ open, onClose, onAdd }: Props) {
@@ -130,7 +131,17 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
     if (selectedMap.size === 0) return toast.info('선택된 노래가 없어요');
 
     const selectedSongs = Array.from(selectedMap.values());
-    onAdd(selectedSongs);
+    const added = onAdd(selectedSongs);
+
+    // 하나도 안 담겼으면 창을 닫지 않는다 — 닫으면 아무 일도 없었는데 끝난 것처럼 보인다
+    if (added === 0) return toast.info('고른 곡이 모두 이미 목록에 있습니다.');
+
+    const skipped = selectedSongs.length - added;
+    toast.success(
+      skipped > 0
+        ? `${added}곡을 담았습니다. ${skipped}곡은 이미 목록에 있어 건너뛰었습니다.`
+        : `${added}곡을 목록에 담았습니다.`
+    );
 
     // 닫을 때 선택도 초기화하고 싶으면
     // setSelectedMap(new Map());
@@ -174,16 +185,14 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
               선택 초기화
             </Button>
 
-            <Button className='px-4' onClick={onAddClick} disabled={selectedMap.size === 0}>
+            <Button className='px-4' onClick={onAddClick}>
               노래 추가 ({selectedMap.size})
             </Button>
           </div>
         </div>
       </div>
 
-      {previewSong && (
-        <PreviewModal open onClose={() => setPreviewSong(null)} songInfo={previewSong} />
-      )}
+      {previewSong && <PreviewModal open onClose={() => setPreviewSong(null)} songInfo={previewSong} />}
     </Modal>
   );
 }

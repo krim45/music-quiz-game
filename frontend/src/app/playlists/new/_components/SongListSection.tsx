@@ -17,7 +17,8 @@ interface Props {
   songList: SongInfo[];
   onChangeSong: (row: number, key: keyof SongInfo, value: SongInfo[keyof SongInfo]) => void;
   onRemoveSong: (row: number) => void;
-  onAddSearchSong: (songs: SongItem[]) => void;
+  /** 실제로 담긴 곡 수를 돌려준다 */
+  onAddSearchSong: (songs: SongItem[]) => number;
 }
 
 export default function SongListSection({ songList, onChangeSong, onRemoveSong, onAddSearchSong }: Props) {
@@ -97,11 +98,7 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
 
       <Table className='h-125' stickyHead columns={columns} data={songList} />
 
-      <SongSearchModal
-        open={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onAdd={(selectedSongs) => onAddSearchSong(selectedSongs)}
-      />
+      <SongSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} onAdd={onAddSearchSong} />
 
       {isPreviewOpen && selectedSong && (
         <PreviewModal

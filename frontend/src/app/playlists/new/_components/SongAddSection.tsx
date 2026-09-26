@@ -36,7 +36,8 @@ const readGuideSeenOnServer = () => true;
 
 interface Props {
   onAddSong: (song: SongInfo) => void;
-  onAddSongs: (songs: SongInfo[]) => void;
+  /** 실제로 담긴 곡 수를 돌려준다 */
+  onAddSongs: (songs: SongInfo[]) => number;
 }
 
 /**

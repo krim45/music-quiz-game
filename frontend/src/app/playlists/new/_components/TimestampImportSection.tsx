@@ -43,10 +43,12 @@ export default function TimestampImportSection({ onAdd }: Props) {
   const [text, setText] = useState('');
   const [isTextFocus, setIsTextFocus] = useState(false);
   /**
-   * 사용자가 고친 가수·제목. 시작 시점을 키로 쓴다.
-   * 줄 순서로 잡으면 목록 중간에 줄을 넣거나 지웠을 때 수정한 값이 다른 곡으로 밀린다.
+   * 사용자가 고친 가수·제목. 원문 줄을 키로 쓴다.
+   * - 줄 순서로 잡으면 중간에 줄을 넣거나 지웠을 때 고친 값이 다른 곡으로 밀린다.
+   * - 시작 시점으로 잡으면 목록을 통째로 바꿔도 같은 시점(특히 0:00)에 이전 목록의 값이 붙는다.
+   * 원문 줄에 묶으면 그 줄이 그대로 있는 동안만 적용되고, 조정 도구를 바꿔도 유지된다.
    */
-  const [edited, setEdited] = useState<Record<number, TrackEdit>>({});
+  const [edited, setEdited] = useState<Record<string, TrackEdit>>({});
 
   /**
    * 목록 전체에 한 번에 적용하는 조정. 자동 추측이 틀렸을 때
@@ -79,11 +81,11 @@ export default function TimestampImportSection({ onAdd }: Props) {
 
   const trackOf = (i: number): TrackEdit => {
     const t = parsed[i];
-    return edited[t.startSeconds] ?? { singer: t.singer, title: t.title };
+    return edited[t.raw] ?? { singer: t.singer, title: t.title };
   };
 
   const editTrack = (i: number, patch: Partial<TrackEdit>) => {
-    const key = parsed[i].startSeconds;
+    const key = parsed[i].raw;
     setEdited((prev) => ({ ...prev, [key]: { ...trackOf(i), ...patch } }));
   };
 

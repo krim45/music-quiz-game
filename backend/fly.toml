@@ -19,7 +19,3 @@ primary_region = "nrt"
   cpus = 1
   memory = "512mb"
   memory_mb = 512
-
-[mounts]
-  source = "data"
-  destination = "/data"

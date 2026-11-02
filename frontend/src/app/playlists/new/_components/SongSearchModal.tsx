@@ -11,12 +11,15 @@ import Button from '@/components/button/Button';
 import Table, { type TableColumn } from '@/components/table/Table';
 import Checkbox from '@/components/form/checkbox/Checkbox';
 
-import type { SongItem } from '@/services/songs/types';
+import Play from '@/components/icon/Play';
+import PreviewModal from '@/app/playlists/new/_components/PreviewModal';
+import type { SongInfo, SongItem } from '@/services/songs/types';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onAdd: (songs: SongItem[]) => void;
+  /** 고른 곡들을 목록에 담고, 실제로 담긴 수를 돌려준다. 이미 목록에 있는 곡은 건너뛴다 */
+  onAdd: (songs: SongItem[]) => number;
 }
 
 export default function SongSearchModal({ open, onClose, onAdd }: Props) {
@@ -26,6 +29,7 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
   const [q, setQ] = useState<string>('');
 
   const [selectedMap, setSelectedMap] = useState<Map<string, SongItem>>(new Map());
+  const [previewSong, setPreviewSong] = useState<SongInfo | null>(null);
 
   const queryKey = useMemo(() => ['songs', q] as const, [q]);
 
@@ -68,6 +72,35 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
         </div>
       ),
     },
+    {
+      // 데이터 열이 아니므로 CustomColumn으로 둔다.
+      // 'url'처럼 이미 쓰는 키를 재사용하면 React key가 겹친다.
+      key: '_preview',
+      accessor: () => null,
+      label: '미리보기',
+      className: 'w-16 p-1! text-center',
+      render: ({ row }) => (
+        <Button
+          className='mt-1 h-7!'
+          size='sm'
+          color='green'
+          onClick={() =>
+            // 이미 등록된 곡이라 구간이 정해져 있다. 여기서는 듣기만 한다.
+            setPreviewSong({
+              songId: row.id,
+              url: row.url,
+              title: row.title,
+              singer: row.singer,
+              startSeconds: row.startSeconds,
+              endSeconds: row.endSeconds,
+              extraAnswers: row.extraAnswers,
+            })
+          }
+        >
+          <Play size={18} />
+        </Button>
+      ),
+    },
     { key: 'singer', label: '가수', sortable: true, className: 'w-[120px]' },
     { key: 'title', label: '제목', sortable: true, className: 'w-[120px]' },
     {
@@ -77,7 +110,6 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
       // 배열을 그대로 두면 React가 구분자 없이 이어붙인다
       render: ({ row }) => <span>{row.extraAnswers.join(', ')}</span>,
     },
-    { key: 'url', label: '링크', className: 'w-[350px]' },
   ];
 
   const errMsg = error instanceof Error ? error.message : null;
@@ -99,7 +131,17 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
     if (selectedMap.size === 0) return toast.info('선택된 노래가 없어요');
 
     const selectedSongs = Array.from(selectedMap.values());
-    onAdd(selectedSongs);
+    const added = onAdd(selectedSongs);
+
+    // 하나도 안 담겼으면 창을 닫지 않는다 — 닫으면 아무 일도 없었는데 끝난 것처럼 보인다
+    if (added === 0) return toast.info('고른 곡이 모두 이미 목록에 있습니다.');
+
+    const skipped = selectedSongs.length - added;
+    toast.success(
+      skipped > 0
+        ? `${added}곡을 담았습니다. ${skipped}곡은 이미 목록에 있어 건너뛰었습니다.`
+        : `${added}곡을 목록에 담았습니다.`
+    );
 
     // 닫을 때 선택도 초기화하고 싶으면
     // setSelectedMap(new Map());
@@ -143,12 +185,14 @@ export default function SongSearchModal({ open, onClose, onAdd }: Props) {
               선택 초기화
             </Button>
 
-            <Button className='px-4' onClick={onAddClick} disabled={selectedMap.size === 0}>
+            <Button className='px-4' onClick={onAddClick}>
               노래 추가 ({selectedMap.size})
             </Button>
           </div>
         </div>
       </div>
+
+      {previewSong && <PreviewModal open onClose={() => setPreviewSong(null)} songInfo={previewSong} />}
     </Modal>
   );
 }

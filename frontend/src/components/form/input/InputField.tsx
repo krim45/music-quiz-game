@@ -5,10 +5,9 @@ import { inputSizes } from '@/constants/sizeToken';
 import clsx from 'clsx';
 
 // components
-import Label from '@/components/form/element/Label';
+import FormField from '@/components/form/element/FormField';
 import CharCounter from '@/components/form/element/CharCounter';
 import BaseInput, { BaseInputProps } from '@/components/form/input/BaseInput';
-import HelperText from '@/components/form/element/HelperText';
 
 // icons
 import Search from '@/components/icon/Search';
@@ -103,56 +102,51 @@ const InputField = forwardRef<HTMLInputElement, InputProps>(
     const icon = getIcon();
 
     return (
-      <div className={clsx('flex flex-col gap-2', className)}>
-        {(label || charLimit) && (
-          <div className='flex justify-between'>
-            <Label className={sz.label} id={id} label={label} required={required} disabled={disabled} />
-            {charLimit && <CharCounter className={sz.helper} value={value} charLimit={charLimit} disabled={disabled} />}
-          </div>
-        )}
+      <FormField
+        className={className}
+        size={size}
+        id={id}
+        label={label}
+        required={required}
+        disabled={disabled}
+        error={error}
+        focused={isFocus}
+        helperText={helperText}
+        labelAddon={
+          charLimit ? (
+            <CharCounter className={sz.helper} value={value} charLimit={charLimit} disabled={disabled} />
+          ) : null
+        }
+      >
+        <BaseInput
+          className={clsx('w-full', sz.input)}
+          ref={ref}
+          id={id}
+          type={inputType}
+          value={value}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          disabled={disabled}
+          readOnly={readOnly}
+          {...rest}
+        />
 
-        <div className='flex flex-col gap-1.5'>
-          <div
+        {icon && (
+          <button
+            type='button'
             className={clsx(
-              'relative flex w-full items-center rounded border',
-              isFocus ? 'border-green' : error ? 'border-red' : 'border-gray-300',
-              disabled && 'cursor-not-allowed bg-gray-100 text-gray-600',
-              sz.wrapper
+              'absolute top-1/2 right-3 flex -translate-y-1/2 cursor-pointer items-center justify-center',
+              sz.icon
             )}
+            disabled={disabled || readOnly}
+            tabIndex={disabled || readOnly ? -1 : 0}
+            onMouseDown={handleIconClick}
           >
-            <BaseInput
-              className={clsx('w-full', sz.input)}
-              ref={ref}
-              id={id}
-              type={inputType}
-              value={value}
-              onChange={handleChange}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              disabled={disabled}
-              readOnly={readOnly}
-              {...rest}
-            />
-
-            {icon && (
-              <button
-                type='button'
-                className={clsx(
-                  'absolute top-1/2 right-3 flex -translate-y-1/2 cursor-pointer items-center justify-center',
-                  sz.icon
-                )}
-                disabled={disabled || readOnly}
-                tabIndex={disabled || readOnly ? -1 : 0}
-                onMouseDown={handleIconClick}
-              >
-                {icon}
-              </button>
-            )}
-          </div>
-
-          <HelperText className={sz.helper} text={helperText} disabled={disabled} error={error} />
-        </div>
-      </div>
+            {icon}
+          </button>
+        )}
+      </FormField>
     );
   }
 );

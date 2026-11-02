@@ -8,8 +8,7 @@ import { createPlaylistClient } from '@/services/playlists/client';
 import Button from '@/components/button/Button';
 import GoBack from '@/components/nav/GoBack';
 import InputField from '@/components/form/input/InputField';
-import SongGuideSection from '@/app/playlists/new/_components/SongGuideSection';
-import SongFormSection from '@/app/playlists/new/_components/SongFormSection';
+import SongAddSection from '@/app/playlists/new/_components/SongAddSection';
 import SongListSection from '@/app/playlists/new/_components/SongListSection';
 import { toSongPayload } from '@/app/playlists/new/_utils/songForm';
 
@@ -43,6 +42,10 @@ export default function PlaylistClient() {
 
     if (songList.length < 5) return toast.error('노래를 5곡 이상 추가하세요.');
 
+    // 목록에서 시작 시간을 잘못 고친 곡. 그대로 보내면 이전 값이나 0초로 저장된다
+    const invalidStart = songList.find((s) => s.startSeconds === null);
+    if (invalidStart) return toast.error(`"${invalidStart.title}"의 시작 시간이 올바르지 않습니다.`);
+
     try {
       const res = await createPlaylistClient({ name: trimmed, songs: songList.map(toSongPayload) });
 
@@ -50,7 +53,9 @@ export default function PlaylistClient() {
       // 유효하지 않은 링크가 조용히 사라져서 나중에야 눈치채게 된다.
       const failed = res.ok ? res.failed : [];
       if (failed.length > 0) {
-        toast.error(`${res.ok ? res.addedCount : 0}곡 추가됨. ${failed.length}곡은 링크가 유효하지 않아 제외되었습니다.`);
+        toast.error(
+          `${res.ok ? res.addedCount : 0}곡 추가됨. ${failed.length}곡은 링크가 유효하지 않아 제외되었습니다.`
+        );
       } else {
         toast.success(`플레이리스트 생성 완료 (${res.ok ? res.addedCount : 0}곡)`);
       }
@@ -61,34 +66,43 @@ export default function PlaylistClient() {
     }
   };
 
-  const addSearchSong = (songs: SongItem[]) => {
-    if (!songs.length) return;
+  /**
+   * 목록에 없는 곡만 골라 담고, 실제로 담긴 수를 돌려준다.
+   * 부르는 쪽이 "몇 곡 담았는지"로 안내하고 입력을 비울지 정하므로, 걸러내기를
+   * setState 업데이터 안이 아니라 여기서 먼저 한다. 업데이터 안에서 세면 그 결과를 바로 알 수 없다.
+   */
+  const appendNew = (songs: SongInfo[], keyOf: (song: SongInfo) => string | undefined): number => {
+    const seen = new Set(songList.map(keyOf).filter(Boolean));
+    const fresh = songs.filter((song) => {
+      const key = keyOf(song);
+      if (key === undefined) return true;
+      if (seen.has(key)) return false;
 
-    setSongList((prev) => {
-      const existing = new Set(prev.map((s: SongInfo) => s.songId).filter(Boolean));
-      const next = [...prev];
-
-      for (const song of songs) {
-        if (existing.has(song.id)) continue;
-
-        next.push({
-          songId: song.id,
-          url: song.url,
-          singer: song.singer,
-          title: song.title,
-          startSeconds: song.startSeconds,
-          endSeconds: song.endSeconds,
-          // 배열로 받은 값을 목록에서 편집할 수 있게 쉼표 문자열로 되돌린다
-          extraAnswers: song.extraAnswers.join(', '),
-        });
-        existing.add(song.id);
-      }
-
-      return next;
+      seen.add(key);
+      return true;
     });
 
-    toast.success('노래 추가');
+    if (fresh.length > 0) setSongList((prev) => [...prev, ...fresh]);
+    return fresh.length;
   };
+
+  /** 타임스탬프로 만든 곡. 같은 영상의 같은 지점은 서버에서 한 곡으로 합쳐지므로 미리 걸러낸다 */
+  const addSongs = (songs: SongInfo[]) => appendNew(songs, (s) => `${s.url}@${s.startSeconds ?? 0}`);
+
+  /** 검색으로 고른 기존 곡. 같은 곡(songId)은 한 번만 담는다 */
+  const addSearchSong = (songs: SongItem[]) =>
+    appendNew(
+      songs.map((song) => ({
+        songId: song.id,
+        url: song.url,
+        singer: song.singer,
+        title: song.title,
+        startSeconds: song.startSeconds,
+        endSeconds: song.endSeconds,
+        extraAnswers: song.extraAnswers,
+      })),
+      (s) => s.songId
+    );
 
   return (
     <div className='h-full w-full'>
@@ -104,9 +118,7 @@ export default function PlaylistClient() {
 
           <InputField required label='플레이리스트 제목' value={name} onChange={(v) => setName(v)} />
 
-          <SongGuideSection />
-
-          <SongFormSection onAddSong={addSongToList} />
+          <SongAddSection onAddSong={addSongToList} onAddSongs={addSongs} />
 
           <SongListSection
             songList={songList}

@@ -3,12 +3,13 @@
 import { useState } from 'react';
 
 import Table, { type TableColumn } from '@/components/table/Table';
-import BaseInput from '@/components/form/input/BaseInput';
+import TimeInput from '@/components/form/input/TimeInput';
 import Button from '@/components/button/Button';
 import Minus from '@/components/icon/Minus';
 import Play from '@/components/icon/Play';
 import SongSearchModal from '@/app/playlists/new/_components/SongSearchModal';
 import PreviewModal from '@/app/playlists/new/_components/PreviewModal';
+import ExtraAnswersInput from '@/app/playlists/new/_components/ExtraAnswersInput';
 
 import type { SongInfo, SongItem } from '@/services/songs/types';
 
@@ -16,17 +17,21 @@ interface Props {
   songList: SongInfo[];
   onChangeSong: (row: number, key: keyof SongInfo, value: SongInfo[keyof SongInfo]) => void;
   onRemoveSong: (row: number) => void;
-  onAddSearchSong: (songs: SongItem[]) => void;
+  /** 실제로 담긴 곡 수를 돌려준다 */
+  onAddSearchSong: (songs: SongItem[]) => number;
 }
 
 export default function SongListSection({ songList, onChangeSong, onRemoveSong, onAddSearchSong }: Props) {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [selectedSong, setSelectedSong] = useState<SongInfo | null>(null);
+  const [previewRow, setPreviewRow] = useState<number | null>(null);
 
-  const loadPreview = (selectedSong: SongInfo) => {
+  // 시작 시간을 되돌려줘야 하므로 어느 행인지도 같이 기억한다
+  const loadPreview = (song: SongInfo, rowIndex: number) => {
     setIsPreviewOpen(true);
-    setSelectedSong(selectedSong);
+    setSelectedSong(song);
+    setPreviewRow(rowIndex);
   };
 
   const columns: TableColumn<SongInfo>[] = [
@@ -44,8 +49,8 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       key: '_preview',
       label: '미리보기',
       className: 'w-16 p-1! text-center',
-      render: ({ row }) => (
-        <Button className='mt-1 h-7!' size='sm' color='green' onClick={() => loadPreview(row)}>
+      render: ({ row, rowIndex }) => (
+        <Button className='mt-1 h-7!' size='sm' color='green' onClick={() => loadPreview(row, rowIndex)}>
           <Play size={18} />
         </Button>
       ),
@@ -56,25 +61,25 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
       key: 'extraAnswers',
       label: '추가 정답',
       className: 'w-[240px]',
-      render: ({ row, key, rowIndex }) => (
-        <BaseInput
-          className='w-full border border-white p-2'
-          value={row[key] ?? ''}
-          onChange={(v) => onChangeSong(rowIndex, key, v)}
-          placeholder='복수 정답 가능, 쉼표로 구분'
+      render: ({ row, rowIndex }) => (
+        <ExtraAnswersInput
+          value={row.extraAnswers}
+          onChange={(next) => onChangeSong(rowIndex, 'extraAnswers', next)}
+          title={row.title}
+          placeholder='Enter로 추가'
         />
       ),
     },
     {
       key: 'startSeconds',
-      label: '시작시간(초)',
+      label: '시작',
       className: 'w-[110px]',
-      render: ({ row, key, rowIndex }) => (
-        <BaseInput
-          type='number'
-          className='w-full border border-white p-2'
-          value={row[key] ?? ''}
-          onChange={(v) => onChangeSong(rowIndex, key, v === '' ? v : Number(v))}
+      render: ({ row, rowIndex }) => (
+        <TimeInput
+          value={row.startSeconds}
+          onChange={(v) => onChangeSong(rowIndex, 'startSeconds', v)}
+          placeholder='0:00'
+          aria-label={`${row.title || '곡'} 시작 시간`}
         />
       ),
     },
@@ -93,14 +98,20 @@ export default function SongListSection({ songList, onChangeSong, onRemoveSong, 
 
       <Table className='h-125' stickyHead columns={columns} data={songList} />
 
-      <SongSearchModal
-        open={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onAdd={(selectedSongs) => onAddSearchSong(selectedSongs)}
-      />
+      <SongSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} onAdd={onAddSearchSong} />
 
       {isPreviewOpen && selectedSong && (
-        <PreviewModal open={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} songInfo={selectedSong} />
+        <PreviewModal
+          open={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          songInfo={selectedSong}
+          onPickStart={(seconds) => {
+            if (previewRow === null) return;
+            // 목록 행만 갱신한다. selectedSong까지 바꾸면 songInfo가 변해
+            // 모달이 영상을 다시 불러오면서 재생이 끊긴다.
+            onChangeSong(previewRow, 'startSeconds', seconds);
+          }}
+        />
       )}
     </div>
   );

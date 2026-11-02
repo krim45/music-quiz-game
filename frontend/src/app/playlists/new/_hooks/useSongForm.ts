@@ -6,7 +6,7 @@ import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/va
 
 import type { SongInfo } from '@/services/songs/types';
 
-const EMPTY_SONG: SongInfo = { url: '', singer: '', title: '', extraAnswers: '' };
+const EMPTY_SONG: SongInfo = { url: '', singer: '', title: '', extraAnswers: [] };
 
 export function useSongForm(playerRef: React.RefObject<YT.Player | null>) {
   const [songInfo, setSongInfo] = useState<SongInfo>(EMPTY_SONG);

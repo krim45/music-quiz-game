@@ -5,8 +5,11 @@ import { toast } from '@/lib/store/useToastStore';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { validatePreview, validateSongInfo } from '@/app/playlists/new/_utils/validateSongInfo';
 import { EMPTY_SONG_FORM, toSongInfo } from '@/app/playlists/new/_utils/songForm';
+import StartPicker from '@/app/playlists/new/_components/StartPicker';
+import ExtraAnswersInput from '@/app/playlists/new/_components/ExtraAnswersInput';
 
 import InputField from '@/components/form/input/InputField';
+import TimeInput from '@/components/form/input/TimeInput';
 import Button from '@/components/button/Button';
 
 import type { SongFormState, SongInfo } from '@/services/songs/types';
@@ -25,17 +28,23 @@ export default function SongFormSection({ onAddSong }: Props) {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleLoadPreview = () => {
-    const songInfo = toSongInfo(form);
-    const result = validatePreview(songInfo);
+  const togglePreview = () => {
+    if (showPreview) {
+      setShowPreview(false);
+      try {
+        playerRef.current?.stopVideo?.();
+      } catch {
+        // 이미 정리된 플레이어면 무시
+      }
+      return;
+    }
+
+    const result = validatePreview(toSongInfo(form));
     if (!result.ok) return toast.error(result.error);
 
+    const start = result.startSeconds;
     setShowPreview(true);
-    playerRef.current?.loadVideoById({
-      videoId: result.videoId,
-      startSeconds: Number(result.startSeconds) || 0,
-      endSeconds: (Number(result.startSeconds) || 0) + 60,
-    });
+    playerRef.current?.loadVideoById({ videoId: result.videoId, startSeconds: start, endSeconds: start + 60 });
   };
 
   const handleAddSong = () => {
@@ -63,23 +72,38 @@ export default function SongFormSection({ onAddSong }: Props) {
             placeholder='https://www.youtube.com/watch?v=9KbsCZUTRbg'
           />
 
-          <InputField
+          <TimeInput
             className='min-w-0 flex-1'
             label='시작 시간'
-            type='number'
             value={form.startSeconds}
             onChange={(v) => updateField('startSeconds', v)}
-            placeholder='90(초)'
+            placeholder='1:30'
+            helperText='분:초 또는 시:분:초로 입력합니다.'
           />
 
-          <Button className='w-[25%] min-w-0 self-end truncate' color='gray' onClick={handleLoadPreview}>
-            미리보기
+          {/* 라벨 높이만큼 내려 입력란과 같은 줄에 맞춘다 */}
+          <Button
+            className='mt-[23px] w-[25%] min-w-0 shrink-0 self-start truncate'
+            color='gray'
+            onClick={togglePreview}
+          >
+            {showPreview ? '미리보기 닫기' : '미리보기'}
           </Button>
         </div>
 
         <div className={`my-3 aspect-video w-full ${showPreview ? 'h-auto' : 'h-0 overflow-hidden'}`}>
           <div id='preview' />
         </div>
+
+        {showPreview && (
+          <div className='mb-3'>
+            <StartPicker
+              playerRef={playerRef}
+              active={showPreview}
+              onPick={(seconds) => updateField('startSeconds', seconds)}
+            />
+          </div>
+        )}
 
         <div className='flex gap-3'>
           <InputField
@@ -103,13 +127,14 @@ export default function SongFormSection({ onAddSong }: Props) {
       </div>
 
       <div className='flex gap-3'>
-        <InputField
+        <ExtraAnswersInput
           className='min-w-0 flex-1'
           label='추가 정답'
           value={form.extraAnswers}
-          onChange={(v) => updateField('extraAnswers', v)}
-          placeholder='Good Day, 굿 데이'
-          helperText={'정답으로 인정할 표현을 입력해 주세요. \n복수 정답 가능, 쉼표로 구분해 주세요.'}
+          onChange={(next) => updateField('extraAnswers', next)}
+          title={form.title}
+          placeholder='Good Day 입력 후 Enter'
+          helperText={'엔터로 하나씩 추가합니다. \nGood Day만 넣어도 goodday, GOOD DAY 모두 정답으로 인정됩니다.'}
         />
 
         <Button className='mt-[23px] w-[25%] truncate' color='green' onClick={handleAddSong}>

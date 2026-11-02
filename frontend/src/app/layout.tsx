@@ -11,7 +11,8 @@ import '@/styles/global.css';
 import type { Metadata } from 'next';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID!;
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const isProd = process.env.NODE_ENV === 'production';
 const title = '노래 맞히기 게임';
 
 export const metadata: Metadata = {
@@ -118,7 +119,8 @@ export default function RootLayout({
   return (
     <html lang='ko' className={dgm.className}>
       <body className='antialiased'>
-        <GoogleTagManager gtmId={GTM_ID} />
+        {/* 로컬 개발 트래픽이 GA/성능 리포트에 섞이지 않게 운영에서만 켠다 */}
+        {isProd && GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
         <Script id='json-ld' type='application/ld+json' strategy='afterInteractive'>
           {JSON.stringify(jsonLd)}
         </Script>
@@ -128,8 +130,12 @@ export default function RootLayout({
         </Provider>
 
         <ToastProvider />
-        <Analytics />
-        <SpeedInsights />
+        {isProd ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
     </html>
   );

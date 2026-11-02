@@ -7,13 +7,14 @@ interface Props {
 
 const HowToPlayModal = ({ open, onClose }: Props) => {
   return (
-    <Modal open={open} onClose={onClose} title='게임 방법' width={375} height={390}>
+    <Modal open={open} onClose={onClose} title='게임 방법' width={375} height='auto'>
       <div>
         들려오는 노래를 듣고, <br />
         입력창에 노래 제목을 입력하고 제출하세요. <br />
         <br />
         정답 입력 시, <br />
-        띄어쓰기, 대소문자는 구분 없이 인정됩니다. <br />
+        띄어쓰기·대소문자·특수문자는 구분 없이 인정되고, <br />
+        제목 뒤 괄호 부분은 빼고 입력해도 됩니다. <br />
         <br />
         {'ex) Good bye bye'} <br />
         {'→ goodbyebye, 굿바이바이 (O)'} <br />

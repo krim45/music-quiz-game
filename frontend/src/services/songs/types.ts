@@ -41,12 +41,12 @@ export type SongInfo = {
   /** 검색으로 담은 기존 곡이면 그 id. 새로 만드는 곡이면 없다. */
   songId?: string;
   url: string;
-  startSeconds?: number;
+  /** 초. null이면 사용자가 시간 형식이 아닌 값을 입력한 상태 — 제출 전에 막는다 */
+  startSeconds?: number | null;
   endSeconds?: number | null;
   singer: string;
   title: string;
-  /** 쉼표로 구분된 입력 그대로 */
-  extraAnswers: string;
+  extraAnswers: string[];
   _edit?: string;
   _preview?: string;
 };
@@ -62,12 +62,12 @@ export type SongPayload = {
   extraAnswers: string[];
 };
 
-/** 폼 입력값. 사용자는 문자열로 입력하고 제출 직전에 SongInfo로 바꾼다. */
+/** 폼 입력값. 제출 직전에 SongInfo로 바꾼다. */
 export type SongFormState = {
   url: string;
-  startSeconds: string;
+  /** 초. 비어 있으면 undefined, 형식이 틀리면 null — 화면 표기("1:30")는 TimeInput이 맡는다 */
+  startSeconds?: number | null;
   singer: string;
   title: string;
-  /** 쉼표로 구분해 입력받는다 */
-  extraAnswers: string;
+  extraAnswers: string[];
 };
